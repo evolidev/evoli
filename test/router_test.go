@@ -20,6 +20,8 @@ func TestBasic(t *testing.T) {
 	methodTable[http.MethodDelete] = router.Delete
 	methodTable[http.MethodHead] = router.Head
 	methodTable[http.MethodOptions] = router.Options
+	methodTable[http.MethodConnect] = router.Connect
+	methodTable[http.MethodTrace] = router.Trace
 
 	for method, fn := range methodTable {
 		t.Run("Basic "+method+" route should have the returned string of the callback in the body", func(t *testing.T) {

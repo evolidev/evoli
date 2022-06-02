@@ -6,7 +6,7 @@ import (
 )
 
 type Router struct {
-	router httprouter.Router
+	router *httprouter.Router
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -41,6 +41,14 @@ func (r *Router) Head(path string, f func() string) {
 	r.handle(http.MethodHead, path, f)
 }
 
+func (r *Router) Connect(path string, f func() string) {
+	r.handle(http.MethodConnect, path, f)
+}
+
+func (r *Router) Trace(path string, f func() string) {
+	r.handle(http.MethodTrace, path, f)
+}
+
 func (r *Router) handle(method string, path string, f func() string) {
 	r.router.Handle(method, path, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		writer.Write([]byte(f()))
@@ -54,8 +62,5 @@ func (r *Router) Match(path string, f func() string, httpMethods ...string) {
 }
 
 func NewRouter() *Router {
-	r := &Router{}
-	r.router.HandleMethodNotAllowed = true
-
-	return r
+	return &Router{router: httprouter.New()}
 }
