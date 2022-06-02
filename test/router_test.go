@@ -30,7 +30,6 @@ func TestBasic(t *testing.T) {
 			fn(path, handler)
 
 			rr := sendRequest(t, router, method, path)
-
 			assert.Exactly(t, "hello-world", rr.Body.String())
 		})
 	}
@@ -40,11 +39,9 @@ func TestBasic(t *testing.T) {
 		router.Match(path, handler, http.MethodGet, http.MethodPost)
 
 		rr := sendRequest(t, router, http.MethodGet, path)
-
 		assert.Exactly(t, "hello-world", rr.Body.String())
 
 		rr = sendRequest(t, router, http.MethodPut, path)
-
 		assert.Exactly(t, http.StatusMethodNotAllowed, rr.Code)
 	})
 }
