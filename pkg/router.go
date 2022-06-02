@@ -47,6 +47,15 @@ func (r *Router) handle(method string, path string, f func() string) {
 	})
 }
 
+func (r *Router) Match(path string, f func() string, httpMethods ...string) {
+	for _, httpMehtod := range httpMethods {
+		r.handle(httpMehtod, path, f)
+	}
+}
+
 func NewRouter() *Router {
-	return &Router{}
+	r := &Router{}
+	r.router.HandleMethodNotAllowed = true
+
+	return r
 }
