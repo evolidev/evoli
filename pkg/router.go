@@ -61,6 +61,27 @@ func (r *Router) Match(path string, f func() string, httpMethods ...string) {
 	}
 }
 
+func (r *Router) Any(path string, f func() string) {
+	for _, fn := range r.MethodTable() {
+		fn(path, f)
+	}
+}
+
+func (r *Router) MethodTable() map[string]func(path string, f func() string) {
+	methodTable := make(map[string]func(path string, f func() string))
+	methodTable[http.MethodGet] = r.Get
+	methodTable[http.MethodPost] = r.Post
+	methodTable[http.MethodPut] = r.Put
+	methodTable[http.MethodPatch] = r.Patch
+	methodTable[http.MethodDelete] = r.Delete
+	methodTable[http.MethodHead] = r.Head
+	methodTable[http.MethodOptions] = r.Options
+	methodTable[http.MethodConnect] = r.Connect
+	methodTable[http.MethodTrace] = r.Trace
+
+	return methodTable
+}
+
 func NewRouter() *Router {
 	return &Router{router: httprouter.New()}
 }
