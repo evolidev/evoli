@@ -1,6 +1,7 @@
 package test
 
 import (
+	"encoding/json"
 	evoli "github.com/evolidev/evoli/framework"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -43,10 +44,48 @@ func TestBasic(t *testing.T) {
 			assert.Exactly(t, "hello-world", rr.Body.String())
 		}
 	})
+
+	t.Run("Basic route should be able to return a struct or slice which then get converted to json", func(t *testing.T) {
+		pathStruct := "/struct"
+		pathSlice := "/slice"
+		router.Get(pathStruct, structHandler)
+		router.Get(pathSlice, sliceHandler)
+
+		rr := sendRequest(t, router, http.MethodGet, pathStruct)
+
+		testJson, err := json.Marshal(testStruct{"test"})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Exactly(t, string(testJson), rr.Body.String())
+
+		rr = sendRequest(t, router, http.MethodGet, pathSlice)
+
+		testJson, err = json.Marshal([]uint8{255, 255, 255})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Exactly(t, string(testJson), rr.Body.String())
+	})
 }
 
-func handler() string {
+func handler() interface{} {
 	return "hello-world"
+}
+
+// todo do not loose return type
+func structHandler() interface{} {
+	return testStruct{"test"}
+}
+
+func sliceHandler() interface{} {
+	return []uint8{255, 255, 255}
+}
+
+type testStruct struct {
+	Test string
 }
 
 func sendRequest(t *testing.T, router *evoli.Router, method string, path string) *httptest.ResponseRecorder {
