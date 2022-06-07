@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
+	"strconv"
 )
 
 type Router struct {
@@ -54,14 +55,20 @@ func (r *Router) handle(method string, path string, f func() interface{}) {
 	r.router.Handle(method, path, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 		result := f()
 		var response []byte
+		contentType := "text/plain"
 		switch result.(type) {
+		case int:
+			response = []byte(strconv.Itoa(result.(int)))
 		case string:
 			response = []byte(result.(string))
 		default:
 			// todo handle error
 			response, _ = json.Marshal(result)
-			writer.Header().Set("Content-Type", "application/json")
+			contentType = "application/json"
 		}
+
+		writer.Header().Add("Content-Type", contentType)
+		writer.Header().Add("Content-Type", "charset=utf-8")
 
 		writer.Write(response)
 	})

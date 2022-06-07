@@ -71,10 +71,24 @@ func TestBasic(t *testing.T) {
 		assert.Exactly(t, string(testJson), rr.Body.String())
 		assert.Exactly(t, "application/json", rr.Header().Get("Content-Type"))
 	})
+
+	t.Run("Basic route should return plain int if return is an int", func(t *testing.T) {
+		path := "/int"
+		router.Get(path, handlerInt)
+
+		rr := sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, "1", rr.Body.String())
+		assert.Exactly(t, "text/plain", rr.Header().Get("Content-Type"))
+	})
 }
 
 func handler() interface{} {
 	return "hello-world"
+}
+
+func handlerInt() interface{} {
+	return 1
 }
 
 // todo do not loose return type
