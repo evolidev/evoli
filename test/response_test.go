@@ -2,7 +2,7 @@ package test
 
 import (
 	"encoding/json"
-	evoli "github.com/evolidev/evoli/framework"
+	evoli "github.com/evolidev/evoli/framework/response"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

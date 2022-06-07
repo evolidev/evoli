@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/json"
 	evoli "github.com/evolidev/evoli/framework"
+	"github.com/evolidev/evoli/framework/response"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -111,11 +112,11 @@ func handlerInt() interface{} {
 }
 
 func handlerStringResponse() interface{} {
-	return evoli.String("hello-world")
+	return response.String("hello-world")
 }
 
 func handlerJsonResponse() interface{} {
-	return evoli.Json(testStruct{Test: "test"})
+	return response.Json(testStruct{Test: "test"})
 }
 
 // todo do not loose return type

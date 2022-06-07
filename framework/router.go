@@ -1,6 +1,7 @@
 package evoli
 
 import (
+	response2 "github.com/evolidev/evoli/framework/response"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )
@@ -51,7 +52,7 @@ func (r *Router) Trace(path string, f func() interface{}) {
 
 func (r *Router) handle(method string, path string, f func() interface{}) {
 	r.router.Handle(method, path, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		response := NewResponse(f())
+		response := response2.NewResponse(f())
 
 		for key, value := range response.Headers() {
 			writer.Header().Add(key, value)
