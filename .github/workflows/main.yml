@@ -16,10 +16,10 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: '1.18.0'
+        go-version: '1.18.3'
 
     - name: Lint go files
-      uses: golangci/golangci-lint-action@v2
+      uses: golangci/golangci-lint-action@v3
 
     - name: Run vet
       run: |
