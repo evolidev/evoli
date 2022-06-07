@@ -57,6 +57,10 @@ func (r *Router) handle(method string, path string, f func() interface{}) {
 		var response []byte
 		contentType := "text/plain"
 		switch result.(type) {
+		case *StringResponse:
+			response = []byte(result.(*StringResponse).body)
+		case *JsonResponse:
+			response, _ = json.Marshal(result.(*JsonResponse).obj)
 		case int:
 			response = []byte(strconv.Itoa(result.(int)))
 		case string:

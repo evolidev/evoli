@@ -81,6 +81,25 @@ func TestBasic(t *testing.T) {
 		assert.Exactly(t, "1", rr.Body.String())
 		assert.Exactly(t, "text/plain", rr.Header().Get("Content-Type"))
 	})
+
+	t.Run("Basic route should be able to handle response object", func(t *testing.T) {
+		path := "/response/string"
+		router.Get(path, handlerStringResponse)
+
+		rr := sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, "hello-world", rr.Body.String())
+
+		path = "/response/json"
+		router.Get(path, handlerJsonResponse)
+
+		rr = sendRequest(t, router, http.MethodGet, path)
+		testJson, err := json.Marshal(testStruct{Test: "test"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Exactly(t, string(testJson), rr.Body.String())
+	})
 }
 
 func handler() interface{} {
@@ -89,6 +108,14 @@ func handler() interface{} {
 
 func handlerInt() interface{} {
 	return 1
+}
+
+func handlerStringResponse() interface{} {
+	return evoli.String("hello-world")
+}
+
+func handlerJsonResponse() interface{} {
+	return evoli.Json(testStruct{Test: "test"})
 }
 
 // todo do not loose return type
