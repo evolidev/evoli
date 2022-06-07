@@ -59,6 +59,7 @@ func TestBasic(t *testing.T) {
 		}
 
 		assert.Exactly(t, string(testJson), rr.Body.String())
+		assert.Exactly(t, "application/json", rr.Header().Get("Content-Type"))
 
 		rr = sendRequest(t, router, http.MethodGet, pathSlice)
 
@@ -68,6 +69,7 @@ func TestBasic(t *testing.T) {
 		}
 
 		assert.Exactly(t, string(testJson), rr.Body.String())
+		assert.Exactly(t, "application/json", rr.Header().Get("Content-Type"))
 	})
 }
 

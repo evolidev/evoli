@@ -60,6 +60,7 @@ func (r *Router) handle(method string, path string, f func() interface{}) {
 		default:
 			// todo handle error
 			response, _ = json.Marshal(result)
+			writer.Header().Set("Content-Type", "application/json")
 		}
 
 		writer.Write(response)
