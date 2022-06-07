@@ -1,7 +1,7 @@
 package test
 
 import (
-	evoli "github.com/evolidev/evoli/pkg"
+	evoli "github.com/evolidev/evoli/framework"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
