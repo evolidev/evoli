@@ -1,10 +1,8 @@
 package evoli
 
 import (
-	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	"strconv"
 )
 
 type Router struct {
@@ -53,28 +51,15 @@ func (r *Router) Trace(path string, f func() interface{}) {
 
 func (r *Router) handle(method string, path string, f func() interface{}) {
 	r.router.Handle(method, path, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-		result := f()
-		var response []byte
-		contentType := "text/plain"
-		switch result.(type) {
-		case *StringResponse:
-			response = []byte(result.(*StringResponse).body)
-		case *JsonResponse:
-			response, _ = json.Marshal(result.(*JsonResponse).obj)
-		case int:
-			response = []byte(strconv.Itoa(result.(int)))
-		case string:
-			response = []byte(result.(string))
-		default:
-			// todo handle error
-			response, _ = json.Marshal(result)
-			contentType = "application/json"
+		response := NewResponse(f())
+
+		for key, value := range response.Headers() {
+			writer.Header().Add(key, value)
 		}
 
-		writer.Header().Add("Content-Type", contentType)
 		writer.Header().Add("Content-Type", "charset=utf-8")
 
-		writer.Write(response)
+		writer.Write(response.AsBytes())
 	})
 }
 
