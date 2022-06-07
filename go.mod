@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/stretchr/testify v1.7.1
+	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 )
 
 require (
