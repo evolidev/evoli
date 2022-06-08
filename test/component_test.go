@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/stretchr/testify/assert"
+	"strconv"
 	"testing"
 )
 
@@ -16,35 +17,42 @@ func (h *helloWorldWithPath) GetFilePath() string {
 	return "hello-world"
 }
 
+func (h *helloWorldWithPath) TestMethod() string {
+	return "hello-world-returned"
+}
+
+func (h *helloWorldWithPath) TestMethodWithParameters(number int, value string) string {
+	return strconv.Itoa(number) + " " + value
+}
+
 func TestRenderCorrectComponent(t *testing.T) {
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
-		hello := component.New(helloWorld{})
+		hello := component.New(helloWorld{}, nil)
 
 		assert.Equal(t, "templates/hello-world.html", hello.GetFilePath())
 	})
 
 	t.Run("Get the component filesystem content", func(t *testing.T) {
-		hello := component.New(helloWorld{})
+		hello := component.New(helloWorld{}, nil)
 
 		assert.Equal(t, "<div>Hello {{ Name }}</div>", hello.GetRawContent())
 	})
 
 	t.Run("Return component with a given path", func(t *testing.T) {
-		hello := component.New(helloWorldWithPath{})
+		hello := component.New(helloWorldWithPath{}, nil)
 
-		assert.Equal(t, "templates/hello-world-with-path.html", hello.GetFilePath())
+		assert.Equal(t, "templates/hello-world.html", hello.GetFilePath())
 	})
 
 	t.Run("Render component with Json data", func(t *testing.T) {
-		hello := component.New(helloWorldWithPath{})
+		hello := component.New(helloWorldWithPath{}, nil)
 		hello.Set(map[string]interface{}{"Name": "Super"})
 
 		assert.Equal(t, "Super", hello.Get("Name"))
 	})
 
 	t.Run("Try to get component that is not registered", func(t *testing.T) {
-
-		json := "{\"Name\":\"Foo\"}"
+		json := `{"Name":"Foo"}`
 		hello := component.NewByNameWithData("helloWorldWithPath", json)
 
 		assert.Nil(t, hello)
@@ -63,10 +71,36 @@ func TestRenderCorrectComponent(t *testing.T) {
 	t.Run("Render component with JSON data by name", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 
-		json := "{\"Name\":\"Foo\"}"
+		json := `{"Name":"Foo"}`
 		hello := component.NewByNameWithData("helloWorldWithPath", json)
 		assert.NotNil(t, hello)
 
 		assert.Equal(t, "Foo", hello.Get("Name"))
 	})
+
+	t.Run("Call method of component", func(t *testing.T) {
+		hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
+
+		response := hello.Call("TestMethod", nil)
+
+		assert.Equal(t, "hello-world-returned", response.(string))
+	})
+	//
+	//t.Run("Call method of component with parameters", func(t *testing.T) {
+	//	hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
+	//
+	//	parameters := []interface{}{10, "super"}
+	//	response := hello.Call("TestMethodWithParameters", parameters)
+	//
+	//	assert.Equal(t, "10 super", response.(string))
+	//})
+	//
+	//t.Run("Call method of component and update property", func(t *testing.T) {
+	//	hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
+	//
+	//	parameters := []interface{}{"FooUpdated"}
+	//	hello.Call("UpdateName", parameters)
+	//
+	//	assert.Equal(t, "FooUpdated", hello.Get("Name"))
+	//})
 }
