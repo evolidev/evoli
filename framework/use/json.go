@@ -1,6 +1,8 @@
 package use
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 func JsonEncode(element interface{}) string {
 	data, err := json.Marshal(element)
@@ -10,8 +12,22 @@ func JsonEncode(element interface{}) string {
 	return string(data)
 }
 
-func JsonDecode(element interface{}, data string) {
-	err := json.Unmarshal([]byte(data), element)
+func JsonDecode(data string) interface{} {
+	var mapData interface{}
+	if err := json.Unmarshal([]byte(data), &mapData); err != nil {
+		// TODO log error
+		return nil
+	}
 
-	AbortUnless(err)
+	return mapData
+}
+
+func JsonDecodeObject(data string) map[string]interface{} {
+	var mapData map[string]interface{}
+	if err := json.Unmarshal([]byte(data), &mapData); err != nil {
+		// TODO log error
+		return nil
+	}
+
+	return mapData
 }

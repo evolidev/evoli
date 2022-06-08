@@ -37,18 +37,36 @@ func TestRenderCorrectComponent(t *testing.T) {
 
 	t.Run("Render component with Json data", func(t *testing.T) {
 		hello := component.New(helloWorldWithPath{})
-		hello.SetData(map[string]interface{}{"Name": "Super"})
+		hello.Set(map[string]interface{}{"Name": "Super"})
 
 		assert.Equal(t, "Super", hello.Get("Name"))
 	})
 
-	//t.Run("Render component with JSON data by name", func(t *testing.T) {
-	//	component.Register(helloWorldWithPath{})
-	//
-	//	json := "{\"Name\":\"Foo\"}"
-	//	hello := component.NewByName("helloWorldWithPath", json)
-	//
-	//	assert.Equal(t, "Foo", hello.Get("Name"))
-	//})
+	t.Run("Try to get component that is not registered", func(t *testing.T) {
 
+		json := "{\"Name\":\"Foo\"}"
+		hello := component.NewByNameWithData("helloWorldWithPath", json)
+
+		assert.Nil(t, hello)
+	})
+
+	t.Run("Make sure that components are empty", func(t *testing.T) {
+		assert.Equal(t, 0, component.GetRegisterComponentsCount())
+	})
+
+	t.Run("Register a component and check if it exists", func(t *testing.T) {
+		component.Register(helloWorldWithPath{})
+
+		assert.Equal(t, 1, component.GetRegisterComponentsCount())
+	})
+
+	t.Run("Render component with JSON data by name", func(t *testing.T) {
+		component.Register(helloWorldWithPath{})
+
+		json := "{\"Name\":\"Foo\"}"
+		hello := component.NewByNameWithData("helloWorldWithPath", json)
+		assert.NotNil(t, hello)
+
+		assert.Equal(t, "Foo", hello.Get("Name"))
+	})
 }
