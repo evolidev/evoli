@@ -2,7 +2,9 @@ package use
 
 import (
 	"reflect"
+	"runtime"
 	"strconv"
+	"strings"
 )
 
 func Magic(i interface{}) *Reflection {
@@ -10,7 +12,6 @@ func Magic(i interface{}) *Reflection {
 		t:   reflect.TypeOf(i),
 		v:   reflect.ValueOf(i),
 		p:   NewCollection[string, reflect.Value](),
-		m:   "",
 		ptr: reflect.New(reflect.TypeOf(i)),
 	}
 }
@@ -19,30 +20,32 @@ type Reflection struct {
 	t   reflect.Type
 	v   reflect.Value
 	p   *Collection[string, reflect.Value]
-	m   string
 	ptr reflect.Value
 }
 
 func (r *Reflection) Call() reflect.Value {
-	var result []reflect.Value
+	result := r.v.Call(r.parseParams())
 
-	var caller reflect.Value
-
-	if r.m != "" {
-		if r.v.MethodByName(r.m).IsValid() {
-			caller = r.v.MethodByName(r.m)
-		} else if r.ptr.MethodByName(r.m).IsValid() {
-			caller = r.ptr.MethodByName(r.m)
-		}
-	} else {
-		caller = r.v
+	if len(result) > 0 {
+		return result[0]
 	}
 
-	amount := caller.Type().NumIn()
-	arguments := r.p.Slice()
+	return reflect.Value{}
+}
+
+func (r *Reflection) parseParams() []reflect.Value {
+	var parsedArguments = make([]reflect.Value, 0)
+
+	parsedArguments = r.appendReceiver(parsedArguments)
+
+	return parsedArguments
+}
+
+func (r *Reflection) appendReceiver(arguments []reflect.Value) []reflect.Value {
+	amount := r.t.NumIn()
 
 	if amount > 0 {
-		first := caller.Type().In(0)
+		first := r.t.In(0)
 
 		isPointer := first.Kind() == reflect.Ptr
 		if first.Kind() == reflect.Struct || isPointer {
@@ -53,36 +56,12 @@ func (r *Reflection) Call() reflect.Value {
 					newReceiver = newReceiver.Elem()
 				}
 
-				arguments = append([]reflect.Value{newReceiver}, arguments...)
+				arguments = append(arguments, newReceiver)
 			}
 		}
 	}
 
-	cnt := 0
-
-	var parsedArguments = make([]reflect.Value, 0)
-	for _, value := range arguments {
-		kind := caller.Type().In(cnt).Kind()
-
-		if kind == reflect.Int && value.Type().Kind() == reflect.String {
-			parsedParam, _ := strconv.Atoi(value.Interface().(string))
-			parsedArguments = append(parsedArguments, reflect.ValueOf(parsedParam))
-		} else if kind == reflect.Int {
-			// TODO
-		} else {
-			parsedArguments = append(parsedArguments, reflect.ValueOf(value))
-		}
-
-		cnt++
-	}
-
-	result = caller.Call(parsedArguments)
-
-	if len(result) > 0 {
-		return result[0]
-	}
-
-	return reflect.Value{}
+	return arguments
 }
 
 func (r *Reflection) WithParams(params interface{}) *Reflection {
@@ -112,10 +91,25 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 	return r
 }
 
-func (r *Reflection) Method(method string) *Reflection {
-	r.m = method
+func (r *Reflection) NewPointer() reflect.Value {
+	return reflect.New(r.t)
+}
 
-	return r
+func (r *Reflection) Method(method string) *Reflection {
+	var caller reflect.Value
+
+	if r.v.MethodByName(method).IsValid() {
+		caller = r.v.MethodByName(method)
+	} else if r.ptr.MethodByName(method).IsValid() {
+		caller = r.ptr.MethodByName(method)
+	}
+
+	return &Reflection{
+		v:   caller,
+		t:   caller.Type(),
+		p:   NewCollection[string, reflect.Value](),
+		ptr: reflect.New(caller.Type()),
+	}
 }
 
 func (r *Reflection) HasMethod(method string) bool {
@@ -129,7 +123,18 @@ func (r *Reflection) HasMethod(method string) bool {
 }
 
 func (r *Reflection) Name() string {
+	if r.t.Kind() == reflect.Func {
+		funcName := r.functionName()
+		paths := strings.Split(funcName, ".")
+
+		return paths[len(paths)-1]
+	}
+
 	return r.reflectElem().Name()
+}
+
+func (r *Reflection) functionName() string {
+	return runtime.FuncForPC(r.v.Pointer()).Name()
 }
 
 func (r *Reflection) reflectElem() reflect.Type {
