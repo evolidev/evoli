@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/evolidev/evoli/framework/filesystem"
 	"github.com/evolidev/evoli/framework/use"
-	"log"
-	"reflect"
 )
 
 type Base struct {
@@ -49,18 +47,7 @@ func (b *Base) Get(key string) interface{} {
 }
 
 func (b *Base) Call(method string, parameters []interface{}) interface{} {
-	use.HasMethod(b.Component, method)
-	use.HasMethod(*b.Component, method)
-	use.HasMethod(&b.Component, method)
-
-	if ok, method := use.HasMethod(&b.Component, method); ok {
-		use.P("Method found")
-		output := method.Call([]reflect.Value{})
-		return output[0].String()
-	}
-
-	log.Println("Failedeeeee", method, parameters)
-	use.D(b.Component)
-
-	return nil
+	output := b.Component.Method(method).Call()
+	return output.Interface()
+	//return b.Component.Method(method).Call().Interface()
 }

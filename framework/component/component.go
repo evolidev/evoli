@@ -9,7 +9,7 @@ var components = make(map[string]Component)
 type Component interface {
 }
 
-func New(componentStruct *use.Reflection, data map[string]interface{}) *Base {
+func New(componentStruct interface{}, data map[string]interface{}) *Base {
 
 	//log.Println("INIT NEW")
 	//use.HasMethod(componentStruct, "Test")
@@ -27,7 +27,7 @@ func New(componentStruct *use.Reflection, data map[string]interface{}) *Base {
 	//}
 
 	return &Base{
-		Component: componentStruct,
+		Component: use.Magic(componentStruct),
 		Data:      use.NewCollection[string, interface{}](),
 	}
 }
@@ -52,7 +52,7 @@ func NewByNameWithData(name string, data string) *Base {
 		return nil
 	}
 
-	component := New(use.Magic(componentObject), nil)
+	component := New(componentObject, nil)
 
 	mappedData := use.JsonDecodeObject(data)
 	component.Set(mappedData)
