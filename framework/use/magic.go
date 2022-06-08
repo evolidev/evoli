@@ -57,3 +57,19 @@ func (r *Reflection) Method(method string) *Reflection {
 
 	return r
 }
+
+func (r *Reflection) HasMethod(method string) bool {
+	return r.v.MethodByName(method).IsValid()
+}
+
+func (r *Reflection) Name() string {
+	return r.reflectElem().Name()
+}
+
+func (r *Reflection) reflectElem() reflect.Type {
+	if r.t.Kind() == reflect.Ptr {
+		return r.t.Elem()
+	}
+
+	return r.t
+}

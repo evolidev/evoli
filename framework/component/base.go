@@ -10,14 +10,14 @@ import (
 
 type Base struct {
 	File      string
-	Component *Component
+	Component *use.Reflection
 	Data      *use.Collection[string, interface{}]
 }
 
 func (b *Base) GetFilePath() string {
-	if ok, method := use.HasMethod(b.Component, "GetFilePath"); ok {
-		output := method.Call([]reflect.Value{})
-		return output[0].String()
+	if ok := b.Component.HasMethod("GetFilePath"); ok {
+		output := b.Component.Method("GetFilePath").Call()
+		return output.Interface().(string)
 	}
 
 	return fmt.Sprintf(
@@ -27,7 +27,7 @@ func (b *Base) GetFilePath() string {
 }
 
 func (b *Base) GetComponentName() string {
-	return use.GetInterfacedStructName(*b.Component)
+	return b.Component.Name()
 }
 
 func (b *Base) GetRawContent() string {

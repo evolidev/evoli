@@ -14,7 +14,6 @@ func HasMethod(element interface{}, methodName string) (bool, reflect.Value) {
 	//P(reflect.New(reflectElem(element)).Elem())
 
 	data := reflect.New(reflectElem(element)).Elem()
-	D(data)
 	method := data.MethodByName(methodName)
 
 	log.Println("HasMethod", methodName, method.IsValid(), method)

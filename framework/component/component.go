@@ -1,9 +1,7 @@
 package component
 
 import (
-	"encoding/json"
 	"github.com/evolidev/evoli/framework/use"
-	"log"
 )
 
 var components = make(map[string]Component)
@@ -11,27 +9,25 @@ var components = make(map[string]Component)
 type Component interface {
 }
 
-func New(componentStruct Component, data map[string]interface{}) *Base {
+func New(componentStruct *use.Reflection, data map[string]interface{}) *Base {
 
-	var component = &componentStruct
-
-	log.Println("INIT NEW")
-	use.HasMethod(componentStruct, "Test")
-	use.HasMethod(&componentStruct, "Test")
-	use.HasMethod(component, "Test")
-	use.HasMethod(component, "Test")
-	use.HasMethod(&component, "Test")
-
-	if data != nil {
-		dataJson := use.JsonEncode(data)
-		if err := json.Unmarshal([]byte(dataJson), component); err != nil {
-			// TODO log error
-			log.Println("Unable to parse json")
-		}
-	}
+	//log.Println("INIT NEW")
+	//use.HasMethod(componentStruct, "Test")
+	//use.HasMethod(&componentStruct, "Test")
+	//use.HasMethod(component, "Test")
+	//use.HasMethod(component, "Test")
+	//use.HasMethod(&component, "Test")
+	//
+	//if data != nil {
+	//	dataJson := use.JsonEncode(data)
+	//	if err := json.Unmarshal([]byte(dataJson), component); err != nil {
+	//		// TODO log error
+	//		log.Println("Unable to parse json")
+	//	}
+	//}
 
 	return &Base{
-		Component: component,
+		Component: componentStruct,
 		Data:      use.NewCollection[string, interface{}](),
 	}
 }
@@ -56,7 +52,7 @@ func NewByNameWithData(name string, data string) *Base {
 		return nil
 	}
 
-	component := New(componentObject, nil)
+	component := New(use.Magic(componentObject), nil)
 
 	mappedData := use.JsonDecodeObject(data)
 	component.Set(mappedData)
