@@ -100,6 +100,13 @@ func TestBasic(t *testing.T) {
 			t.Fatal(err)
 		}
 		assert.Exactly(t, string(testJson), rr.Body.String())
+
+		path = "/response/view"
+		router.Get(path, handlerViewResponse)
+
+		rr = sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, "<div>Hello test</div>", rr.Body.String())
 	})
 }
 
@@ -117,6 +124,10 @@ func handlerStringResponse() interface{} {
 
 func handlerJsonResponse() interface{} {
 	return response.Json(testStruct{Test: "test"})
+}
+
+func handlerViewResponse() interface{} {
+	return response.View("templates.test")
 }
 
 // todo do not loose return type

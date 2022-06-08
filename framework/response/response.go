@@ -1,6 +1,7 @@
 package response
 
 import (
+	"github.com/evolidev/evoli/framework/use"
 	"strconv"
 )
 
@@ -19,5 +20,5 @@ func NewResponse(arg interface{}) Response {
 
 type Response interface {
 	AsBytes() []byte
-	Headers() map[string]string
+	Headers() *use.Collection[string, string]
 }

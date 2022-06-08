@@ -1,13 +1,17 @@
 package response
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/evolidev/evoli/framework/use"
+)
 
 type JsonResponse struct {
-	obj interface{}
+	obj       interface{}
+	myHeaders *use.Collection[string, string]
 }
 
 func Json(obj interface{}) *JsonResponse {
-	return &JsonResponse{obj: obj}
+	return &JsonResponse{obj: obj, myHeaders: use.NewCollection[string, string]()}
 }
 
 func (r *JsonResponse) AsBytes() []byte {
@@ -19,9 +23,8 @@ func (r *JsonResponse) AsBytes() []byte {
 	return result
 }
 
-func (r *JsonResponse) Headers() map[string]string {
-	headers := make(map[string]string)
-	headers["Content-Type"] = "application/json"
+func (r *JsonResponse) Headers() *use.Collection[string, string] {
+	r.myHeaders.Add("Content-Type", "application/json")
 
-	return headers
+	return r.myHeaders
 }

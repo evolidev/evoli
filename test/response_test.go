@@ -51,6 +51,42 @@ func TestFactory(t *testing.T) {
 	})
 }
 
+type TemplateData struct {
+	Name string
+}
+
+func TestView(t *testing.T) {
+	t.Run("ViewResponse should return value from template", func(t *testing.T) {
+		view := evoli.View("templates.test")
+
+		assert.Exactly(t, "<div>Hello test</div>", string(view.AsBytes()))
+	})
+
+	t.Run("View withHeader should add given key value to headers list", func(t *testing.T) {
+		viewResponse := evoli.View("test")
+
+		viewResponse.WithHeader("My-Header", "Test")
+
+		assert.Exactly(t, "Test", viewResponse.Headers().Get("My-Header"))
+	})
+
+	t.Run("ViewResponse should handle given data", func(t *testing.T) {
+		data := TemplateData{Name: "test"}
+
+		view := evoli.View("templates.test_with_data").
+			WithData(&data)
+
+		assert.Exactly(t, "<div>Hello test</div>", string(view.AsBytes()))
+	})
+
+	t.Run("ViewResponse should parse layout", func(t *testing.T) {
+		view := evoli.View("templates.test_with_layout").
+			WithLayout("templates.layout")
+
+		assert.Exactly(t, "<main><div>Hello test layout</div></main>", string(view.AsBytes()))
+	})
+}
+
 type myTestResponseStruct struct {
 	Test string
 }
