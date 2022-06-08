@@ -1,7 +1,9 @@
 package test
 
 import (
+	"encoding/json"
 	evoli "github.com/evolidev/evoli/framework"
+	"github.com/evolidev/evoli/framework/response"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -43,10 +45,102 @@ func TestBasic(t *testing.T) {
 			assert.Exactly(t, "hello-world", rr.Body.String())
 		}
 	})
+
+	t.Run("Basic route should be able to return a struct or slice which then get converted to json", func(t *testing.T) {
+		pathStruct := "/struct"
+		pathSlice := "/slice"
+		router.Get(pathStruct, structHandler)
+		router.Get(pathSlice, sliceHandler)
+
+		rr := sendRequest(t, router, http.MethodGet, pathStruct)
+
+		testJson, err := json.Marshal(testStruct{"test"})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Exactly(t, string(testJson), rr.Body.String())
+		assert.Exactly(t, "application/json", rr.Header().Get("Content-Type"))
+
+		rr = sendRequest(t, router, http.MethodGet, pathSlice)
+
+		testJson, err = json.Marshal([]uint8{255, 255, 255})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Exactly(t, string(testJson), rr.Body.String())
+		assert.Exactly(t, "application/json", rr.Header().Get("Content-Type"))
+	})
+
+	t.Run("Basic route should return plain int if return is an int", func(t *testing.T) {
+		path := "/int"
+		router.Get(path, handlerInt)
+
+		rr := sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, "1", rr.Body.String())
+		assert.Exactly(t, "text/plain", rr.Header().Get("Content-Type"))
+	})
+
+	t.Run("Basic route should be able to handle response object", func(t *testing.T) {
+		path := "/response/string"
+		router.Get(path, handlerStringResponse)
+
+		rr := sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, "hello-world", rr.Body.String())
+
+		path = "/response/json"
+		router.Get(path, handlerJsonResponse)
+
+		rr = sendRequest(t, router, http.MethodGet, path)
+		testJson, err := json.Marshal(testStruct{Test: "test"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Exactly(t, string(testJson), rr.Body.String())
+
+		path = "/response/view"
+		router.Get(path, handlerViewResponse)
+
+		rr = sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, "<div>Hello test</div>", rr.Body.String())
+	})
 }
 
-func handler() string {
+func handler() interface{} {
 	return "hello-world"
+}
+
+func handlerInt() interface{} {
+	return 1
+}
+
+func handlerStringResponse() interface{} {
+	return response.String("hello-world")
+}
+
+func handlerJsonResponse() interface{} {
+	return response.Json(testStruct{Test: "test"})
+}
+
+func handlerViewResponse() interface{} {
+	return response.View("templates.test")
+}
+
+// todo do not loose return type
+func structHandler() interface{} {
+	return testStruct{"test"}
+}
+
+func sliceHandler() interface{} {
+	return []uint8{255, 255, 255}
+}
+
+type testStruct struct {
+	Test string
 }
 
 func sendRequest(t *testing.T, router *evoli.Router, method string, path string) *httptest.ResponseRecorder {
