@@ -46,8 +46,11 @@ func (b *Base) Get(key string) interface{} {
 	return b.Data.Get(key)
 }
 
-func (b *Base) Call(method string, parameters []interface{}) interface{} {
-	output := b.Component.Method(method).Call()
-	return output.Interface()
+func (b *Base) Call(method string, parameters interface{}) interface{} {
+	output := b.Component.Method(method)
+
+	result := output.WithParams(parameters)
+	response := result.Call()
+	return response.Interface()
 	//return b.Component.Method(method).Call().Interface()
 }

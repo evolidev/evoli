@@ -97,6 +97,7 @@ func TestRenderCorrectComponent(t *testing.T) {
 	})
 	//
 	t.Run("Call method of component with parameters", func(t *testing.T) {
+		component.Register(helloWorldWithPath{})
 		hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
 
 		parameters := []interface{}{10, "super"}
