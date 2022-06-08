@@ -48,3 +48,13 @@ func (c *Collection[Key, Value]) RemoveAll() {
 func (c *Collection[Key, Value]) Count() int {
 	return len(c.values)
 }
+
+func (c *Collection[Key, Value]) Slice() []Value {
+	v := make([]Value, 0, c.Count())
+
+	for _, value := range c.values {
+		v = append(v, value)
+	}
+
+	return v
+}
