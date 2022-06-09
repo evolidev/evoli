@@ -15,15 +15,43 @@ type Command struct {
 type CommandGroup struct {
 	Name        string
 	Description string
+	Prefix      string
 	Commands    []Command
 }
 
 func Commands() {
 	commands := []CommandGroup{
-		CommandGroup{"Routes", "", []Command{
-			Command{"route:cache", "Create a route cache file for faster route registration", ""},
-			Command{"route:clear", "Remove the route cache file", ""},
-			Command{"route:list", "List all registered routes", ""},
+		CommandGroup{"Routes", "", "route", []Command{
+			Command{"cache", "Create a route cache file for faster route registration", ""},
+			Command{"clear", "Remove the route cache file", ""},
+			Command{"list", "List all registered routes", ""},
+		}},
+
+		CommandGroup{"Config", "", "config", []Command{
+			Command{"cache", "Create a route cache file for faster route registration", ""},
+			Command{"clear", "Remove the route cache file", ""},
+			Command{"list", "List all registered routes", ""},
+		}},
+
+		CommandGroup{"Make", "", "make", []Command{
+			Command{"cache", "Create a route cache file for faster route registration", ""},
+			Command{"clear", "Remove the route cache file", ""},
+			Command{"list", "List all registered routes", ""},
+		}},
+
+		CommandGroup{"Cache", "", "cache", []Command{
+			Command{"clear", "Create a route cache file for faster route registration", ""},
+			Command{"forget", "Remove the route cache file", ""},
+			Command{"table", "List all registered routes", ""},
+		}},
+
+		CommandGroup{"Migrate", "", "migrate", []Command{
+			Command{"fresh", "Create a route cache file for faster route registration", ""},
+			Command{"generate", "Remove the route cache file", ""},
+			Command{"install", "List all registered routes", ""},
+			Command{"reset", "List all registered routes", ""},
+			Command{"rollback", "List all registered routes", ""},
+			Command{"status", "List all registered routes", ""},
 		}},
 	}
 
@@ -32,7 +60,7 @@ func Commands() {
 
 func commandsRender(commands []CommandGroup) {
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Commands", ""})
+	table.SetHeader([]string{"Available Commands", ""})
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
@@ -46,24 +74,40 @@ func commandsRender(commands []CommandGroup) {
 	table.SetNoWhiteSpace(true)
 
 	table.SetColumnColor(
-		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiGreenColor},
-		tablewriter.Colors{tablewriter.Normal, tablewriter.FgHiBlackColor},
+		tablewriter.Colors{tablewriter.FgHiMagentaColor},
+		tablewriter.Colors{tablewriter.FgHiBlackColor},
+	)
+
+	table.SetHeaderColor(
+		tablewriter.Colors{tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.FgHiBlackColor},
 	)
 
 	for _, group := range commands {
 		table.Rich([]string{group.Name, group.Description}, []tablewriter.Colors{
-			tablewriter.Colors{tablewriter.Normal, tablewriter.FgYellowColor},
+			tablewriter.Colors{tablewriter.FgHiGreenColor},
 			tablewriter.Colors{},
 		})
 
 		for _, cmd := range group.Commands {
-			table.Append([]string{" " + cmd.Name, cmd.Description})
+			table.Append([]string{
+				FgColor(140, group.Prefix+":") + FgColor(169, cmd.Name),
+				FgColor(103, cmd.Description),
+			})
 		}
+
+		table.Append([]string{""})
 	}
 
 	fmt.Println()
+	fmt.Println(fmt.Sprintf("Evoli Console %s", FgColor(169, "0.0.1")))
+	fmt.Println()
 	table.Render()
 	fmt.Println()
+}
+
+func FgColor(code int, value string) string {
+	return fmt.Sprintf("\u001b[38;5;%dm%s\u001b[0m", code, value)
 }
 
 func Colored() {
