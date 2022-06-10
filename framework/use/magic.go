@@ -1,6 +1,7 @@
 package use
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -31,6 +32,20 @@ func (r *Reflection) Call() reflect.Value {
 	}
 
 	return reflect.Value{}
+}
+
+func (r *Reflection) Fill() interface{} {
+	destination := reflect.New(r.reflectElem()).Interface()
+	reflectValue := reflect.ValueOf(destination)
+	destination = reflect.New(reflectValue.Type().Elem()).Interface()
+
+	err := mapstructure.Decode(r.p.Map(), destination)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return destination
 }
 
 func (r *Reflection) parseParams() []reflect.Value {
@@ -84,13 +99,17 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 		for key, value := range params.([]interface{}) {
 			r.p.Add(strconv.Itoa(key), value)
 		}
+	case map[string]interface{}:
+		for key, value := range params.(map[string]interface{}) {
+			r.p.Add(key, value)
+		}
 	}
 
 	return r
 }
 
 func (r *Reflection) NewPointer() reflect.Value {
-	return reflect.New(r.t)
+	return reflect.New(r.reflectElem())
 }
 
 func (r *Reflection) Method(method string) *Reflection {

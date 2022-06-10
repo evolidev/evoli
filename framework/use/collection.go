@@ -58,3 +58,7 @@ func (c *Collection[Key, Value]) Slice() []Value {
 
 	return v
 }
+
+func (c *Collection[Key, Value]) Map() map[Key]Value {
+	return c.values
+}

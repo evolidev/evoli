@@ -106,6 +106,18 @@ func TestCall(t *testing.T) {
 	})
 }
 
+func TestFill(t *testing.T) {
+	t.Run("Fill should fill data to struct", func(t *testing.T) {
+		params := make(map[string]interface{})
+		params["TestProp"] = "test"
+		m := use.Magic(&TestStructFirst{})
+
+		result := m.WithParams(params).Fill().(*TestStructFirst)
+
+		assert.Exactly(t, "test", result.TestProp)
+	})
+}
+
 func test(test1 string) {
 
 }
