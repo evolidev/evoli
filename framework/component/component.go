@@ -26,9 +26,15 @@ func New(componentStruct interface{}, data map[string]interface{}) *Base {
 	//	}
 	//}
 
+	collection := use.NewCollection[string, interface{}]()
+	collection.Set(data)
+
+	component := use.Magic(componentStruct)
+	component.WithParams(data).Fill()
+
 	return &Base{
-		Component: use.Magic(componentStruct),
-		Data:      use.NewCollection[string, interface{}](),
+		Component: component,
+		Data:      collection,
 	}
 }
 
@@ -52,10 +58,8 @@ func NewByNameWithData(name string, data string) *Base {
 		return nil
 	}
 
-	component := New(componentObject, nil)
-
 	mappedData := use.JsonDecodeObject(data)
-	component.Set(mappedData)
+	component := New(componentObject, mappedData)
 
 	return component
 }

@@ -22,6 +22,7 @@ require (
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitranim/gg v0.0.13 // indirect
 	github.com/pelletier/go-toml v1.8.1 // indirect

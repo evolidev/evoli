@@ -1,6 +1,7 @@
 package use
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -11,7 +12,7 @@ func Magic(i interface{}) *Reflection {
 	return &Reflection{
 		t:   reflect.TypeOf(i),
 		v:   reflect.ValueOf(i),
-		p:   NewCollection[string, reflect.Value](),
+		p:   NewCollection[string, interface{}](),
 		ptr: reflect.New(reflect.TypeOf(i)),
 	}
 }
@@ -19,7 +20,7 @@ func Magic(i interface{}) *Reflection {
 type Reflection struct {
 	t   reflect.Type
 	v   reflect.Value
-	p   *Collection[string, reflect.Value]
+	p   *Collection[string, interface{}]
 	ptr reflect.Value
 }
 
@@ -33,10 +34,34 @@ func (r *Reflection) Call() reflect.Value {
 	return reflect.Value{}
 }
 
+func (r *Reflection) Fill() interface{} {
+	destination := reflect.New(r.reflectElem()).Interface()
+	reflectValue := reflect.ValueOf(destination)
+	destination = reflect.New(reflectValue.Type().Elem()).Interface()
+
+	err := mapstructure.Decode(r.p.Map(), destination)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return destination
+}
+
 func (r *Reflection) parseParams() []reflect.Value {
 	var parsedArguments = make([]reflect.Value, 0)
 
 	parsedArguments = r.appendReceiver(parsedArguments)
+
+	cnt := len(parsedArguments)
+
+	r.p.Iterate(func(key string, value interface{}) {
+		parser := newInputParser(r.t.In(cnt), value)
+
+		parsedArguments = append(parsedArguments, parser.parse())
+
+		cnt++
+	})
 
 	return parsedArguments
 }
@@ -68,23 +93,15 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 	switch params.(type) {
 	case []string:
 		for key, value := range params.([]string) {
-			r.p.Add(strconv.Itoa(key), reflect.ValueOf(value))
-		}
-	case []int:
-		for key, value := range params.([]int) {
-			r.p.Add(strconv.Itoa(key), reflect.ValueOf(value))
+			r.p.Add(strconv.Itoa(key), value)
 		}
 	case []interface{}:
 		for key, value := range params.([]interface{}) {
-			r.p.Add(strconv.Itoa(key), reflect.ValueOf(value))
-		}
-	case map[string]string:
-		for key, value := range params.(map[string]string) {
-			r.p.Add(key, reflect.ValueOf(value))
+			r.p.Add(strconv.Itoa(key), value)
 		}
 	case map[string]interface{}:
 		for key, value := range params.(map[string]interface{}) {
-			r.p.Add(key, reflect.ValueOf(value))
+			r.p.Add(key, value)
 		}
 	}
 
@@ -92,7 +109,7 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 }
 
 func (r *Reflection) NewPointer() reflect.Value {
-	return reflect.New(r.t)
+	return reflect.New(r.reflectElem())
 }
 
 func (r *Reflection) Method(method string) *Reflection {
@@ -107,7 +124,7 @@ func (r *Reflection) Method(method string) *Reflection {
 	return &Reflection{
 		v:   caller,
 		t:   caller.Type(),
-		p:   NewCollection[string, reflect.Value](),
+		p:   NewCollection[string, interface{}](),
 		ptr: reflect.New(caller.Type()),
 	}
 }
