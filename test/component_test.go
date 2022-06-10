@@ -106,12 +106,15 @@ func TestRenderCorrectComponent(t *testing.T) {
 		assert.Equal(t, "10 super", response.(string))
 	})
 
-	//t.Run("Call method of component and update property", func(t *testing.T) {
-	//	hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
-	//
-	//	parameters := []interface{}{"FooUpdated"}
-	//	hello.Call("UpdateName", parameters)
-	//
-	//	assert.Equal(t, "FooUpdated", hello.Get("Name"))
-	//})
+	t.Run("Call method of component and update property", func(t *testing.T) {
+		component.Register(helloWorldWithPath{})
+		hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
+
+		assert.Equal(t, "Foo", hello.Get("Name"))
+
+		parameters := []interface{}{"FooUpdated"}
+		hello.Call("UpdateName", parameters)
+
+		assert.Equal(t, "FooUpdated", hello.Get("Name"))
+	})
 }
