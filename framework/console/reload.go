@@ -1,93 +1,62 @@
 package console
 
 import (
-	"flag"
-	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+	"path/filepath"
 
-	"github.com/cosmtrek/air/runner"
+	"github.com/mitranim/gg"
+	"github.com/rjeczalik/notify"
 )
-
-var (
-	cfgPath     string
-	debugMode   bool
-	showVersion bool
-	cmdArgs     map[string]runner.TomlInfo
-	runArgs     []string
-)
-
-func helpMessage() {
-	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:\n\n", os.Args[0])
-	fmt.Printf("If no command is provided %s will start the runner with the provided flags\n\n", os.Args[0])
-	fmt.Println("Commands:")
-	fmt.Print("  init	creates a .airs.toml file with default settings to the current directory\n\n")
-
-	fmt.Println("Flags:")
-	flag.PrintDefaults()
-}
-
-func init() {
-	parseFlag(os.Args[1:])
-}
-
-func parseFlag(args []string) {
-	flag.Usage = helpMessage
-	flag.StringVar(&cfgPath, "c", "", "config path")
-	flag.BoolVar(&debugMode, "d", false, "debug mode")
-	flag.BoolVar(&showVersion, "v", false, "show version")
-	cmd := flag.CommandLine
-	cmdArgs = runner.ParseConfigFlag(cmd)
-	flag.CommandLine.Parse(args)
-}
 
 func Watch() {
-	fmt.Printf(`
-  __    _   ___  
- / /\  | | | |_) 
-/_/--\ |_| |_| \_ %s, built with Go %s
-`, "airVersion", "goVersion")
+	var watcher WatchNotify
 
-	if showVersion {
-		return
-	}
+	watcher.Init()
+	watcher.Run()
+}
 
-	if debugMode {
-		fmt.Println("[debug] mode")
-	}
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+type WatchNotify struct {
+	Done   gg.Chan[struct{}]
+	Events gg.Chan[notify.EventInfo]
+}
 
-	var err error
-	cfg, err := runner.InitConfig(cfgPath)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	cfg.WithArgs(cmdArgs)
-	r, err := runner.NewEngineWithConfig(cfg, debugMode)
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	go func() {
-		<-sigs
-		r.Stop()
-	}()
+func (self *WatchNotify) Init() {
+	self.Done.Init()
+	self.Events.InitCap(1)
 
-	defer func() {
-		if e := recover(); e != nil {
-			log.Fatalf("PANIC: %+v", e)
+	paths := []string{"/Users/omer/Code/evoli/examples"}
+	verbose := true
+
+	for _, path := range paths {
+		path = filepath.Join(path, `...`)
+		if verbose {
+			log.Printf(`watching %q`, path)
 		}
-	}()
+		gg.Try(notify.Watch(path, self.Events, notify.All))
+	}
+}
 
-	go func() {
-		<-time.After(1 * time.Second)
-		r.Stop()
-	}()
+func (self *WatchNotify) Deinit() {
+	self.Done.SendZeroOpt()
+	if self.Events != nil {
+		notify.Stop(self.Events)
+	}
+}
 
-	r.Run()
+func (self WatchNotify) Run() {
+	for {
+		select {
+		case <-self.Done:
+			return
+
+		case event := <-self.Events:
+			log.Println(event)
+			//if main.Opt.ShouldRestart(event) {
+			//	if main.Opt.Verb {
+			//		log.Println(`restarting on FS event:`, event)
+			//	}
+			//	main.Restart()
+			//}
+		}
+	}
 }

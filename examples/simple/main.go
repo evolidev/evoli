@@ -1,22 +1,20 @@
 package main
 
 import (
-	"github.com/evolidev/evoli"
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/use"
 	"log"
 )
 
 func main() {
-	log.Println("Starting...")
+	log.Println("Starting and update updated :D...")
 
 	consoleTest()
 
-	//helloWorldComponentTest()
+	helloWorldComponentTest()
 }
 
 func consoleTest() {
-	evoli.Start()
 }
 
 /**
