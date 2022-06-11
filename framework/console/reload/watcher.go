@@ -1,4 +1,4 @@
-package refresh
+package reload
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/markbates/refresh/filenotify"
+	"github.com/evolidev/evoli/framework/console/filenotify"
 )
 
 type Watcher struct {

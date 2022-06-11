@@ -1,9 +1,10 @@
-package refresh
+package reload
 
 import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,22 +12,30 @@ import (
 
 func (m *Manager) runner() {
 	var cmd *exec.Cmd
+
 	for {
 		<-m.Restart
-		if cmd != nil {
+
+		if cmd != nil && cmd.Process != nil {
 			// kill the previous command
 			pid := cmd.Process.Pid
 			m.Logger.Success("Stopping: PID %d", pid)
-			cmd.Process.Kill()
-		}
-		if m.Debug {
-			bp := m.FullBuildPath()
-			args := []string{"exec", bp}
-			args = append(args, m.CommandFlags...)
-			cmd = exec.Command("dlv", args...)
+
+			process, err := os.FindProcess(int(pid))
+			if err != nil {
+				fmt.Printf("Failed to find process: %s\n", err)
+			} else {
+				log.Println(process)
+				cmd.Process.Kill()
+				//err := cmd.Process.Signal(syscall.Signal(0))
+				fmt.Printf("process.Signal on pid %d returned: %v\n", pid, err)
+			}
 		} else {
-			cmd = exec.Command(m.FullBuildPath(), m.CommandFlags...)
+			m.Logger.Print("No process running")
 		}
+
+		cmd = m.getCommand()
+
 		go func() {
 			err := m.runAndListen(cmd)
 			if err != nil {
@@ -34,6 +43,16 @@ func (m *Manager) runner() {
 			}
 		}()
 	}
+}
+
+func (m *Manager) getCommandArguments() []string {
+	bp := m.FullBuildPath()
+	args := []string{"run", bp}
+	return append(args, m.CommandFlags...)
+}
+
+func (m *Manager) getCommand() *exec.Cmd {
+	return exec.Command("go", m.getCommandArguments()...)
 }
 
 func (m *Manager) runAndListen(cmd *exec.Cmd) error {

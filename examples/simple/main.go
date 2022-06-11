@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting and update updated :D..")
+	log.Println("Starting and update updated :D.......")
 
 	consoleTest()
 
@@ -18,7 +18,7 @@ func consoleTest() {
 }
 
 /**
- * HelloWorldWithPath component
+ * HelloWorldWithPath component / wip
  */
 
 type HelloWorldWithPath struct {
@@ -29,7 +29,7 @@ func (h *HelloWorldWithPath) GetFilePath() string {
 }
 
 func (h *HelloWorldWithPath) Test() string {
-	use.D("yayayayass suand why not")
+	use.D("yayayayass suand why not.........................")
 
 	return "super"
 }

@@ -1,4 +1,4 @@
-package refresh
+package reload
 
 import (
 	"context"
@@ -41,21 +41,23 @@ func NewWithContext(c *Configuration, ctx context.Context) *Manager {
 	return m
 }
 
-func (r *Manager) Start() error {
-	w := NewWatcher(r)
+func (m *Manager) Start() error {
+	w := NewWatcher(m)
 	w.Start()
-	go r.build(fsnotify.Event{Name: ":start:"})
-	if !r.Debug {
+	go m.build(fsnotify.Event{Name: ":start:"})
+
+	if !m.Debug {
 		go func() {
 			for {
 				select {
 				case event := <-w.Events():
+					log.Print("Received event", event)
 					if event.Op != fsnotify.Chmod {
-						go r.build(event)
+						go m.build(event)
 					}
 					w.Remove(event.Name)
 					w.Add(event.Name)
-				case <-r.context.Done():
+				case <-m.context.Done():
 					break
 				}
 			}
@@ -65,57 +67,56 @@ func (r *Manager) Start() error {
 		for {
 			select {
 			case err := <-w.Errors():
-				r.Logger.Error(err)
-			case <-r.context.Done():
+				m.Logger.Error(err)
+			case <-m.context.Done():
 				break
 			}
 		}
 	}()
-	r.runner()
+	m.runner()
 	return nil
 }
 
-func (r *Manager) build(event fsnotify.Event) {
-	r.gil.Do(func() {
+func (m *Manager) build(event fsnotify.Event) {
+	m.gil.Do(func() {
 		defer func() {
-			r.gil = &sync.Once{}
+			m.gil = &sync.Once{}
 		}()
-		r.buildTransaction(func() error {
+
+		m.buildTransaction(func() error {
 			// time.Sleep(r.BuildDelay * time.Millisecond)
 
 			now := time.Now()
-			r.Logger.Print("Rebuild on: %s", event.Name)
+			m.Logger.Print("Rebuild on: %s", event.Name)
 
-			args := []string{"build", "-v"}
-			args = append(args, r.BuildFlags...)
-			args = append(args, "-o", r.FullBuildPath(), r.BuildTargetPath)
-			cmd := exec.CommandContext(r.context, "go", args...)
+			cmd := exec.CommandContext(m.context, "go", m.getCommandArguments()...)
+			cmd.Dir = m.AppRoot
 
-			err := r.runAndListen(cmd)
+			err := m.runAndListen(cmd)
 			if err != nil {
 				if strings.Contains(err.Error(), "no buildable Go source files") {
-					r.cancelFunc()
+					m.cancelFunc()
 					log.Fatal(err)
 				}
 				return err
 			}
 
 			tt := time.Since(now)
-			r.Logger.Success("Building Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
-			r.Restart <- true
+			m.Logger.Success("Building Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
+			m.Restart <- true
 			return nil
 		})
 	})
 }
 
-func (r *Manager) buildTransaction(fn func() error) {
+func (m *Manager) buildTransaction(fn func() error) {
 	lpath := ErrorLogPath()
 	err := fn()
 	if err != nil {
 		f, _ := os.Create(lpath)
 		fmt.Fprint(f, err)
-		r.Logger.Error("Error!")
-		r.Logger.Error(err)
+		m.Logger.Error("Error!")
+		m.Logger.Error(err)
 	} else {
 		os.Remove(lpath)
 	}
