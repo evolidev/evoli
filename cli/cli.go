@@ -1,12 +1,10 @@
 package main
 
 import (
-	"github.com/evolidev/evoli/framework/console/reload"
-	"log"
+	"github.com/evolidev/evoli/framework/console/cmd"
 )
 
 func main() {
-	reload.Init()
-
-	log.Println("hello")
+	//cmd.Run("")
+	cmd.Execute()
 }
