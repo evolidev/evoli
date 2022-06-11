@@ -106,7 +106,7 @@ func (w *Watcher) isWatchedFile(path string) bool {
 }
 
 func (w *Watcher) isFileEligibleForChange(path string) bool {
-
+	//w.Logger.Print(fmt.Sprintf("isFileEligibleForChange: %s", path))
 	// check if the last character of path is tilde and replace it
 	if strings.HasSuffix(path, "~") {
 		path = strings.Replace(path, "~", "", -1)
@@ -119,7 +119,7 @@ func (w *Watcher) isFileEligibleForChange(path string) bool {
 	}
 
 	if info == nil {
-		w.cancelFunc() //??
+		//w.cancelFunc() //??
 		w.Logger.Error("info not found")
 		return false
 	}

@@ -7,15 +7,18 @@ import (
 )
 
 func main() {
-	log.Println("Starting and update ss sss;;sdupdatses!ss!")
+	log.Println("Starting.")
 
+	consoleTest()
+	consoleTest()
+	consoleTest()
 	consoleTest()
 
 	helloWorldComponentTest()
 }
 
 func consoleTest() {
-
+	log.Print("Console test..D")
 }
 
 /**

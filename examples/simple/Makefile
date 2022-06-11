@@ -1,5 +1,7 @@
 .PHONY: run
 run:
-	go run ./../../cli/cli.go
+	go run main.go
 
+start:
+	go startingss
 

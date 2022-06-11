@@ -24,10 +24,10 @@ var (
 // watchWaitTime is the time to wait between file poll loops
 const watchWaitTime = 200 * time.Millisecond
 
-// filePoller is used to poll files for changes, especially in cases where fsnotify
+// FilePoller is used to poll files for changes, especially in cases where fsnotify
 // can't be run (e.g. when inotify handles are exhausted)
-// filePoller satisfies the FileWatcher interface
-type filePoller struct {
+// FilePoller satisfies the FileWatcher interface
+type FilePoller struct {
 	// watches is the list of files currently being polled, close the associated channel to stop the watch
 	watches map[string]chan struct{}
 	// events is the channel to listen to for watch events
@@ -42,7 +42,7 @@ type filePoller struct {
 
 // Add adds a filename to the list of watches
 // once added the file is polled for changes in a separate goroutine
-func (w *filePoller) Add(name string) error {
+func (w *FilePoller) Add(name string) error {
 	log.Print("Adding file", name)
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -76,13 +76,13 @@ func (w *filePoller) Add(name string) error {
 }
 
 // Remove stops and removes watch with the specified name
-func (w *filePoller) Remove(name string) error {
+func (w *FilePoller) Remove(name string) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.remove(name)
 }
 
-func (w *filePoller) remove(name string) error {
+func (w *FilePoller) remove(name string) error {
 	if w.closed {
 		return errPollerClosed
 	}
@@ -98,19 +98,19 @@ func (w *filePoller) remove(name string) error {
 
 // Events returns the event channel
 // This is used for notifications on events about watched files
-func (w *filePoller) Events() <-chan fsnotify.Event {
+func (w *FilePoller) Events() <-chan fsnotify.Event {
 	return w.events
 }
 
 // Errors returns the errors channel
 // This is used for notifications about errors on watched files
-func (w *filePoller) Errors() <-chan error {
+func (w *FilePoller) Errors() <-chan error {
 	return w.errors
 }
 
 // Close closes the poller
 // All watches are stopped, removed, and the poller cannot be added to
-func (w *filePoller) Close() error {
+func (w *FilePoller) Close() error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
@@ -126,7 +126,7 @@ func (w *filePoller) Close() error {
 }
 
 // sendEvent publishes the specified event to the events channel
-func (w *filePoller) sendEvent(e fsnotify.Event, chClose <-chan struct{}) error {
+func (w *FilePoller) sendEvent(e fsnotify.Event, chClose <-chan struct{}) error {
 	select {
 	case w.events <- e:
 	case <-chClose:
@@ -136,7 +136,7 @@ func (w *filePoller) sendEvent(e fsnotify.Event, chClose <-chan struct{}) error 
 }
 
 // sendErr publishes the specified error to the errors channel
-func (w *filePoller) sendErr(e error, chClose <-chan struct{}) error {
+func (w *FilePoller) sendErr(e error, chClose <-chan struct{}) error {
 	select {
 	case w.errors <- e:
 	case <-chClose:
@@ -147,7 +147,7 @@ func (w *filePoller) sendErr(e error, chClose <-chan struct{}) error {
 
 // watch is responsible for polling the specified file for changes
 // upon finding changes to a file or errors, sendEvent/sendErr is called
-func (w *filePoller) watch(f *os.File, lastFi os.FileInfo, chClose chan struct{}) {
+func (w *FilePoller) watch(f *os.File, lastFi os.FileInfo, chClose chan struct{}) {
 	defer f.Close()
 	for {
 		select {

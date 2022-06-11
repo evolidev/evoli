@@ -28,7 +28,7 @@ func New() (FileWatcher, error) {
 
 // NewPollingWatcher returns a poll-based file watcher
 func NewPollingWatcher() FileWatcher {
-	return &filePoller{
+	return &FilePoller{
 		events: make(chan fsnotify.Event),
 		errors: make(chan error),
 	}

@@ -51,15 +51,21 @@ func (m *Manager) Start() error {
 			for {
 				select {
 				case event := <-w.Events():
-					log.Println("received event", event)
+					//log.Println("received event", event)
 					if !w.isFileEligibleForChange(event.Name) {
-						return
+						continue
 					}
+
 					if event.Op != fsnotify.Chmod {
 						go m.build(event)
 					}
-					w.Remove(event.Name)
-					w.Add(event.Name)
+
+					if w.ForcePolling {
+						//w.Logger.Print("Removing file from watchlist: %s", event.Name)
+						w.Remove(event.Name)
+						w.Add(event.Name)
+					}
+
 				case <-m.context.Done():
 					m.Logger.Print("Shutting down")
 					break
@@ -107,7 +113,7 @@ func (m *Manager) build(event fsnotify.Event) {
 			}
 
 			tt := time.Since(now)
-			m.Logger.Success("Building Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
+			m.Logger.Success("Buildings Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
 			//m.Restart <- true
 			return nil
 		})
@@ -115,14 +121,14 @@ func (m *Manager) build(event fsnotify.Event) {
 }
 
 func (m *Manager) buildTransaction(fn func() error) {
-	lpath := ErrorLogPath()
+	logPath := ErrorLogPath()
 	err := fn()
 	if err != nil {
-		f, _ := os.Create(lpath)
+		f, _ := os.Create(logPath)
 		fmt.Fprint(f, err)
 		m.Logger.Error("Error!")
 		m.Logger.Error(err)
 	} else {
-		os.Remove(lpath)
+		os.Remove(logPath)
 	}
 }
