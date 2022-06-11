@@ -21,6 +21,7 @@ type Configuration struct {
 	BuildFlags         []string      `yaml:"build_flags"`
 	BuildPath          string        `yaml:"build_path"`
 	BuildTargetPath    string        `yaml:"build_target_path"`
+	Command            string        `yaml:"command"`
 	CommandEnv         []string      `yaml:"command_env"`
 	CommandFlags       []string      `yaml:"command_flags"`
 	EnableColors       bool          `yaml:"enable_colors"`

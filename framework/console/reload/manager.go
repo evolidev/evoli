@@ -51,13 +51,17 @@ func (m *Manager) Start() error {
 			for {
 				select {
 				case event := <-w.Events():
-					log.Print("Received event", event)
+					log.Println("received event", event)
+					if !w.isFileEligibleForChange(event.Name) {
+						return
+					}
 					if event.Op != fsnotify.Chmod {
 						go m.build(event)
 					}
 					w.Remove(event.Name)
 					w.Add(event.Name)
 				case <-m.context.Done():
+					m.Logger.Print("Shutting down")
 					break
 				}
 			}
@@ -89,7 +93,8 @@ func (m *Manager) build(event fsnotify.Event) {
 			now := time.Now()
 			m.Logger.Print("Rebuild on: %s", event.Name)
 
-			cmd := exec.CommandContext(m.context, "go", m.getCommandArguments()...)
+			command, args := m.getCommandArguments()
+			cmd := exec.CommandContext(m.context, command, args...)
 			cmd.Dir = m.AppRoot
 
 			err := m.runAndListen(cmd)
@@ -103,7 +108,7 @@ func (m *Manager) build(event fsnotify.Event) {
 
 			tt := time.Since(now)
 			m.Logger.Success("Building Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
-			m.Restart <- true
+			//m.Restart <- true
 			return nil
 		})
 	})

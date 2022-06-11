@@ -3,6 +3,7 @@ package reload
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,12 +35,24 @@ func NewWatcher(r *Manager) *Watcher {
 }
 
 func (w *Watcher) Start() {
+
+	if w.ForcePolling {
+		w.watchWithPolling()
+	} else {
+		w.FileWatcher.Add(w.AppRoot)
+	}
+}
+
+func (w *Watcher) watchWithPolling() {
+	w.Logger.Print(fmt.Sprintf("Watching path: %s", w.AppRoot))
 	go func() {
 		for {
 			err := filepath.Walk(w.AppRoot, func(path string, info os.FileInfo, err error) error {
+				//w.Logger.Print(fmt.Sprintf("Check file: %s", path))
+
 				if info == nil {
 					w.cancelFunc()
-					return errors.New("nil directory!")
+					return errors.New("nil directory")
 				}
 				if info.IsDir() {
 					if strings.HasPrefix(filepath.Base(path), "_") {
@@ -50,6 +63,7 @@ func (w *Watcher) Start() {
 					}
 				}
 				if w.isWatchedFile(path) {
+					w.Logger.Print(fmt.Sprintf("Add file: %s", path))
 					w.Add(path)
 				}
 				return nil
@@ -65,7 +79,7 @@ func (w *Watcher) Start() {
 	}()
 }
 
-func (w Watcher) isIgnoredFolder(path string) bool {
+func (w *Watcher) isIgnoredFolder(path string) bool {
 	paths := strings.Split(path, "/")
 	if len(paths) <= 0 {
 		return false
@@ -79,7 +93,7 @@ func (w Watcher) isIgnoredFolder(path string) bool {
 	return false
 }
 
-func (w Watcher) isWatchedFile(path string) bool {
+func (w *Watcher) isWatchedFile(path string) bool {
 	ext := filepath.Ext(path)
 
 	for _, e := range w.IncludedExtensions {
@@ -89,4 +103,40 @@ func (w Watcher) isWatchedFile(path string) bool {
 	}
 
 	return false
+}
+
+func (w *Watcher) isFileEligibleForChange(path string) bool {
+
+	// check if the last character of path is tilde and replace it
+	if strings.HasSuffix(path, "~") {
+		path = strings.Replace(path, "~", "", -1)
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		w.Logger.Error(err)
+		return false
+	}
+
+	if info == nil {
+		w.cancelFunc() //??
+		w.Logger.Error("info not found")
+		return false
+	}
+
+	if info.IsDir() {
+		basePath := filepath.Base(path)
+		if strings.HasPrefix(basePath, "_") {
+			return false
+		}
+		if len(path) > 1 && strings.HasPrefix(basePath, ".") || w.isIgnoredFolder(path) {
+			return false
+		}
+	}
+
+	if !w.isWatchedFile(path) {
+		return false
+	}
+
+	return true
 }

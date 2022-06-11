@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting and update updated :D.......")
+	log.Println("Starting and update ss sss;;sdupdatses!ss!")
 
 	consoleTest()
 
@@ -15,10 +15,11 @@ func main() {
 }
 
 func consoleTest() {
+
 }
 
 /**
- * HelloWorldWithPath component / wip
+ * HelloWorldWithPath component
  */
 
 type HelloWorldWithPath struct {
@@ -29,9 +30,8 @@ func (h *HelloWorldWithPath) GetFilePath() string {
 }
 
 func (h *HelloWorldWithPath) Test() string {
-	use.D("yayayayass suand why not.........................")
-
-	return "super"
+	use.D("It is working!")
+	return "super."
 }
 
 func helloWorldComponentTest() {

@@ -2,6 +2,7 @@ package reload
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -45,14 +46,23 @@ func (m *Manager) runner() {
 	}
 }
 
-func (m *Manager) getCommandArguments() []string {
-	bp := m.FullBuildPath()
-	args := []string{"run", bp}
-	return append(args, m.CommandFlags...)
+func (m *Manager) getCommandArguments() (string, []string) {
+	//bp := m.FullBuildPath()
+	parsed, err := parseCommandLine(m.Command)
+
+	if err != nil {
+		m.Logger.Error("Failed to start command:", m.Command)
+		panic(err)
+	}
+
+	return parsed[0], parsed[1:]
+	//args := []string{"run", m.Command}
+	//return append(args, m.CommandFlags...)
 }
 
 func (m *Manager) getCommand() *exec.Cmd {
-	return exec.Command("go", m.getCommandArguments()...)
+	command, args := m.getCommandArguments()
+	return exec.Command(command, args...)
 }
 
 func (m *Manager) runAndListen(cmd *exec.Cmd) error {
@@ -91,4 +101,69 @@ func (m *Manager) runAndListen(cmd *exec.Cmd) error {
 		return fmt.Errorf("%s\n%s", err, stderr.String())
 	}
 	return nil
+}
+
+func parseCommandLine(command string) ([]string, error) {
+	var args []string
+	state := "start"
+	current := ""
+	quote := "\""
+	escapeNext := true
+	for i := 0; i < len(command); i++ {
+		c := command[i]
+
+		if state == "quotes" {
+			if string(c) != quote {
+				current += string(c)
+			} else {
+				args = append(args, current)
+				current = ""
+				state = "start"
+			}
+			continue
+		}
+
+		if escapeNext {
+			current += string(c)
+			escapeNext = false
+			continue
+		}
+
+		if c == '\\' {
+			escapeNext = true
+			continue
+		}
+
+		if c == '"' || c == '\'' {
+			state = "quotes"
+			quote = string(c)
+			continue
+		}
+
+		if state == "arg" {
+			if c == ' ' || c == '\t' {
+				args = append(args, current)
+				current = ""
+				state = "start"
+			} else {
+				current += string(c)
+			}
+			continue
+		}
+
+		if c != ' ' && c != '\t' {
+			state = "arg"
+			current += string(c)
+		}
+	}
+
+	if state == "quotes" {
+		return []string{}, errors.New(fmt.Sprintf("Unclosed quote in command line: %s", command))
+	}
+
+	if current != "" {
+		args = append(args, current)
+	}
+
+	return args, nil
 }

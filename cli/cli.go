@@ -11,7 +11,9 @@ func main() {
 		IncludedExtensions: []string{".go"},
 		BuildPath:          "",
 		BinaryName:         "main.go",
+		Command:            "go run main.go",
 		Debug:              false,
+		ForcePolling:       false,
 	}
 	r := reload.RunBackground(config)
 	log.Println(r)
