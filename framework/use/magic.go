@@ -154,6 +154,11 @@ func (r *Reflection) functionName() string {
 	return runtime.FuncForPC(r.v.Pointer()).Name()
 }
 
+func (r *Reflection) GetField(field string) interface{} {
+	D(field)
+	return r.v.FieldByName(field).Interface()
+}
+
 func (r *Reflection) reflectElem() reflect.Type {
 	if r.t.Kind() == reflect.Ptr {
 		return r.t.Elem()

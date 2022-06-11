@@ -1,7 +1,12 @@
 package main
 
-import "github.com/evolidev/evoli/framework/console"
+import (
+	"github.com/evolidev/evoli/framework/console/reload"
+	"log"
+)
 
 func main() {
-	console.Watch()
+	reload.Init()
+
+	log.Println("hello")
 }

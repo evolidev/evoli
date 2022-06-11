@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	log.Println("Starting and update updated :D...")
+	log.Println("Starting and update updated :D..")
 
 	consoleTest()
 
@@ -25,11 +25,11 @@ type HelloWorldWithPath struct {
 }
 
 func (h *HelloWorldWithPath) GetFilePath() string {
-	return "hello-world"
+	return "hello-worlds"
 }
 
 func (h *HelloWorldWithPath) Test() string {
-	use.D("yayayaya")
+	use.D("yayayayass suand why not")
 
 	return "super"
 }
@@ -38,6 +38,7 @@ func helloWorldComponentTest() {
 	component.Register(HelloWorldWithPath{})
 
 	json := `{"Name":"Foo"}`
+
 	hello := component.NewByNameWithData("HelloWorldWithPath", json)
 
 	response := hello.Call("Test", nil)
