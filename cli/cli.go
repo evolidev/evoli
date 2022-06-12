@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/console/reload"
 	"log"
 )
@@ -24,7 +23,8 @@ func main() {
 	fmt.Println("env:", *env)
 	fmt.Println("port:", *port)
 
-	console.Commands()
+	//console.Commands()
+	Watch()
 }
 
 func Watch() {

@@ -3,6 +3,7 @@ package reload
 import (
 	"context"
 	"fmt"
+	"github.com/evolidev/evoli/framework/logging"
 	"log"
 	"os"
 	"os/exec"
@@ -16,7 +17,7 @@ import (
 type Manager struct {
 	*Configuration
 	ID         string
-	Logger     *Logger
+	Logger     *logging.Logger
 	Restart    chan bool
 	cancelFunc context.CancelFunc
 	context    context.Context
@@ -32,11 +33,14 @@ func NewWithContext(c *Configuration, ctx context.Context) *Manager {
 	m := &Manager{
 		Configuration: c,
 		ID:            ID(),
-		Logger:        NewLogger(c),
-		Restart:       make(chan bool),
-		cancelFunc:    cancelFunc,
-		context:       ctx,
-		gil:           &sync.Once{},
+		Logger: logging.NewLogger(&logging.Config{
+			Name:         "reload",
+			EnableColors: true,
+		}),
+		Restart:    make(chan bool),
+		cancelFunc: cancelFunc,
+		context:    ctx,
+		gil:        &sync.Once{},
 	}
 	return m
 }
@@ -121,7 +125,7 @@ func (m *Manager) build(event fsnotify.Event) {
 }
 
 func (m *Manager) buildTransaction(fn func() error) {
-	logPath := ErrorLogPath()
+	logPath := logging.ErrorLogPath()
 	err := fn()
 	if err != nil {
 		f, _ := os.Create(logPath)
