@@ -104,6 +104,57 @@ func TestCall(t *testing.T) {
 
 		assert.Exactly(t, "hello-world-1", result.Interface().(string))
 	})
+
+	t.Run("Call should be able to change struct fields", func(t *testing.T) {
+		myStruct := &TestStructFirst{"success"}
+		m := use.Magic(myStruct)
+
+		result := m.Method("SetTestPropWithPointer").Call()
+
+		assert.Exactly(t, "updated", result.Interface().(string))
+		assert.Exactly(t, "updated", myStruct.TestProp)
+	})
+
+	t.Run("Call should be able to change struct fields of value receiver if it is cast to pointer", func(t *testing.T) {
+		myStruct := TestStructFirst{"success"}
+		m := use.Magic(myStruct).ToPointer()
+
+		result := m.Method("SetTestPropWithPointer").Call()
+
+		assert.Exactly(t, "updated", result.Interface().(string))
+		assert.Exactly(t, "updated", m.GetField("TestProp"))
+	})
+}
+
+func TestNewPointer(t *testing.T) {
+	t.Run("New pointer should return a pointer to struct", func(t *testing.T) {
+		myStruct := TestStructFirst{"success"}
+		m := use.Magic(myStruct)
+
+		p := m.NewPointer().Interface()
+
+		assert.Exactly(t, "", p.(*TestStructFirst).TestProp)
+	})
+}
+
+func TestToPointer(t *testing.T) {
+	t.Run("To pointer should do nothing if given struct is already a pointer", func(t *testing.T) {
+		myStruct := &TestStructFirst{"success"}
+		m := use.Magic(myStruct)
+
+		result := m.ToPointer()
+
+		assert.Exactly(t, "success", result.Value().(*TestStructFirst).TestProp)
+	})
+
+	t.Run("To pointer should convert current struct to pointer", func(t *testing.T) {
+		myStruct := TestStructFirst{"success"}
+		m := use.Magic(myStruct).ToPointer()
+
+		//result := m.Method("SetTestPropWithPointer").Call()
+
+		assert.Exactly(t, "success", m.Value().(*TestStructFirst).TestProp)
+	})
 }
 
 func TestFill(t *testing.T) {
@@ -112,7 +163,7 @@ func TestFill(t *testing.T) {
 		params["TestProp"] = "test"
 		m := use.Magic(&TestStructFirst{})
 
-		result := m.WithParams(params).Fill().(*TestStructFirst)
+		result := m.WithParams(params).Fill().Value().(*TestStructFirst)
 
 		assert.Exactly(t, "test", result.TestProp)
 	})
@@ -127,6 +178,12 @@ type TestStructFirst struct {
 }
 
 func (receiver TestStructFirst) TestPointerWithValue() string {
+	return receiver.TestProp
+}
+
+func (receiver *TestStructFirst) SetTestPropWithPointer() string {
+	receiver.TestProp = "updated"
+
 	return receiver.TestProp
 }
 

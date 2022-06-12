@@ -43,7 +43,7 @@ func (b *Base) Set(data map[string]interface{}) {
 }
 
 func (b *Base) Get(key string) interface{} {
-	return b.Data.Get(key)
+	return b.Component.GetField(key)
 }
 
 func (b *Base) Call(method string, parameters interface{}) interface{} {

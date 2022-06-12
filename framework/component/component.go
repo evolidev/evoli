@@ -29,11 +29,10 @@ func New(componentStruct interface{}, data map[string]interface{}) *Base {
 	collection := use.NewCollection[string, interface{}]()
 	collection.Set(data)
 
-	component := use.Magic(componentStruct)
-	component.WithParams(data).Fill()
+	component := use.Magic(componentStruct).ToPointer()
 
 	return &Base{
-		Component: component,
+		Component: component.WithParams(data).Fill(),
 		Data:      collection,
 	}
 }
