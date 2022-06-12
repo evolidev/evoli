@@ -52,5 +52,4 @@ func (b *Base) Call(method string, parameters interface{}) interface{} {
 	result := output.WithParams(parameters)
 	response := result.Call()
 	return response.Interface()
-	//return b.Component.Method(method).Call().Interface()
 }

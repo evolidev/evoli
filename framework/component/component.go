@@ -10,22 +10,6 @@ type Component interface {
 }
 
 func New(componentStruct interface{}, data map[string]interface{}) *Base {
-
-	//log.Println("INIT NEW")
-	//use.HasMethod(componentStruct, "Test")
-	//use.HasMethod(&componentStruct, "Test")
-	//use.HasMethod(component, "Test")
-	//use.HasMethod(component, "Test")
-	//use.HasMethod(&component, "Test")
-	//
-	//if data != nil {
-	//	dataJson := use.JsonEncode(data)
-	//	if err := json.Unmarshal([]byte(dataJson), component); err != nil {
-	//		// TODO log error
-	//		log.Println("Unable to parse json")
-	//	}
-	//}
-
 	collection := use.NewCollection[string, interface{}]()
 	collection.Set(data)
 
@@ -62,22 +46,3 @@ func NewByNameWithData(name string, data string) *Base {
 
 	return component
 }
-
-//func (arcane *Arcane) RegisterComponents(components ...Component) {
-//	myComponents = map[string]Component{}
-//	arcane.routes = make(map[string]ComponentHandler)
-//	for _, component := range components {
-//		name := reflect.ValueOf(component).Type().Name()
-//
-//		myComponents[ToSnakeCase(name)] = component
-//
-//		if page, ok := component.(PageComponent); ok {
-//			routeName := page.Route()
-//
-//			componentHandler := ComponentHandler{Component: component}
-//			fmt.Println("Registering component", name)
-//
-//			arcane.routes[routeName] = componentHandler
-//		}
-//	}
-//}
