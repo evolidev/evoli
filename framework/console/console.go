@@ -2,6 +2,7 @@ package console
 
 import (
 	"fmt"
+	"github.com/evolidev/evoli/framework/console/color"
 	"os"
 )
 import "github.com/olekukonko/tablewriter"
@@ -91,8 +92,8 @@ func commandsRender(commands []CommandGroup) {
 
 		for _, cmd := range group.Commands {
 			table.Append([]string{
-				FgColor(140, group.Prefix+":") + FgColor(169, cmd.Name),
-				FgColor(103, cmd.Description),
+				color.Text(140, group.Prefix+":") + color.Text(169, cmd.Name),
+				color.Text(103, cmd.Description),
 			})
 		}
 
@@ -100,14 +101,10 @@ func commandsRender(commands []CommandGroup) {
 	}
 
 	//fmt.Println()
-	fmt.Println(fmt.Sprintf("Evoli Console %s", FgColor(169, "0.0.1")))
+	fmt.Println(fmt.Sprintf("Evoli Console %s", color.Text(169, "0.0.1")))
 	fmt.Println()
 	table.Render()
 	fmt.Println()
-}
-
-func FgColor(code int, value string) string {
-	return fmt.Sprintf("\u001b[38;5;%dm%s\u001b[0m", code, value)
 }
 
 func Colored() {

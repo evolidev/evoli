@@ -29,7 +29,7 @@ func main() {
 
 func Watch() {
 	config := &reload.Configuration{
-		AppRoot:            "/Users/omer/Code/evoli/examples/simple",
+		AppRoot:            "/Users/omohamed/Code/demo2/evoli/examples/simple",
 		IncludedExtensions: []string{".go"},
 		BuildPath:          "",
 		BinaryName:         "main.go",
