@@ -155,7 +155,6 @@ func (r *Reflection) functionName() string {
 }
 
 func (r *Reflection) GetField(field string) interface{} {
-	D(field)
 	return r.v.FieldByName(field).Interface()
 }
 

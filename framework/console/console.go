@@ -99,7 +99,7 @@ func commandsRender(commands []CommandGroup) {
 		table.Append([]string{""})
 	}
 
-	fmt.Println()
+	//fmt.Println()
 	fmt.Println(fmt.Sprintf("Evoli Console %s", FgColor(169, "0.0.1")))
 	fmt.Println()
 	table.Render()
