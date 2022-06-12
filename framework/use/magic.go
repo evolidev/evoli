@@ -31,10 +31,10 @@ func (r *Reflection) Call() reflect.Value {
 		return result[0]
 	}
 
-	return reflect.Value{}
+	return r.v
 }
 
-func (r *Reflection) Fill() interface{} {
+func (r *Reflection) Fill() *Reflection {
 	destination := reflect.New(r.reflectElem()).Interface()
 	reflectValue := reflect.ValueOf(destination)
 	destination = reflect.New(reflectValue.Type().Elem()).Interface()
@@ -45,7 +45,20 @@ func (r *Reflection) Fill() interface{} {
 		panic(err)
 	}
 
-	return destination
+	return Magic(destination)
+}
+
+func (r *Reflection) ToPointer() *Reflection {
+	if r.v.Kind() == reflect.Ptr {
+		return r
+	}
+
+	p := reflect.New(r.t)
+	p.Elem().Set(r.v)
+
+	r.v = p
+
+	return r
 }
 
 func (r *Reflection) parseParams() []reflect.Value {
@@ -87,6 +100,10 @@ func (r *Reflection) appendReceiver(arguments []reflect.Value) []reflect.Value {
 	}
 
 	return arguments
+}
+
+func (r *Reflection) Value() interface{} {
+	return r.v.Interface()
 }
 
 func (r *Reflection) WithParams(params interface{}) *Reflection {
@@ -164,4 +181,8 @@ func (r *Reflection) reflectElem() reflect.Type {
 	}
 
 	return r.t
+}
+
+func (r *Reflection) GetField(field string) interface{} {
+	return reflect.Indirect(r.v).FieldByName(field).Interface()
 }

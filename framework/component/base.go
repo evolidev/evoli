@@ -39,7 +39,7 @@ func (b *Base) Render() string {
 }
 
 func (b *Base) Set(data map[string]interface{}) {
-	b.Data.Set(data)
+	b.Component = b.Component.WithParams(data).Fill()
 }
 
 func (b *Base) Get(key string) interface{} {
