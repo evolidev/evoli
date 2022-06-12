@@ -36,6 +36,7 @@ func NewWithContext(c *Configuration, ctx context.Context) *Manager {
 		Logger: logging.NewLogger(&logging.Config{
 			Name:         "reload",
 			EnableColors: true,
+			PrefixColor:  148,
 		}),
 		Restart:    make(chan bool),
 		cancelFunc: cancelFunc,

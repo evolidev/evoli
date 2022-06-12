@@ -2,12 +2,16 @@ package main
 
 import (
 	"github.com/evolidev/evoli/framework/component"
+	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/use"
-	"log"
 )
 
+var logger *logging.Logger
+
 func main() {
-	log.Println("Starting.")
+	logger = logging.NewLogger(&logging.Config{Name: "simple", PrefixColor: 51})
+
+	logger.Success("Starting.")
 
 	consoleTest()
 	consoleTest()
@@ -18,7 +22,7 @@ func main() {
 }
 
 func consoleTest() {
-	log.Print("Console test..D")
+	logger.Print("Console test..D")
 }
 
 /**

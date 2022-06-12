@@ -7,4 +7,5 @@ type Config struct {
 	Name         string
 	Stdout       io.Writer
 	Location     string
+	PrefixColor  int
 }

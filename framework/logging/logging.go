@@ -2,12 +2,13 @@ package logging
 
 import (
 	"fmt"
-	"github.com/evolidev/evoli/framework/console/color"
-	"github.com/mitchellh/go-homedir"
 	"io"
 	"log"
 	"os"
 	"path"
+
+	"github.com/evolidev/evoli/framework/console/color"
+	"github.com/mitchellh/go-homedir"
 )
 
 const logFormat = "%s"
@@ -17,14 +18,14 @@ type Logger struct {
 }
 
 func NewLogger(c *Config) *Logger {
-
+	var prefixColor = c.PrefixColor
 	var w io.Writer = c.Stdout
 	if w == nil {
 		w = os.Stdout
 	}
 
 	return &Logger{
-		log: log.New(w, color.Text(170, "["+c.Name+"] "), log.LstdFlags|log.Lmsgprefix),
+		log: log.New(w, color.Text(prefixColor, "["+c.Name+"] "), log.LstdFlags|log.Lmsgprefix),
 	}
 }
 
