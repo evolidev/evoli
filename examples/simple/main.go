@@ -3,15 +3,14 @@ package main
 import (
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/logging"
-	"github.com/evolidev/evoli/framework/use"
 )
 
 var logger *logging.Logger
 
 func main() {
-	logger = logging.NewLogger(&logging.Config{Name: "simple", PrefixColor: 51})
+	logger = logging.NewLogger(&logging.Config{Name: "simple", PrefixColor: 73})
 
-	logger.Success("Starting.")
+	logger.Success("Starting..")
 
 	consoleTest()
 	consoleTest()
@@ -22,7 +21,7 @@ func main() {
 }
 
 func consoleTest() {
-	logger.Print("Console test..D")
+	logger.Debug("Console test..D")
 }
 
 /**
@@ -37,7 +36,7 @@ func (h *HelloWorldWithPath) GetFilePath() string {
 }
 
 func (h *HelloWorldWithPath) Test() string {
-	use.D("It is working!")
+	logger.Debug("It is working!")
 	return "super."
 }
 
@@ -50,5 +49,5 @@ func helloWorldComponentTest() {
 
 	response := hello.Call("Test", nil)
 
-	use.D(response)
+	logger.Success(response)
 }

@@ -12,6 +12,10 @@ import (
 )
 
 const logFormat = "%s"
+const textColor = 242
+const debugColor = 3
+const successColor = 2
+const errorColor = 1
 
 type Logger struct {
 	log *log.Logger
@@ -38,7 +42,7 @@ func (l *Logger) Log(color func(string, ...interface{}) string, prefix string, m
 func (l *Logger) Success(msg interface{}, args ...interface{}) {
 	l.log.Printf(
 		fmt.Sprintf(
-			fmt.Sprintf("%s %s", color.Text(2, "Success"), color.Text(247, msg)),
+			fmt.Sprintf("%s %s", color.Text(successColor, "Success"), color.Text(textColor, msg)),
 			args...,
 		),
 	)
@@ -47,7 +51,7 @@ func (l *Logger) Success(msg interface{}, args ...interface{}) {
 func (l *Logger) Error(msg interface{}, args ...interface{}) {
 	l.log.Printf(
 		fmt.Sprintf(
-			fmt.Sprintf("%s %s", color.Text(1, "Error"), color.Text(247, msg)),
+			fmt.Sprintf("%s %s", color.Text(errorColor, "Error"), color.Text(textColor, msg)),
 			args...,
 		),
 	)
@@ -56,14 +60,14 @@ func (l *Logger) Error(msg interface{}, args ...interface{}) {
 func (l *Logger) Debug(msg interface{}, args ...interface{}) {
 	l.log.Printf(
 		fmt.Sprintf(
-			fmt.Sprintf("%s %s", color.Text(3, "Debug"), color.Text(247, msg)),
+			fmt.Sprintf("%s %s", color.Text(debugColor, "Debug"), color.Text(textColor, msg)),
 			args...,
 		),
 	)
 }
 
 func (l *Logger) Print(msg interface{}, args ...interface{}) {
-	l.log.Printf(fmt.Sprintf(logFormat, msg), args...)
+	l.log.Printf(fmt.Sprintf(logFormat, color.Text(textColor, msg)), args...)
 }
 
 var LogLocation = func() string {
