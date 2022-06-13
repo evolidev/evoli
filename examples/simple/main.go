@@ -8,7 +8,7 @@ import (
 var logger *logging.Logger
 
 func main() {
-	logger = logging.NewLogger(&logging.Config{Name: "simple", PrefixColor: 73})
+	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
 
 	logger.Success("Starting..")
 

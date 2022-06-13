@@ -1,0 +1,73 @@
+package test
+
+import (
+	"github.com/evolidev/evoli/framework/console"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
+
+func TestParseSimpleCommand(t *testing.T) {
+	t.Run("Parse simple command with required parameter", func(t *testing.T) {
+		command := "mail:send foo"
+		definition := "mail:send {user}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "foo", cmd.GetArgument("user"))
+	})
+
+	t.Run("Parse simple command with optional parameter", func(t *testing.T) {
+		command := "mail:send"
+		definition := "mail:send {user?}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "", cmd.GetArgument("user"))
+	})
+
+	t.Run("Parse simple command with optional parameter", func(t *testing.T) {
+		command := "mail:send foo"
+		definition := "mail:send {user?}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "foo", cmd.GetArgument("user"))
+	})
+
+	t.Run("Parse simple command with optional parameter and default value", func(t *testing.T) {
+		command := "mail:send"
+		definition := "mail:send {user=foo}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "foo", cmd.GetArgument("user"))
+	})
+
+	t.Run("Parse command and pass options", func(t *testing.T) {
+		command := "mail:send foo --queue"
+		definition := "mail:send {user} {--queue}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, true, cmd.GetOption("queue").(bool))
+	})
+
+	t.Run("Parse command and pass required option", func(t *testing.T) {
+		command := "mail:send"
+		definition := "mail:send {user} {--queue=}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, true, cmd.GetOption("queue").(bool))
+	})
+
+	t.Run("Parse command and pass option and alias", func(t *testing.T) {
+		command := "mail:send -Q"
+		definition := "mail:send {user} {--Q|queue}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, true, cmd.GetOption("Q").(bool))
+	})
+
+}

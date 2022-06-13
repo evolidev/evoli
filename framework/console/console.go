@@ -2,10 +2,11 @@ package console
 
 import (
 	"fmt"
-	"github.com/evolidev/evoli/framework/console/color"
 	"os"
+
+	"github.com/evolidev/evoli/framework/console/color"
+	"github.com/olekukonko/tablewriter"
 )
-import "github.com/olekukonko/tablewriter"
 
 type Command struct {
 	Name        string

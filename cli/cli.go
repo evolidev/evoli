@@ -1,9 +1,8 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"github.com/evolidev/evoli/framework/console/reload"
+	"github.com/evolidev/evoli/framework/logging"
 	"log"
 )
 
@@ -12,16 +11,26 @@ var (
 	port *int
 )
 
+var logger = logging.NewLogger(&logging.Config{Name: "cli"})
+
 func init() {
-	env = flag.String("env", "development", "current environment")
-	port = flag.Int("port", 3000, "port number")
+
 }
 
 func main() {
-	flag.Parse()
-
-	fmt.Println("env:", *env)
-	fmt.Println("port:", *port)
+	// Create new parser object
+	//parser := argparse.NewParser("print", "Prints provided string to stdout")
+	//// Create string flag
+	////s := parser.String("s", "string", &argparse.Options{Required: true, Help: "String to print"})
+	//// Parse input
+	//err := parser.Parse(os.Args)
+	//if err != nil {
+	//	// In case of error print error and print usage
+	//	// This can also be done by passing -h or --help flags
+	//	fmt.Print(parser.Usage(err))
+	//}
+	// Finally print the collected string
+	//fmt.Println(*s)
 
 	//console.Commands()
 	Watch()
