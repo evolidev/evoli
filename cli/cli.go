@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/console/reload"
 	"log"
 )
@@ -24,12 +23,13 @@ func main() {
 	fmt.Println("env:", *env)
 	fmt.Println("port:", *port)
 
-	console.Commands()
+	//console.Commands()
+	Watch()
 }
 
 func Watch() {
 	config := &reload.Configuration{
-		AppRoot:            "/Users/omer/Code/evoli/examples/simple",
+		AppRoot:            "/Users/omohamed/Code/demo2/evoli/examples/simple",
 		IncludedExtensions: []string{".go"},
 		BuildPath:          "",
 		BinaryName:         "main.go",
