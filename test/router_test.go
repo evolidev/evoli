@@ -146,6 +146,40 @@ func TestBasic(t *testing.T) {
 	})
 }
 
+func TestBaseGroupShouldAppendThePrefixToTheRoutes(t *testing.T) {
+	routeSwitch := evoli.NewRouteSwitch()
+	routeSwitch.Add("/api", func(router *evoli.Router) {
+		router.Get("/", func() string { return "api" })
+	})
+
+	router := routeSwitch.Get("/api")
+
+	rr := sendRequest(t, router, http.MethodGet, "/api")
+
+	assert.Exactly(t, "api", rr.Body.String())
+}
+
+func TestBaseGroupShouldRouteCorrectly(t *testing.T) {
+	routeSwitch := evoli.NewRouteSwitch()
+	routeSwitch.Add("/", func(router *evoli.Router) {
+		router.Get("/test", func() string { return "test" })
+	})
+	routeSwitch.Add("/api", func(router *evoli.Router) {
+		router.Get("/test", func() string { return "api" })
+	})
+
+	req, err := http.NewRequest(http.MethodGet, "/api/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	routeSwitch.ServeHTTP(rr, req)
+
+	assert.Exactly(t, "api", rr.Body.String())
+}
+
 type MyController struct {
 	Request http.Request
 }
@@ -186,7 +220,6 @@ func handlerViewResponse() interface{} {
 	return response.View("templates.test")
 }
 
-// todo do not loose return type
 func structHandler() interface{} {
 	return testStruct{"test"}
 }
