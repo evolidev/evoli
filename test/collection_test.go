@@ -49,3 +49,94 @@ func TestAddAndRemoveItemFromCollection(t *testing.T) {
 
 	assert.False(t, collection.Has("foo"))
 }
+
+func TestNextShouldReturnNextItem(t *testing.T) {
+	collection := use.NewCollection[string, string]()
+	collection.Add("foo", "bar")
+	collection.Add("foo2", "bar2")
+
+	assert.Exactly(t, "bar", collection.Next())
+	assert.Exactly(t, "bar2", collection.Next())
+}
+
+func TestPreviousShouldReturnPreviousItem(t *testing.T) {
+	collection := use.NewCollection[string, string]()
+	collection.Add("foo", "bar")
+	collection.Add("foo2", "bar2")
+	collection.Next()
+	collection.Next()
+
+	assert.Exactly(t, "bar", collection.Previous())
+}
+
+func TestFirstShouldReturnFirstItem(t *testing.T) {
+	collection := use.NewCollection[string, string]()
+	collection.Add("foo", "bar")
+	collection.Add("foo2", "bar2")
+	collection.Add("foo3", "bar3")
+	collection.Next()
+	collection.Next()
+
+	assert.Exactly(t, "bar", collection.First())
+}
+
+func TestKeyShouldReturnCurrentKeyItem(t *testing.T) {
+	collection := use.NewCollection[string, string]()
+	collection.Add("foo", "bar")
+
+	assert.Exactly(t, "foo", collection.Key())
+}
+
+func TestCurrentShouldReturnCurrentValue(t *testing.T) {
+	collection := use.NewCollection[string, string]()
+	collection.Add("foo", "bar")
+
+	assert.Exactly(t, "bar", collection.Current())
+}
+
+func TestLastShouldReturnLastElement(t *testing.T) {
+	collection := use.NewCollection[string, string]()
+	collection.Add("foo", "bar")
+	collection.Add("foo2", "bar2")
+	collection.Add("foo3", "bar3")
+	collection.Next()
+	collection.Next()
+
+	assert.Exactly(t, "bar3", collection.Last())
+}
+
+func TestHasNext(t *testing.T) {
+	t.Run("Has next should return true if there is a next element", func(t *testing.T) {
+		collection := use.NewCollection[string, string]()
+		collection.Add("foo", "bar")
+
+		assert.True(t, collection.HasNext())
+	})
+
+	t.Run("Has next should return false if there is no next element", func(t *testing.T) {
+		collection := use.NewCollection[string, string]()
+		collection.Add("foo", "bar")
+		collection.Next()
+
+		assert.False(t, collection.HasNext())
+	})
+}
+
+func TestHasPrevious(t *testing.T) {
+	t.Run("Has previous should return true if there is a previous element", func(t *testing.T) {
+		collection := use.NewCollection[string, string]()
+		collection.Add("foo", "bar")
+		collection.Add("foo", "bar")
+		collection.Next()
+		collection.Next()
+
+		assert.True(t, collection.HasPrevious())
+	})
+
+	t.Run("Has previous should return false if there is no previous element", func(t *testing.T) {
+		collection := use.NewCollection[string, string]()
+		collection.Add("foo", "bar")
+
+		assert.False(t, collection.HasPrevious())
+	})
+}

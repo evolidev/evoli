@@ -1,15 +1,18 @@
 package use
 
 type Collection[Key comparable, Value any] struct {
-	values map[Key]Value
+	values     map[Key]Value
+	order      []Key
+	currentKey int
 }
 
 func NewCollection[Key comparable, Value any]() *Collection[Key, Value] {
-	return &Collection[Key, Value]{values: make(map[Key]Value)}
+	return &Collection[Key, Value]{values: make(map[Key]Value), order: make([]Key, 0), currentKey: -1}
 }
 
 func (c *Collection[Key, Value]) Add(key Key, value Value) {
 	c.values[key] = value
+	c.order = append(c.order, key)
 }
 
 func (c *Collection[Key, Value]) Get(key Key) Value {
@@ -61,4 +64,53 @@ func (c *Collection[Key, Value]) Slice() []Value {
 
 func (c *Collection[Key, Value]) Map() map[Key]Value {
 	return c.values
+}
+
+func (c *Collection[Key, Value]) Next() Value {
+	c.currentKey++
+
+	return c.values[c.Key()]
+}
+
+func (c *Collection[Key, Value]) First() Value {
+	c.currentKey = -1
+
+	return c.Next()
+}
+
+func (c *Collection[Key, Value]) Current() Value {
+	if c.currentKey < 0 {
+		return c.First()
+	}
+
+	return c.values[c.Key()]
+}
+
+func (c *Collection[Key, Value]) Key() Key {
+	mykey := c.currentKey
+	if mykey < 0 {
+		mykey = 0
+	}
+
+	return c.order[mykey]
+}
+
+func (c *Collection[Key, Value]) Last() Value {
+	c.currentKey = len(c.order) - 1
+
+	return c.Current()
+}
+
+func (c *Collection[Key, Value]) HasNext() bool {
+	return c.currentKey < len(c.order)-1
+}
+
+func (c *Collection[Key, Value]) HasPrevious() bool {
+	return c.currentKey > 0
+}
+
+func (c *Collection[Key, Value]) Previous() interface{} {
+	c.currentKey--
+
+	return c.values[c.Key()]
 }
