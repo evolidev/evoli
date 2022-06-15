@@ -1,6 +1,7 @@
 package use
 
 import (
+	"github.com/julienschmidt/httprouter"
 	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"runtime"
@@ -10,18 +11,20 @@ import (
 
 func Magic(i interface{}) *Reflection {
 	return &Reflection{
-		t:   reflect.TypeOf(i),
-		v:   reflect.ValueOf(i),
-		p:   NewCollection[string, interface{}](),
-		ptr: reflect.New(reflect.TypeOf(i)),
+		t:       reflect.TypeOf(i),
+		v:       reflect.ValueOf(i),
+		p:       NewCollection[string, interface{}](),
+		injects: NewCollection[string, interface{}](),
+		ptr:     reflect.New(reflect.TypeOf(i)),
 	}
 }
 
 type Reflection struct {
-	t   reflect.Type
-	v   reflect.Value
-	p   *Collection[string, interface{}]
-	ptr reflect.Value
+	t       reflect.Type
+	v       reflect.Value
+	p       *Collection[string, interface{}]
+	ptr     reflect.Value
+	injects *Collection[string, interface{}]
 }
 
 func (r *Reflection) Call() reflect.Value {
@@ -35,6 +38,35 @@ func (r *Reflection) Call() reflect.Value {
 }
 
 func (r *Reflection) Fill() *Reflection {
+	if r.t.Kind() == reflect.Func {
+		attributes := make([]reflect.Value, 0)
+		arguments := r.appendReceiver(attributes)
+		if len(arguments) > 0 {
+			receiver := arguments[0]
+
+			destination := receiver.Interface()
+			reflectValue := reflect.ValueOf(destination)
+
+			t := reflectValue.Type()
+			if t.Kind() == reflect.Ptr {
+				t = t.Elem()
+			}
+			destination = reflect.New(t).Interface()
+
+			err := mapstructure.Decode(r.p.Map(), destination)
+
+			if err != nil {
+				panic(err)
+			}
+
+			return Magic(destination).Method(r.Name()).WithInjectable(r.p.Slice())
+		}
+
+		r.p = NewCollection[string, interface{}]()
+
+		return r
+	}
+
 	destination := reflect.New(r.reflectElem()).Interface()
 	reflectValue := reflect.ValueOf(destination)
 	destination = reflect.New(reflectValue.Type().Elem()).Interface()
@@ -62,21 +94,9 @@ func (r *Reflection) ToPointer() *Reflection {
 }
 
 func (r *Reflection) parseParams() []reflect.Value {
-	var parsedArguments = make([]reflect.Value, 0)
+	parser := newParamParser(r)
 
-	parsedArguments = r.appendReceiver(parsedArguments)
-
-	cnt := len(parsedArguments)
-
-	r.p.Iterate(func(key string, value interface{}) {
-		parser := newInputParser(r.t.In(cnt), value)
-
-		parsedArguments = append(parsedArguments, parser.parse())
-
-		cnt++
-	})
-
-	return parsedArguments
+	return parser.parse()
 }
 
 func (r *Reflection) appendReceiver(arguments []reflect.Value) []reflect.Value {
@@ -120,6 +140,10 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 		for key, value := range params.(map[string]interface{}) {
 			r.p.Add(key, value)
 		}
+	case httprouter.Params:
+		for _, param := range params.(httprouter.Params) {
+			r.p.Add(param.Key, param.Value)
+		}
 	}
 
 	return r
@@ -139,10 +163,11 @@ func (r *Reflection) Method(method string) *Reflection {
 	}
 
 	return &Reflection{
-		v:   caller,
-		t:   caller.Type(),
-		p:   NewCollection[string, interface{}](),
-		ptr: reflect.New(caller.Type()),
+		v:       caller,
+		t:       caller.Type(),
+		p:       NewCollection[string, interface{}](),
+		ptr:     reflect.New(caller.Type()),
+		injects: NewCollection[string, interface{}](),
 	}
 }
 
@@ -181,4 +206,12 @@ func (r *Reflection) reflectElem() reflect.Type {
 
 func (r *Reflection) GetField(field string) interface{} {
 	return reflect.Indirect(r.v).FieldByName(field).Interface()
+}
+
+func (r *Reflection) WithInjectable(params []interface{}) *Reflection {
+	for _, value := range params {
+		r.injects.Add(reflect.TypeOf(value).String(), value)
+	}
+
+	return r
 }
