@@ -1,11 +1,14 @@
 package main
 
 import (
+	"github.com/evolidev/evoli"
+	"github.com/evolidev/evoli/examples/simple/routes"
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/logging"
 )
 
 var logger *logging.Logger
+var app *evoli.App
 
 func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
@@ -18,6 +21,12 @@ func main() {
 	consoleTest()
 
 	helloWorldComponentTest()
+
+	app = evoli.NewApplication()
+	app.AddRoutes("/", routes.Web)
+	app.AddRoutes("/api", routes.Api)
+
+	app.Start()
 }
 
 func consoleTest() {
