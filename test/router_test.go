@@ -101,7 +101,7 @@ func TestBasic(t *testing.T) {
 		}
 		assert.Exactly(t, string(testJson), rr.Body.String())
 
-		path = "/response/view"
+		path = "/response/views"
 		router.Get(path, handlerViewResponse)
 
 		rr = sendRequest(t, router, http.MethodGet, path)
