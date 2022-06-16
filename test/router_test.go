@@ -108,6 +108,96 @@ func TestBasic(t *testing.T) {
 
 		assert.Exactly(t, "<div>Hello test</div>", rr.Body.String())
 	})
+
+	t.Run("Basic route should have access to controller properties", func(t *testing.T) {
+		path := "/controller"
+		router.Get(path, MyController.TestAction)
+
+		rr := sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, path, rr.Body.String())
+	})
+
+	t.Run("Basic route should get parameter injected", func(t *testing.T) {
+		path := "/controller/:param"
+		router.Get(path, MyController.TestActionWithParam)
+
+		rr := sendRequest(t, router, http.MethodGet, "/controller/test")
+
+		assert.Exactly(t, "test", rr.Body.String())
+	})
+
+	t.Run("Basic route should get parameter injected", func(t *testing.T) {
+		path := "/controller/:param"
+		router.Get(path, MyController.TestActionWithParamAndRequest)
+
+		rr := sendRequest(t, router, http.MethodGet, "/controller/test")
+
+		assert.Exactly(t, "/controller/test/test", rr.Body.String())
+	})
+
+	t.Run("Basic route should get parameter injected in any order", func(t *testing.T) {
+		path := "/controller/:param"
+		router.Get(path, MyController.TestActionWithParamAndRequestOrdered)
+
+		rr := sendRequest(t, router, http.MethodGet, "/controller/test")
+
+		assert.Exactly(t, "/controller/test/test", rr.Body.String())
+	})
+}
+
+func TestBaseGroupShouldAppendThePrefixToTheRoutes(t *testing.T) {
+	routeSwitch := evoli.NewRouteSwitch()
+	routeSwitch.Add("/api", func(router *evoli.Router) {
+		router.Get("/", func() string { return "api" })
+	})
+
+	router := routeSwitch.Get("/api")
+
+	rr := sendRequest(t, router, http.MethodGet, "/api")
+
+	assert.Exactly(t, "api", rr.Body.String())
+}
+
+func TestBaseGroupShouldRouteCorrectly(t *testing.T) {
+	routeSwitch := evoli.NewRouteSwitch()
+	routeSwitch.Add("/", func(router *evoli.Router) {
+		router.Get("/test", func() string { return "test" })
+	})
+	routeSwitch.Add("/api", func(router *evoli.Router) {
+		router.Get("/test", func() string { return "api" })
+	})
+
+	req, err := http.NewRequest(http.MethodGet, "/api/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	routeSwitch.ServeHTTP(rr, req)
+
+	assert.Exactly(t, "api", rr.Body.String())
+}
+
+type MyController struct {
+	Request http.Request
+}
+
+func (m MyController) TestActionWithParam(test string) string {
+	return test
+}
+
+func (m MyController) TestActionWithParamAndRequest(request *http.Request, test string) string {
+	return request.URL.Path + "/" + test
+}
+
+func (m MyController) TestActionWithParamAndRequestOrdered(test string, request *http.Request) string {
+	return request.URL.Path + "/" + test
+}
+
+func (m MyController) TestAction() string {
+	return m.Request.URL.Path
 }
 
 func handler() interface{} {
@@ -130,7 +220,6 @@ func handlerViewResponse() interface{} {
 	return response.View("templates.test")
 }
 
-// todo do not loose return type
 func structHandler() interface{} {
 	return testStruct{"test"}
 }

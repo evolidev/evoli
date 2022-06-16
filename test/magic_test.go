@@ -167,6 +167,38 @@ func TestFill(t *testing.T) {
 
 		assert.Exactly(t, "test", result.TestProp)
 	})
+
+	t.Run("Fill should fill data of receiver", func(t *testing.T) {
+		params := make(map[string]interface{})
+		params["TestProp"] = "test"
+		m := use.Magic(TestStructFirst.TestPointerWithValue)
+
+		m = m.WithParams(params).Fill()
+
+		assert.Exactly(t, "test", m.Call().String())
+	})
+
+	t.Run("Fill should ignore if value is a pure function", func(t *testing.T) {
+		params := make(map[string]interface{})
+		params["TestProp"] = "test"
+		m := use.Magic(func() string { return "test" })
+
+		m = m.WithParams(params).Fill()
+
+		assert.Exactly(t, "test", m.Call().String())
+	})
+}
+
+func TestWithInjectable(t *testing.T) {
+	t.Run("With injectable should inject param if it match", func(t *testing.T) {
+		params := make([]interface{}, 1)
+		params[0] = TestStructFirst{TestProp: "test"}
+		m := use.Magic(func(first TestStructFirst) string { return first.TestProp })
+
+		m = m.WithInjectable(params)
+
+		assert.Exactly(t, "test", m.Call().String())
+	})
 }
 
 func test(test1 string) {
