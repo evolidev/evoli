@@ -3,6 +3,7 @@ package console
 import (
 	"github.com/evolidev/evoli/framework/use"
 	"regexp"
+	"strings"
 )
 
 type ParsedCommand struct {
@@ -20,6 +21,11 @@ var parseRegex = "[\\/-]{0,2}?((\\w+)(?:[=:](\"[^\"]+\"|[^\\s\"]+))?)(?:\\s+|$)"
 
 func Parse(definition string, command string) *ParsedCommand {
 	r, _ := regexp.Compile(parseRegex)
-	use.D(r.FindAllString(command, -1))
+	items := r.FindAllString(command, -1)
+	for i := range items {
+		items[i] = strings.TrimSpace(items[i])
+	}
+
+	use.D(items)
 	return &ParsedCommand{}
 }
