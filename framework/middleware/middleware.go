@@ -1,11 +1,11 @@
-package router
+package middleware
 
 import "net/http"
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
-// middleware interface is anything which implements a MiddlewareFunc named Middleware.
-type middleware interface {
+// Middleware interface is anything which implements a MiddlewareFunc named Middleware.
+type Middleware interface {
 	Middleware(handler http.Handler) http.Handler
 }
 

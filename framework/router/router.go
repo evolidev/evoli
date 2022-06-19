@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/evolidev/evoli/framework/logging"
+	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/julienschmidt/httprouter"
@@ -13,7 +14,7 @@ type Router struct {
 	router      *httprouter.Router
 	prefix      string
 	logger      *logging.Logger
-	middlewares []middleware
+	middlewares []middleware.Middleware
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -127,9 +128,9 @@ func (r *Router) Prefix(prefix string) *Group {
 	return group
 }
 
-func (r *Router) Middleware(middlewares ...middleware) *Group {
+func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
 	group := NewGroup(r)
-	group.router.middlewares = middlewares
+	group.router.middlewares = append(group.router.middlewares, middlewares...)
 
 	//group.router.prefix = r.prefix + prefix
 	//
@@ -144,6 +145,11 @@ func NewRouter() *Router {
 	router.router.RedirectTrailingSlash = false
 	router.router.RedirectFixedPath = false
 
+	defaultMiddlewares := make([]middleware.Middleware, 0)
+	defaultMiddlewares = append(defaultMiddlewares, middleware.NewLoggingMiddleware())
+
+	router.middlewares = defaultMiddlewares
+
 	return router
 }
 
@@ -156,5 +162,5 @@ func (g *Group) Group(routes func(router *Router)) {
 }
 
 func NewGroup(router *Router) *Group {
-	return &Group{router: &Router{router: router.router}}
+	return &Group{router: &Router{router: router.router, middlewares: router.middlewares}}
 }

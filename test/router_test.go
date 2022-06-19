@@ -2,6 +2,7 @@ package test
 
 import (
 	"encoding/json"
+	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	evoli "github.com/evolidev/evoli/framework/router"
 	"github.com/stretchr/testify/assert"
@@ -200,7 +201,7 @@ func TestMiddleware(t *testing.T) {
 	t.Run("Middleware should accept a handler func", func(t *testing.T) {
 		router := evoli.NewRouter()
 
-		var mid evoli.MiddlewareFunc
+		var mid middleware.MiddlewareFunc
 		mid = func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				r.Header.Set("my-test-header", "test")
