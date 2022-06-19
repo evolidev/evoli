@@ -1,13 +1,13 @@
 package routes
 
 import (
-	evoli "github.com/evolidev/evoli/framework"
 	"github.com/evolidev/evoli/framework/response"
+	"github.com/evolidev/evoli/framework/router"
 )
 
-func Web(router *evoli.Router) {
+func Web(router *router.Router) {
 	router.Get("/", func() string { return "hello" })
 	router.Get("/test", func() *response.ViewResponse {
-		return response.View("test").SetBasePath("examples/simple/resources/views/")
+		return response.View("test")
 	})
 }

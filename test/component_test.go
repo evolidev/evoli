@@ -36,13 +36,13 @@ func TestRenderCorrectComponent(t *testing.T) {
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
 		hello := component.New(helloWorld{}, nil)
 
-		assert.Equal(t, "templates/hello-world.html", hello.GetFilePath())
+		assert.Equal(t, "resources/views/templates/hello-world.html", hello.GetFilePath())
 	})
 
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
 		hello := component.New(helloWorld{}, nil)
 
-		assert.Equal(t, "templates/hello-world.html", hello.GetFilePath())
+		assert.Equal(t, "resources/views/templates/hello-world.html", hello.GetFilePath())
 	})
 
 	t.Run("Get the component filesystem content", func(t *testing.T) {

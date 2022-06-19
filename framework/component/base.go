@@ -19,7 +19,7 @@ func (b *Base) GetFilePath() string {
 	}
 
 	return fmt.Sprintf(
-		"templates/%s.html",
+		"resources/views/templates/%s.html",
 		use.String(b.GetComponentName()).Kebab().Get(),
 	)
 }
