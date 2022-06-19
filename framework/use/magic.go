@@ -62,6 +62,7 @@ func (r *Reflection) Fill() *Reflection {
 			return Magic(destination).Method(r.Name()).WithInjectable(r.p.Slice())
 		}
 
+		r.WithInjectable(r.p.Slice())
 		r.p = NewCollection[string, interface{}]()
 
 		return r

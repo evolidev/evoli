@@ -1,23 +1,23 @@
 package evoli
 
 import (
-	evoli "github.com/evolidev/evoli/framework"
+	"github.com/evolidev/evoli/framework/router"
 	"log"
 	"net/http"
 )
 
 type App struct {
-	handler *evoli.RouteSwitch
+	handler *router.Router
 }
 
 func NewApplication() *App {
 	return &App{
-		handler: evoli.NewRouteSwitch(),
+		handler: router.NewRouter(),
 	}
 }
 
-func (a *App) AddRoutes(prefix string, routes func(router *evoli.Router)) {
-	a.handler.Add(prefix, routes)
+func (a *App) AddRoutes(prefix string, routes func(router *router.Router)) {
+	a.handler.Prefix(prefix).Group(routes)
 }
 
 func (a *App) Start() {
