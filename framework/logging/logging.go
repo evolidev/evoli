@@ -2,7 +2,6 @@ package logging
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path"
@@ -25,8 +24,7 @@ type Logger struct {
 }
 
 func NewLogger(c *Config) *Logger {
-
-	var w io.Writer = c.Stdout
+	var w = c.Stdout
 	if w == nil {
 		w = os.Stdout
 	}
@@ -47,36 +45,31 @@ func (l *Logger) getPrefix() string {
 	)
 }
 
-func (l *Logger) Log(color func(string, ...interface{}) string, prefix string, msg interface{}, args ...interface{}) {
-	l.log.Print(
-		fmt.Sprintf(color(prefix), msg, " ", args),
+func (l *Logger) Log(msg interface{}, args ...interface{}) {
+	l.log.Printf(
+		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(debugColor, "Log"), color.Text(textColor, msg)),
+		args...,
 	)
 }
 
 func (l *Logger) Success(msg interface{}, args ...interface{}) {
 	l.log.Printf(
-		fmt.Sprintf(
-			fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(successColor, "Success"), color.Text(textColor, msg)),
-			args...,
-		),
+		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(successColor, "Success"), color.Text(textColor, msg)),
+		args...,
 	)
 }
 
 func (l *Logger) Error(msg interface{}, args ...interface{}) {
 	l.log.Printf(
-		fmt.Sprintf(
-			fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(errorColor, "Error"), color.Text(textColor, msg)),
-			args...,
-		),
+		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(errorColor, "Error"), color.Text(textColor, msg)),
+		args...,
 	)
 }
 
 func (l *Logger) Debug(msg interface{}, args ...interface{}) {
 	l.log.Printf(
-		fmt.Sprintf(
-			fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(debugColor, "Debug"), color.Text(textColor, msg)),
-			args...,
-		),
+		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(debugColor, "Debug"), color.Text(textColor, msg)),
+		args...,
 	)
 }
 
