@@ -1,7 +1,8 @@
-package evoli
+package router
 
 import (
 	"github.com/evolidev/evoli/framework/logging"
+	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/julienschmidt/httprouter"
@@ -10,9 +11,10 @@ import (
 )
 
 type Router struct {
-	router *httprouter.Router
-	prefix string
-	logger *logging.Logger
+	router      *httprouter.Router
+	prefix      string
+	logger      *logging.Logger
+	middlewares []middleware.Middleware
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -63,11 +65,14 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 		path = r.prefix + path
 	}
 
-	r.router.Handle(method, path, func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	var next http.Handler
+	next = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		tmp := use.Magic(handler)
 
 		myParams := make(map[string]interface{}, 0)
 		myParams["Request"] = request
+
+		params := httprouter.ParamsFromContext(request.Context())
 
 		response := response.NewResponse(tmp.WithParams(myParams).Fill().WithParams(params).Call())
 
@@ -79,6 +84,12 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 
 		writer.Write(response.AsBytes())
 	})
+
+	for _, m := range r.middlewares {
+		next = m.Middleware(next)
+	}
+
+	r.router.Handler(method, path, next)
 }
 
 func (r *Router) Match(path string, handler interface{}, httpMethods ...string) {
@@ -108,53 +119,48 @@ func (r *Router) MethodTable() map[string]func(path string, handler interface{})
 	return methodTable
 }
 
+func (r *Router) Prefix(prefix string) *Group {
+	group := NewGroup(r)
+	group.router.prefix = r.prefix + prefix
+
+	group.router.prefix = strings.Replace(group.router.prefix, "//", "/", 1)
+
+	return group
+}
+
+func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
+	group := NewGroup(r)
+	group.router.middlewares = append(group.router.middlewares, middlewares...)
+
+	//group.router.prefix = r.prefix + prefix
+	//
+	//group.router.prefix = strings.Replace(group.router.prefix, "//", "/", 1)
+
+	return group
+}
+
 func NewRouter() *Router {
 	router := &Router{router: httprouter.New(), prefix: "/"}
 
 	router.router.RedirectTrailingSlash = false
 	router.router.RedirectFixedPath = false
 
+	defaultMiddlewares := make([]middleware.Middleware, 0)
+	defaultMiddlewares = append(defaultMiddlewares, middleware.NewLoggingMiddleware())
+
+	router.middlewares = defaultMiddlewares
+
 	return router
 }
 
-func NewRouteSwitch() *RouteSwitch {
-	return &RouteSwitch{
-		routes: use.NewCollection[string, *Router](),
-	}
+type Group struct {
+	router *Router
 }
 
-type RouteSwitch struct {
-	routes *use.Collection[string, *Router]
-	logger *logging.Logger
+func (g *Group) Group(routes func(router *Router)) {
+	routes(g.router)
 }
 
-func (rs *RouteSwitch) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	base := "/"
-	router := rs.routes.Get(base)
-
-	path := request.URL.Path
-
-	split := strings.Split(path, "/")
-
-	if len(split) > 1 {
-		base = "/" + split[1]
-	}
-
-	if rs.routes.Has(base) {
-		router = rs.routes.Get(base)
-	}
-
-	router.ServeHTTP(writer, request)
-}
-
-func (rs *RouteSwitch) Get(prefix string) *Router {
-	return rs.routes.Get(prefix)
-}
-
-func (rs *RouteSwitch) Add(prefix string, routes func(router *Router)) {
-	router := NewRouter()
-	router.prefix = prefix
-	routes(router)
-
-	rs.routes.Add(prefix, router)
+func NewGroup(router *Router) *Group {
+	return &Group{router: &Router{router: router.router, middlewares: router.middlewares}}
 }

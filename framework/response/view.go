@@ -13,14 +13,20 @@ type ViewResponse struct {
 	myHeaders *use.Collection[string, string]
 	data      interface{}
 	layout    string
+	basePath  string
 }
 
 func View(template string) *ViewResponse {
-	return &ViewResponse{template: template, myHeaders: use.NewCollection[string, string]()}
+	return &ViewResponse{
+		template:  template,
+		myHeaders: use.NewCollection[string, string](),
+		basePath:  "resources/views/", //todo get from config
+	}
 }
 
 func (r *ViewResponse) AsBytes() []byte {
-	view, _ := filepath.Abs(strings.Replace(r.template, ".", "/", -1) + ".html")
+	view, _ := filepath.Abs(r.basePath + strings.Replace(r.template, ".", "/", -1) + ".html")
+
 	files := []string{view}
 
 	if r.layout != "" {
@@ -59,7 +65,13 @@ func (r *ViewResponse) WithData(data interface{}) *ViewResponse {
 }
 
 func (r *ViewResponse) WithLayout(layout string) *ViewResponse {
-	r.layout = layout
+	r.layout = r.basePath + "/" + layout
+
+	return r
+}
+
+func (r *ViewResponse) SetBasePath(path string) *ViewResponse {
+	r.basePath = path
 
 	return r
 }

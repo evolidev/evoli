@@ -2,8 +2,9 @@ package test
 
 import (
 	"encoding/json"
-	evoli "github.com/evolidev/evoli/framework"
+	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
+	evoli "github.com/evolidev/evoli/framework/router"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -101,7 +102,7 @@ func TestBasic(t *testing.T) {
 		}
 		assert.Exactly(t, string(testJson), rr.Body.String())
 
-		path = "/response/view"
+		path = "/response/views"
 		router.Get(path, handlerViewResponse)
 
 		rr = sendRequest(t, router, http.MethodGet, path)
@@ -144,40 +145,103 @@ func TestBasic(t *testing.T) {
 
 		assert.Exactly(t, "/controller/test/test", rr.Body.String())
 	})
+
+	t.Run("Basic callback route should get parameter injected", func(t *testing.T) {
+		path := "/inject/into/callback"
+		router.Get(path, func(request *http.Request) string {
+			return request.URL.Path
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/inject/into/callback")
+
+		assert.Exactly(t, "/inject/into/callback", rr.Body.String())
+	})
 }
 
-func TestBaseGroupShouldAppendThePrefixToTheRoutes(t *testing.T) {
-	routeSwitch := evoli.NewRouteSwitch()
-	routeSwitch.Add("/api", func(router *evoli.Router) {
-		router.Get("/", func() string { return "api" })
+func TestPrefix(t *testing.T) {
+	t.Run("Prefix should prefix all sub routes", func(t *testing.T) {
+		router := evoli.NewRouter()
+		router.Prefix("/prefix").Group(func(router *evoli.Router) {
+			router.Get("/test", func() string { return "prefix-test" })
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/prefix/test")
+
+		assert.Exactly(t, "prefix-test", rr.Body.String())
 	})
 
-	router := routeSwitch.Get("/api")
+	t.Run("Prefix should handle sub prefix routes too", func(t *testing.T) {
+		router := evoli.NewRouter()
+		router.Prefix("/prefix").Group(func(router *evoli.Router) {
+			router.Prefix("/sub-prefix").Group(func(router *evoli.Router) {
+				router.Get("/test", func() string { return "sub-prefix-test" })
+			})
+		})
 
-	rr := sendRequest(t, router, http.MethodGet, "/api")
+		rr := sendRequest(t, router, http.MethodGet, "/prefix/sub-prefix/test")
 
-	assert.Exactly(t, "api", rr.Body.String())
+		assert.Exactly(t, "sub-prefix-test", rr.Body.String())
+	})
+
+	t.Run("Prefix should not add prefix to outside handler", func(t *testing.T) {
+		router := evoli.NewRouter()
+		router.Prefix("/prefix").Group(func(router *evoli.Router) {
+			router.Get("/test", func() string { return "sub-prefix-test" })
+		})
+
+		router.Get("/no-prefix", func() string { return "no-prefix-test" })
+
+		rr := sendRequest(t, router, http.MethodGet, "/no-prefix")
+
+		assert.Exactly(t, "no-prefix-test", rr.Body.String())
+	})
 }
 
-func TestBaseGroupShouldRouteCorrectly(t *testing.T) {
-	routeSwitch := evoli.NewRouteSwitch()
-	routeSwitch.Add("/", func(router *evoli.Router) {
-		router.Get("/test", func() string { return "test" })
+func TestMiddleware(t *testing.T) {
+	t.Run("Middleware should accept a handler func", func(t *testing.T) {
+		router := evoli.NewRouter()
+
+		var mid middleware.MiddlewareFunc
+		mid = func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				r.Header.Set("my-test-header", "test")
+
+				next.ServeHTTP(w, r)
+			})
+		}
+
+		router.Middleware(mid).Group(func(router *evoli.Router) {
+			router.Get("/middleware/test", func(request *http.Request) string { return request.Header.Get("my-test-header") })
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/middleware/test")
+
+		assert.Exactly(t, "test", rr.Body.String())
 	})
-	routeSwitch.Add("/api", func(router *evoli.Router) {
-		router.Get("/test", func() string { return "api" })
+
+	t.Run("Middleware should accept a handler", func(t *testing.T) {
+		router := evoli.NewRouter()
+
+		router.Middleware(MyMiddleware{testHeader: "test"}).Group(func(router *evoli.Router) {
+			router.Get("/middleware/test", func(request *http.Request) string { return request.Header.Get("my-test-header") })
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/middleware/test")
+
+		assert.Exactly(t, "test", rr.Body.String())
 	})
+}
 
-	req, err := http.NewRequest(http.MethodGet, "/api/test", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+type MyMiddleware struct {
+	testHeader string
+}
 
-	rr := httptest.NewRecorder()
+func (m MyMiddleware) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		request.Header.Set("my-test-header", m.testHeader)
 
-	routeSwitch.ServeHTTP(rr, req)
-
-	assert.Exactly(t, "api", rr.Body.String())
+		next.ServeHTTP(writer, request)
+	})
 }
 
 type MyController struct {
