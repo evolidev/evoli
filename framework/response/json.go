@@ -6,12 +6,12 @@ import (
 )
 
 type JsonResponse struct {
-	obj       interface{}
-	myHeaders *use.Collection[string, string]
+	baseResponse
+	obj interface{}
 }
 
 func Json(obj interface{}) *JsonResponse {
-	return &JsonResponse{obj: obj, myHeaders: use.NewCollection[string, string]()}
+	return &JsonResponse{obj: obj, baseResponse: baseResponse{myHeaders: use.NewCollection[string, string]()}}
 }
 
 func (r *JsonResponse) AsBytes() []byte {
@@ -23,8 +23,14 @@ func (r *JsonResponse) AsBytes() []byte {
 	return result
 }
 
-func (r *JsonResponse) Headers() *use.Collection[string, string] {
-	r.myHeaders.Add("Content-Type", "application/json")
+func (r *JsonResponse) WithHeader(key string, value string) *JsonResponse {
+	r.myHeaders.Add(key, value)
 
-	return r.myHeaders
+	return r
+}
+
+func (r *JsonResponse) WithCode(code int) *JsonResponse {
+	r.code = code
+
+	return r
 }

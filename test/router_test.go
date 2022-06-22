@@ -232,6 +232,21 @@ func TestMiddleware(t *testing.T) {
 	})
 }
 
+func TestRedirectResponse(t *testing.T) {
+	t.Run("A redirect response should redirect to desired route", func(t *testing.T) {
+		router := evoli.NewRouter()
+
+		router.Get("/redirect/response", func() *response.RedirectResponse {
+			return response.Redirect("/redirect/to")
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/redirect/response")
+
+		assert.Equal(t, "/redirect/to", rr.Header().Get("Location"))
+		assert.Exactly(t, http.StatusTemporaryRedirect, rr.Code)
+	})
+}
+
 type MyMiddleware struct {
 	testHeader string
 }

@@ -4,24 +4,27 @@ import (
 	"bytes"
 	"github.com/evolidev/evoli/framework/use"
 	"html/template"
+	"net/http"
 	"path/filepath"
 	"strings"
 )
 
 type ViewResponse struct {
-	template  string
-	myHeaders *use.Collection[string, string]
-	data      interface{}
-	layout    string
-	basePath  string
+	baseResponse
+	template string
+	data     interface{}
+	layout   string
+	basePath string
 }
 
 func View(template string) *ViewResponse {
-	return &ViewResponse{
-		template:  template,
-		myHeaders: use.NewCollection[string, string](),
-		basePath:  "resources/views/", //todo get from config
+	response := &ViewResponse{
+		template:     template,
+		basePath:     "resources/views/", //todo get from config
+		baseResponse: baseResponse{myHeaders: use.NewCollection[string, string]()},
 	}
+
+	return response.WithCode(http.StatusOK).WithHeader("Content-Type", "text/html")
 }
 
 func (r *ViewResponse) AsBytes() []byte {
@@ -46,12 +49,6 @@ func (r *ViewResponse) AsBytes() []byte {
 	return b.Bytes()
 }
 
-func (r *ViewResponse) Headers() *use.Collection[string, string] {
-	r.myHeaders.Add("Content-Type", "text/html")
-
-	return r.myHeaders
-}
-
 func (r *ViewResponse) WithHeader(key string, value string) *ViewResponse {
 	r.myHeaders.Add(key, value)
 
@@ -72,6 +69,12 @@ func (r *ViewResponse) WithLayout(layout string) *ViewResponse {
 
 func (r *ViewResponse) SetBasePath(path string) *ViewResponse {
 	r.basePath = path
+
+	return r
+}
+
+func (r *ViewResponse) WithCode(code int) *ViewResponse {
+	r.code = code
 
 	return r
 }

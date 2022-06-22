@@ -76,17 +76,23 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 
 		params := httprouter.ParamsFromContext(request.Context())
 
-		response := response.NewResponse(
+		myResponse := response.NewResponse(
 			tmp.WithParams(myParams).Fill().WithParams(params).Call(),
 		)
 
-		response.Headers().Iterate(func(key string, value string) {
+		myResponse.Headers().Iterate(func(key string, value string) {
 			writer.Header().Add(key, value)
 		})
 
 		writer.Header().Add("Content-Type", "charset=utf-8")
 
-		writer.Write(response.AsBytes())
+		if redirect, ok := myResponse.(*response.RedirectResponse); ok {
+			http.Redirect(writer, request, redirect.To, myResponse.Code())
+
+			return
+		}
+
+		writer.Write(myResponse.AsBytes())
 	})
 
 	for _, m := range r.middlewares {

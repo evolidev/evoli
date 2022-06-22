@@ -22,7 +22,21 @@ func NewResponse(arg interface{}) Response {
 	}
 }
 
+type baseResponse struct {
+	myHeaders *use.Collection[string, string]
+	code      int
+}
+
+func (r *baseResponse) Headers() *use.Collection[string, string] {
+	return r.myHeaders
+}
+
+func (r *baseResponse) Code() int {
+	return r.code
+}
+
 type Response interface {
 	AsBytes() []byte
 	Headers() *use.Collection[string, string]
+	Code() int
 }
