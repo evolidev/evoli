@@ -8,9 +8,10 @@ import (
 )
 
 type requestInfo struct {
-	Uri  string
-	Body string
-	Form url.Values
+	Uri    string
+	Body   string
+	Form   url.Values
+	Method string
 }
 
 type LoggingMiddleware struct {
@@ -29,9 +30,10 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 		request.Body.Read(body)
 		request.ParseForm()
 		info := requestInfo{
-			Uri:  request.RequestURI,
-			Body: string(body),
-			Form: request.Form,
+			Uri:    request.RequestURI,
+			Body:   string(body),
+			Form:   request.Form,
+			Method: request.Method,
 		}
 		jsonResponse, _ := json.Marshal(info)
 		lm.logger.Success(jsonResponse)
