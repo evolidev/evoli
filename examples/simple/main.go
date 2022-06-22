@@ -8,7 +8,7 @@ import (
 )
 
 var logger *logging.Logger
-var app *evoli.App
+var app *evoli.Application
 
 func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})

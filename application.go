@@ -6,21 +6,21 @@ import (
 	"net/http"
 )
 
-type App struct {
+type Application struct {
 	handler *router.Router
 }
 
-func NewApplication() *App {
-	return &App{
+func NewApplication() *Application {
+	return &Application{
 		handler: router.NewRouter(),
 	}
 }
 
-func (a *App) AddRoutes(prefix string, routes func(router *router.Router)) {
+func (a *Application) AddRoutes(prefix string, routes func(router *router.Router)) {
 	a.handler.Prefix(prefix).Group(routes)
 }
 
-func (a *App) Start() {
+func (a *Application) Start() {
 	log.Fatal(http.ListenAndServe(":8081", a.handler))
 }
 
