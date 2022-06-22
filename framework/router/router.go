@@ -69,12 +69,16 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 	next = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		tmp := use.Magic(handler)
 
+		request.ParseForm()
 		myParams := make(map[string]interface{}, 0)
 		myParams["Request"] = request
+		myParams["Form"] = request.Form
 
 		params := httprouter.ParamsFromContext(request.Context())
 
-		response := response.NewResponse(tmp.WithParams(myParams).Fill().WithParams(params).Call())
+		response := response.NewResponse(
+			tmp.WithParams(myParams).Fill().WithParams(params).Call(),
+		)
 
 		response.Headers().Iterate(func(key string, value string) {
 			writer.Header().Add(key, value)
@@ -157,7 +161,7 @@ type Group struct {
 	router *Router
 }
 
-func (g *Group) Group(routes func(router *Router)) {
+func (g *Group) Group(routes func(*Router)) {
 	routes(g.router)
 }
 
