@@ -2,6 +2,8 @@ package evoli
 
 import (
 	"github.com/evolidev/evoli/framework/router"
+	"github.com/evolidev/evoli/framework/use"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 )
@@ -18,6 +20,10 @@ func NewApplication() *Application {
 
 func (a *Application) AddRoutes(prefix string, routes func(router *router.Router)) {
 	a.handler.Prefix(prefix).Group(routes)
+}
+
+func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
+	migrate(use.DB())
 }
 
 func (a *Application) Start() {
