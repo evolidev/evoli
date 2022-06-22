@@ -47,9 +47,24 @@ func (i *inputParser) parseSingle(input reflect.Type, value interface{}) reflect
 		parsedParam = i.parseIntParam(value)
 	} else if kind == reflect.Bool {
 		parsedParam = i.parseBoolParam(value)
+	} else if (kind == reflect.Struct || kind == reflect.Ptr) && (parsedParam.Kind() == reflect.String || parsedParam.Kind() == reflect.Int) {
+		id := i.parseIntParam(value)
+
+		parsedParam = getRecordFromTypeAndId(input, int(id.Int()))
 	}
 
 	return parsedParam
+}
+
+func getRecordFromTypeAndId(paramType reflect.Type, id int) reflect.Value {
+
+	destination := reflect.New(paramType).Elem().Interface()
+	reflectValue := reflect.ValueOf(destination)
+	destination = reflect.New(reflectValue.Type().Elem()).Interface()
+
+	DB().First(destination, id)
+
+	return reflect.ValueOf(destination)
 }
 
 func (i *inputParser) appendReceiver(arguments []reflect.Value) []reflect.Value {

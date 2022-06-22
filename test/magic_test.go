@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 	"strconv"
 	"testing"
 )
@@ -103,6 +104,25 @@ func TestCall(t *testing.T) {
 		result := m.WithParams(params).Call()
 
 		assert.Exactly(t, "hello-world-1", result.Interface().(string))
+	})
+
+	t.Run("Call should call given function where param is a model", func(t *testing.T) {
+		db := use.DB()
+		db.AutoMigrate(&MyModel{})
+		db.Create(&MyModel{Test: "test"})
+		myfunc := func(myModel *MyModel) string {
+			return myModel.Test
+		}
+
+		params := make([]interface{}, 0)
+		params = append(params, "1")
+
+		m := use.Magic(myfunc)
+
+		result := m.WithParams(params).Call()
+
+		assert.Exactly(t, "test", result.Interface().(string))
+
 	})
 
 	t.Run("Call should be able to change struct fields", func(t *testing.T) {
@@ -233,4 +253,9 @@ type TestStructSecond struct {
 
 func New(t interface{}) {
 
+}
+
+type MyModel struct {
+	gorm.Model
+	Test string
 }
