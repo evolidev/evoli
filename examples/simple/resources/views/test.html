@@ -1,1 +1,29 @@
-<h1>Hello World</h1>
+<h1>Persons</h1>
+
+<form action="/person" method="post">
+    <label for="name"></label>
+    <input id="name" name="Name" type="text"/>
+
+    <button type="submit">Submit</button>
+</form>
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Created</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+            {{ range $val := . }}
+        <tr>
+            <td>{{$val.Name}}</td>
+            <td>{{$val.CreatedAt}}</td>
+        </tr>
+            {{ end }}
+    </tbody>
+
+</table>

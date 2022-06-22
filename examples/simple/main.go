@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/evolidev/evoli"
+	"github.com/evolidev/evoli/examples/simple/database"
 	"github.com/evolidev/evoli/examples/simple/routes"
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/logging"
@@ -25,6 +26,7 @@ func main() {
 	app = evoli.NewApplication()
 	app.AddRoutes("/", routes.Web)
 	app.AddRoutes("/api", routes.Api)
+	app.AddMigration(database.Migrate)
 
 	app.Start()
 }
