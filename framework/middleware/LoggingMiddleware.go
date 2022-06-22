@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"github.com/evolidev/evoli/framework/logging"
 	"net/http"
+	"net/url"
 )
 
 type requestInfo struct {
 	Uri  string
 	Body string
+	Form url.Values
 }
 
 type LoggingMiddleware struct {
@@ -25,9 +27,11 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		body := make([]byte, 0)
 		request.Body.Read(body)
+		request.ParseForm()
 		info := requestInfo{
 			Uri:  request.RequestURI,
 			Body: string(body),
+			Form: request.Form,
 		}
 		jsonResponse, _ := json.Marshal(info)
 		lm.logger.Success(jsonResponse)
