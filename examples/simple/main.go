@@ -18,15 +18,6 @@ var content embed.FS
 func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
 
-	//logger.Success("Starting..")
-
-	//consoleTest()
-	//consoleTest()
-	//consoleTest()
-	//consoleTest()
-	//
-	//helloWorldComponentTest()
-
 	app = evoli.NewApplication()
 	app.SetFS(content)
 	app.AddRoutes("/", routes.Web)

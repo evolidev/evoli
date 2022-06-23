@@ -21,7 +21,8 @@ func NewApplication() *Application {
 	return &Application{
 		handler: router.NewRouter(),
 		logger: logging.NewLogger(&logging.Config{
-			Name: "app",
+			Name:        "app",
+			PrefixColor: 120,
 		}),
 	}
 }
