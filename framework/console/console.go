@@ -3,6 +3,7 @@ package console
 import (
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/evolidev/evoli/framework/console/color"
@@ -87,6 +88,7 @@ func New() *Console {
 func groupCommands(commands map[string]*Command) []CommandGroup {
 	groups := make(map[string][]*Command)
 
+	var keys []string
 	for _, cmd := range commands {
 		commandParts := strings.Split(cmd.GetName(), ":")
 		prefix := ""
@@ -94,18 +96,22 @@ func groupCommands(commands map[string]*Command) []CommandGroup {
 			prefix = commandParts[0]
 		}
 
-		//cmd.GetName() = commandParts[len(commandParts)-1]
+		if _, ok := groups[prefix]; !ok {
+			keys = append(keys, prefix)
+		}
 
 		groups[prefix] = append(groups[prefix], cmd)
 	}
 
+	sort.Strings(keys)
+
 	var groupedCommands []CommandGroup
-	for prefix, group := range groups {
+	for _, key := range keys {
 		groupedCommands = append(groupedCommands, CommandGroup{
-			Name:        prefix,
+			Name:        key,
 			Description: "",
-			Prefix:      prefix,
-			Commands:    group,
+			Prefix:      key,
+			Commands:    groups[key],
 		})
 	}
 

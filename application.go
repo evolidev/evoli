@@ -37,18 +37,11 @@ func (a *Application) Start() {
 
 	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
 
-	cli.AddCommand("route:list", "List all registered routes", a.Serve)
-	cli.AddCommand("make:routes", "List all registered routes", a.Serve)
-	cli.AddCommand("make:controller", "List all registered routes", a.Serve)
-
 	cli.Run()
 }
 
 func (a *Application) Serve(command *console.ParsedCommand) {
-	port := command.GetOption("port").(string)
-	if port == "" {
-		port = "8081"
-	}
+	port := command.GetOptionWithDefault("port", 8081).(string)
 
 	a.logger.Log("Serving application on http://localhost:%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, a.handler))

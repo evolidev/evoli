@@ -36,6 +36,14 @@ func (p *ParsedCommand) GetSubCommand() string {
 	return p.subCommand
 }
 
+func (p *ParsedCommand) GetOptionWithDefault(s string, defaultValue interface{}) interface{} {
+	option := p.GetOption(s)
+	if option == nil {
+		return defaultValue
+	}
+	return option
+}
+
 var parseRegex = "[\\/-]{0,2}?((\\w+)(?:[=:](\"[^\"]+\"|[^\\s\"]+))?)(?:\\s+|$)"
 
 func Parse(definition string, command string) *ParsedCommand {
