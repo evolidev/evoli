@@ -1,6 +1,7 @@
 package evoli
 
 import (
+	"embed"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/router"
@@ -13,6 +14,7 @@ import (
 type Application struct {
 	handler *router.Router
 	logger  *logging.Logger
+	fs      embed.FS
 }
 
 func NewApplication() *Application {
@@ -38,6 +40,11 @@ func (a *Application) Start() {
 	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
 
 	cli.Run()
+}
+
+func (a *Application) SetFS(fs embed.FS) {
+	a.fs = fs
+	a.handler.Fs = a.fs
 }
 
 func (a *Application) Serve(command *console.ParsedCommand) {
