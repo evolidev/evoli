@@ -1,6 +1,7 @@
 package evoli
 
 import (
+	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
 	"gorm.io/gorm"
@@ -27,11 +28,19 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 }
 
 func (a *Application) Start() {
+	cli := console.New()
+
+	cli.AddCommand("routes", "List all registered routes", a.Serve)
+	cli.AddCommand("make:routes", "List all registered routes", a.Serve)
+	cli.AddCommand("make:controller", "List all registered routes", a.Serve)
+
+	cli.Run()
+}
+
+func (a *Application) Serve(command *console.ParsedCommand) {
 	log.Fatal(http.ListenAndServe(":8081", a.handler))
 }
 
-func Start() {
-	//console.Commands()
-	//watch()
-
+type MakeController struct {
+	console.Command
 }

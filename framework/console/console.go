@@ -2,16 +2,37 @@ package console
 
 import (
 	"fmt"
+	"github.com/evolidev/evoli/framework/use"
 	"os"
+	"strings"
 
 	"github.com/evolidev/evoli/framework/console/color"
 	"github.com/olekukonko/tablewriter"
 )
 
+// create command interface
+type CommandInterface interface {
+	GetName() string
+	GetDescription() string
+	Run(*ParsedCommand)
+}
+
 type Command struct {
 	Name        string
 	Description string
-	Execution   string
+	Execution   func(c *ParsedCommand)
+}
+
+func (cmd *Command) GetName() string {
+	return cmd.Name
+}
+
+func (cmd *Command) GetDescription() string {
+	return cmd.Name
+}
+
+func (cmd *Command) Run(c *ParsedCommand) {
+	//return cmd.Name
 }
 
 type CommandGroup struct {
@@ -21,44 +42,70 @@ type CommandGroup struct {
 	Commands    []Command
 }
 
-func Commands() {
-	commands := []CommandGroup{
-		CommandGroup{"Routes", "", "route", []Command{
-			Command{"cache", "Create a route cache file for faster route registration", ""},
-			Command{"clear", "Remove the route cache file", ""},
-			Command{"list", "List all registered routes", ""},
-		}},
-
-		CommandGroup{"Config", "", "config", []Command{
-			Command{"cache", "Create a route cache file for faster route registration", ""},
-			Command{"clear", "Remove the route cache file", ""},
-			Command{"list", "List all registered routes", ""},
-		}},
-
-		CommandGroup{"Make", "", "make", []Command{
-			Command{"cache", "Create a route cache file for faster route registration", ""},
-			Command{"clear", "Remove the route cache file", ""},
-			Command{"list", "List all registered routes", ""},
-		}},
-
-		CommandGroup{"Cache", "", "cache", []Command{
-			Command{"clear", "Create a route cache file for faster route registration", ""},
-			Command{"forget", "Remove the route cache file", ""},
-			Command{"table", "List all registered routes", ""},
-		}},
-
-		CommandGroup{"Migrate", "", "migrate", []Command{
-			Command{"fresh", "Create a route cache file for faster route registration", ""},
-			Command{"generate", "Remove the route cache file", ""},
-			Command{"install", "List all registered routes", ""},
-			Command{"reset", "List all registered routes", ""},
-			Command{"rollback", "List all registered routes", ""},
-			Command{"status", "List all registered routes", ""},
-		}},
-	}
-
-	commandsRender(commands)
+type Console struct {
+	Commands []Command
 }
+
+func (c *Console) Run() {
+	// read arguments
+	args := os.Args[1:]
+	use.D(args)
+	Render(c.Commands)
+}
+
+func (c *Console) Add(command Command) {
+	c.Commands = append(c.Commands, command)
+}
+
+func (c *Console) AddCommand(name string, description string, execution func(c *ParsedCommand)) *Command {
+	command := Command{name, description, execution}
+	c.Commands = append(c.Commands, command)
+
+	return &command
+}
+
+func New() *Console {
+	return &Console{}
+}
+
+//func CommandsOld() {
+//	commands := []CommandGroup{
+//		CommandGroup{"Routes", "", "route", []Command{
+//			Command{"cache", "Create a route cache file for faster route registration", ""},
+//			Command{"clear", "Remove the route cache file", ""},
+//			Command{"list", "List all registered routes", ""},
+//		}},
+//
+//		CommandGroup{"Config", "", "config", []Command{
+//			Command{"cache", "Create a route cache file for faster route registration", ""},
+//			Command{"clear", "Remove the route cache file", ""},
+//			Command{"list", "List all registered routes", ""},
+//		}},
+//
+//		CommandGroup{"Make", "", "make", []Command{
+//			Command{"cache", "Create a route cache file for faster route registration", ""},
+//			Command{"clear", "Remove the route cache file", ""},
+//			Command{"list", "List all registered routes", ""},
+//		}},
+//
+//		CommandGroup{"Cache", "", "cache", []Command{
+//			Command{"clear", "Create a route cache file for faster route registration", ""},
+//			Command{"forget", "Remove the route cache file", ""},
+//			Command{"table", "List all registered routes", ""},
+//		}},
+//
+//		CommandGroup{"Migrate", "", "migrate", []Command{
+//			Command{"fresh", "Create a route cache file for faster route registration", ""},
+//			Command{"generate", "Remove the route cache file", ""},
+//			Command{"install", "List all registered routes", ""},
+//			Command{"reset", "List all registered routes", ""},
+//			Command{"rollback", "List all registered routes", ""},
+//			Command{"status", "List all registered routes", ""},
+//		}},
+//	}
+//
+//	commandsRender(commands)
+//}
 
 func commandsRender(commands []CommandGroup) {
 	table := tablewriter.NewWriter(os.Stdout)
@@ -86,6 +133,109 @@ func commandsRender(commands []CommandGroup) {
 	)
 
 	for _, group := range commands {
+		table.Rich([]string{group.Name, group.Description}, []tablewriter.Colors{
+			tablewriter.Colors{tablewriter.FgHiGreenColor},
+			tablewriter.Colors{},
+		})
+
+		for _, cmd := range group.Commands {
+			table.Append([]string{
+				color.Text(140, group.Prefix+":") + color.Text(169, cmd.Name),
+				color.Text(103, cmd.Description),
+			})
+		}
+
+		table.Append([]string{""})
+	}
+
+	//fmt.Println()
+	fmt.Println(fmt.Sprintf("Evoli Console %s", color.Text(169, "0.0.1")))
+	fmt.Println()
+	table.Render()
+	fmt.Println()
+}
+
+func groupCommands(commands []Command) []CommandGroup {
+	groups := make(map[string][]Command)
+
+	for _, cmd := range commands {
+		commandParts := strings.Split(cmd.Name, ":")
+		prefix := ""
+		if len(commandParts) > 1 {
+			prefix = commandParts[0]
+		}
+
+		cmd.Name = commandParts[len(commandParts)-1]
+
+		groups[prefix] = append(groups[prefix], cmd)
+	}
+
+	var groupedCommands []CommandGroup
+	for prefix, group := range groups {
+		groupedCommands = append(groupedCommands, CommandGroup{
+			Name:        prefix,
+			Description: "",
+			Prefix:      prefix,
+			Commands:    group,
+		})
+	}
+
+	return groupedCommands
+}
+
+func Render(commands []Command) {
+	groupedCommands := groupCommands(commands)
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Available Commands", ""})
+	table.SetAutoWrapText(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("")
+	table.SetHeaderLine(false)
+	table.SetBorder(false)
+	table.SetTablePadding("\t") // pad with tabs
+	table.SetNoWhiteSpace(true)
+
+	table.SetColumnColor(
+		tablewriter.Colors{tablewriter.FgHiMagentaColor},
+		tablewriter.Colors{tablewriter.FgHiBlackColor},
+	)
+
+	table.SetHeaderColor(
+		tablewriter.Colors{tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.FgHiBlackColor},
+	)
+
+	//for _, group := range commands {
+	//	commandParts := strings.Split(group.Name, ":")
+	//	commandName := commandParts[0]
+	//	prefix := ""
+	//	if len(commandParts) > 1 {
+	//		prefix = commandParts[0]
+	//		commandName = commandParts[1]
+	//	}
+	//
+	//	prefixText := ""
+	//	if prefix != "" {
+	//		table.Rich([]string{prefix, group.Description}, []tablewriter.Colors{
+	//			tablewriter.Colors{tablewriter.FgHiGreenColor},
+	//			tablewriter.Colors{},
+	//		})
+	//		prefixText = color.Text(140, prefix+":")
+	//	}
+	//
+	//	table.Append([]string{
+	//		prefixText + color.Text(169, commandName),
+	//		color.Text(103, group.Description),
+	//	})
+	//
+	//	table.Append([]string{""})
+	//}
+
+	for _, group := range groupedCommands {
 		table.Rich([]string{group.Name, group.Description}, []tablewriter.Colors{
 			tablewriter.Colors{tablewriter.FgHiGreenColor},
 			tablewriter.Colors{},
