@@ -58,13 +58,6 @@ func (r *Router) Trace(path string, handler interface{}) {
 }
 
 func (r *Router) handle(method string, path string, handler interface{}) {
-	if r.prefix != "/" {
-		if path == "/" {
-			path = ""
-		}
-		path = r.prefix + path
-	}
-
 	var next http.Handler
 	next = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		tmp := use.Magic(handler)
@@ -99,7 +92,22 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 		next = m.Middleware(next)
 	}
 
-	r.router.Handler(method, path, next)
+	r.router.Handler(method, r.pathWithPrefix(path), next)
+}
+
+func (r *Router) ServeFiles(path string, fs http.FileSystem) {
+	r.router.ServeFiles(r.pathWithPrefix(path), fs)
+}
+
+func (r *Router) pathWithPrefix(path string) string {
+	if r.prefix != "/" {
+		if path == "/" {
+			path = ""
+		}
+		path = r.prefix + path
+	}
+
+	return path
 }
 
 func (r *Router) Match(path string, handler interface{}, httpMethods ...string) {
