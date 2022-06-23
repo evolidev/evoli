@@ -2,6 +2,7 @@ package evoli
 
 import (
 	"github.com/evolidev/evoli/framework/console"
+	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
 	"gorm.io/gorm"
@@ -11,11 +12,15 @@ import (
 
 type Application struct {
 	handler *router.Router
+	logger  *logging.Logger
 }
 
 func NewApplication() *Application {
 	return &Application{
 		handler: router.NewRouter(),
+		logger: logging.NewLogger(&logging.Config{
+			Name: "app",
+		}),
 	}
 }
 
@@ -30,7 +35,9 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 func (a *Application) Start() {
 	cli := console.New()
 
-	cli.AddCommand("routes", "List all registered routes", a.Serve)
+	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
+
+	cli.AddCommand("route:list", "List all registered routes", a.Serve)
 	cli.AddCommand("make:routes", "List all registered routes", a.Serve)
 	cli.AddCommand("make:controller", "List all registered routes", a.Serve)
 
@@ -38,7 +45,13 @@ func (a *Application) Start() {
 }
 
 func (a *Application) Serve(command *console.ParsedCommand) {
-	log.Fatal(http.ListenAndServe(":8081", a.handler))
+	port := command.GetOption("port").(string)
+	if port == "" {
+		port = "8081"
+	}
+
+	a.logger.Log("Serving application on http://localhost:%s", port)
+	log.Fatal(http.ListenAndServe(":"+port, a.handler))
 }
 
 type MakeController struct {
