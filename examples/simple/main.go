@@ -26,6 +26,7 @@ func main() {
 	app = evoli.NewApplication()
 	app.AddRoutes("/", routes.Web)
 	app.AddRoutes("/api", routes.Api)
+	app.AddRoutes("/resources", routes.Files)
 	app.AddMigration(database.Migrate)
 
 	app.Start()
