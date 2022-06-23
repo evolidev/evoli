@@ -17,6 +17,7 @@ const timeColor = 240
 const debugColor = 3
 const successColor = 2
 const errorColor = 1
+const logColor = 61
 
 type Logger struct {
 	log    *log.Logger
@@ -47,7 +48,7 @@ func (l *Logger) getPrefix() string {
 
 func (l *Logger) Log(msg interface{}, args ...interface{}) {
 	l.log.Printf(
-		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(debugColor, "Log"), color.Text(textColor, msg)),
+		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(logColor, "Log"), color.Text(textColor, msg)),
 		args...,
 	)
 }
