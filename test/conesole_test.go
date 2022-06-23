@@ -58,7 +58,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, true, cmd.GetOption("queue").(bool))
+		assert.Equal(t, "", cmd.GetOption("queue"))
 	})
 
 	t.Run("Parse command and pass option and alias", func(t *testing.T) {
@@ -68,6 +68,42 @@ func TestParseSimpleCommand(t *testing.T) {
 		cmd := console.Parse(definition, command)
 
 		assert.Equal(t, true, cmd.GetOption("Q").(bool))
+	})
+
+	t.Run("Get name of command", func(t *testing.T) {
+		command := "mail:send"
+		definition := "mail:send {user} {--Q|queue}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "mail:send", cmd.GetName())
+	})
+
+	t.Run("Get prefix of command", func(t *testing.T) {
+		command := "mail:send"
+		definition := "mail:send {user} {--Q|queue}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "mail", cmd.GetPrefix())
+	})
+
+	t.Run("Get subcommand of command", func(t *testing.T) {
+		command := "mail:send"
+		definition := "mail:send {user} {--Q|queue}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "send", cmd.GetSubCommand())
+	})
+
+	t.Run("Get empty subcommand of command", func(t *testing.T) {
+		command := "mail"
+		definition := "mail:send {user} {--Q|queue}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "", cmd.GetSubCommand())
 	})
 
 }
