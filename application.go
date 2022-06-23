@@ -1,6 +1,7 @@
 package evoli
 
 import (
+	"embed"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
 	"gorm.io/gorm"
@@ -10,6 +11,7 @@ import (
 
 type Application struct {
 	handler *router.Router
+	fs      embed.FS
 }
 
 func NewApplication() *Application {
@@ -28,6 +30,11 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 
 func (a *Application) Start() {
 	log.Fatal(http.ListenAndServe(":8081", a.handler))
+}
+
+func (a *Application) SetFS(fs embed.FS) {
+	a.fs = fs
+	a.handler.Fs = a.fs
 }
 
 func Start() {

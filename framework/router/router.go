@@ -1,11 +1,13 @@
 package router
 
 import (
+	"embed"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/julienschmidt/httprouter"
+	"io/fs"
 	"net/http"
 	"strings"
 )
@@ -15,6 +17,7 @@ type Router struct {
 	prefix      string
 	logger      *logging.Logger
 	middlewares []middleware.Middleware
+	Fs          embed.FS
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -96,7 +99,7 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 }
 
 func (r *Router) ServeFiles(path string, fs http.FileSystem) {
-	r.router.ServeFiles(r.pathWithPrefix(path), fs)
+	r.router.ServeFiles(r.pathWithPrefix(path)+"/*filepath", fs)
 }
 
 func (r *Router) pathWithPrefix(path string) string {
@@ -157,6 +160,13 @@ func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
 	return group
 }
 
+func (r *Router) Static(path string, rootDir string) {
+	//filesystem := r.Fs.(rootDir)
+
+	sub, _ := fs.Sub(r.Fs, rootDir)
+	r.ServeFiles(path, http.FS(sub))
+}
+
 func NewRouter() *Router {
 	router := &Router{router: httprouter.New(), prefix: "/"}
 
@@ -180,5 +190,5 @@ func (g *Group) Group(routes func(*Router)) {
 }
 
 func NewGroup(router *Router) *Group {
-	return &Group{router: &Router{router: router.router, middlewares: router.middlewares}}
+	return &Group{router: &Router{router: router.router, middlewares: router.middlewares, Fs: router.Fs}}
 }
