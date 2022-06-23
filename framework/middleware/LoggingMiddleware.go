@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"encoding/json"
 	"github.com/evolidev/evoli/framework/logging"
+	"github.com/evolidev/evoli/framework/use"
 	"net/http"
 	"net/url"
 )
@@ -20,7 +20,7 @@ type LoggingMiddleware struct {
 
 func NewLoggingMiddleware() LoggingMiddleware {
 	return LoggingMiddleware{
-		logger: logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73}),
+		logger: logging.NewLogger(&logging.Config{Name: "router", PrefixColor: 144}),
 	}
 }
 
@@ -35,8 +35,8 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 			Form:   request.Form,
 			Method: request.Method,
 		}
-		jsonResponse, _ := json.Marshal(info)
-		lm.logger.Success(jsonResponse)
+		jsonResponse := use.JsonEncode(info)
+		lm.logger.Log(jsonResponse)
 
 		next.ServeHTTP(writer, request)
 	})
