@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"github.com/evolidev/evoli"
 	"github.com/evolidev/evoli/examples/simple/database"
 	"github.com/evolidev/evoli/examples/simple/routes"
@@ -10,6 +11,9 @@ import (
 
 var logger *logging.Logger
 var app *evoli.Application
+
+//go:embed resources public
+var content embed.FS
 
 func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
@@ -24,9 +28,10 @@ func main() {
 	helloWorldComponentTest()
 
 	app = evoli.NewApplication()
+	app.SetFS(content)
 	app.AddRoutes("/", routes.Web)
 	app.AddRoutes("/api", routes.Api)
-	app.AddRoutes("/resources", routes.Files)
+	app.AddRoutes("/assets", routes.Files)
 	app.AddMigration(database.Migrate)
 
 	app.Start()
