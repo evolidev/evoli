@@ -96,7 +96,9 @@ func (r *ViewResponse) WithCode(code int) *ViewResponse {
 func replaceTemplate(template string) string {
 	s := template
 
+	// TODO add an adapter to add custom tags
 	s = strings.ReplaceAll(template, "@componentHeader", "<!-- @componentHeader -->")
+	s = strings.ReplaceAll(s, "@componentFooter", "<!-- @componentFooter -->")
 
 	return s
 }

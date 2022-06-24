@@ -22,7 +22,7 @@ func isBuildAsRun() bool {
 	return res
 }
 
-func BasePath(...string) string {
+func BasePath(path ...string) string {
 	if rootDir != "" {
 		return rootDir
 	}
@@ -33,7 +33,12 @@ func BasePath(...string) string {
 		rootDir = getByRuntime()
 	}
 
-	return rootDir
+	output := strings.TrimSpace(rootDir)
+	for _, p := range path {
+		output = output + "/" + p
+	}
+
+	return output
 }
 
 func getByExecutable() string {

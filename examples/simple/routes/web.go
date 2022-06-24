@@ -34,4 +34,8 @@ func Web(web *router.Router) {
 			return &person
 		})
 	})
+
+	web.Get("/component", func() *response.ViewResponse {
+		return response.View("component")
+	})
 }
