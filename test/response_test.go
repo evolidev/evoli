@@ -51,10 +51,6 @@ func TestFactory(t *testing.T) {
 	})
 }
 
-type TemplateData struct {
-	Name string
-}
-
 func TestView(t *testing.T) {
 	t.Run("ViewResponse should return value from template", func(t *testing.T) {
 		view := evoli.View("templates.test")
@@ -71,10 +67,10 @@ func TestView(t *testing.T) {
 	})
 
 	t.Run("ViewResponse should handle given data", func(t *testing.T) {
-		data := TemplateData{Name: "test"}
+		data := map[string]any{"Name": "test"}
 
 		view := evoli.View("templates.test_with_data").
-			WithData(&data)
+			WithData(data)
 
 		assert.Exactly(t, "<div>Hello test</div>", string(view.AsBytes()))
 	})

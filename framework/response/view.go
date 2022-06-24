@@ -13,7 +13,7 @@ import (
 type ViewResponse struct {
 	baseResponse
 	template string
-	data     interface{}
+	data     map[string]interface{}
 	layout   string
 	basePath string
 }
@@ -55,11 +55,11 @@ func (r *ViewResponse) parse() (bytes.Buffer, error) {
 	}
 
 	tmp := template.New(path.Base(files[0]))
-	tmp.Delims("{%", "%}") // set delimiters (TODO read from config)
+	tmp.Delims("{!", "!}") // set delimiters (TODO read from config)
 	tmpl := template.Must(tmp.ParseFiles(files...))
 
 	var b bytes.Buffer
-	err := tmpl.Execute(&b, r.data)
+	err := tmpl.Execute(&b, r.GetAllData())
 	return b, err
 }
 
@@ -69,7 +69,7 @@ func (r *ViewResponse) WithHeader(key string, value string) *ViewResponse {
 	return r
 }
 
-func (r *ViewResponse) WithData(data interface{}) *ViewResponse {
+func (r *ViewResponse) WithData(data map[string]interface{}) *ViewResponse {
 	r.data = data
 
 	return r
@@ -91,6 +91,10 @@ func (r *ViewResponse) WithCode(code int) *ViewResponse {
 	r.code = code
 
 	return r
+}
+
+func (r *ViewResponse) GetAllData() any {
+	return r.data
 }
 
 func replaceTemplate(template string) string {

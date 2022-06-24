@@ -31,7 +31,7 @@ func (b *Base) GetComponentName() string {
 func (b *Base) GetRawContent() string {
 	path := b.GetFilePath()
 
-	return string(response.View(path).AsBytes())
+	return string(response.View(path).WithData(b.GetState()).AsBytes())
 }
 
 func (b *Base) Render() string {

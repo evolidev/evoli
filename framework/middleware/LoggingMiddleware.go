@@ -42,10 +42,11 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(writer, request)
 
+		jsonResponse := use.JsonEncode(info)
+
 		end := time.Now()
 		diff := end.Sub(start)
 
-		jsonResponse := use.JsonEncode(info)
 		lm.logger.Log("%s %s", jsonResponse, color.Text(150, "("+diff.String()+")"))
 	})
 }

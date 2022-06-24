@@ -45,7 +45,7 @@ func TestRenderCorrectComponent(t *testing.T) {
 		assert.Equal(t, "templates/hello-world", hello.GetFilePath())
 	})
 
-	t.Run("Get the component filesystem content", func(t *testing.T) {
+	t.Run("Get the component filesystem content and make sure the double braces are not parsed", func(t *testing.T) {
 		hello := component.New(helloWorld{}, nil)
 
 		assert.Equal(t, "<div>Hello {{ Name }}</div>", hello.GetRawContent())
