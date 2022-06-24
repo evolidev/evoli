@@ -2,7 +2,7 @@ package component
 
 import (
 	"fmt"
-	"github.com/evolidev/evoli/framework/filesystem"
+	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 )
 
@@ -19,7 +19,7 @@ func (b *Base) GetFilePath() string {
 	}
 
 	return fmt.Sprintf(
-		"resources/views/templates/%s.html",
+		"templates/%s",
 		use.String(b.GetComponentName()).Kebab().Get(),
 	)
 }
@@ -31,7 +31,7 @@ func (b *Base) GetComponentName() string {
 func (b *Base) GetRawContent() string {
 	path := b.GetFilePath()
 
-	return filesystem.Read(path)
+	return string(response.View(path).AsBytes())
 }
 
 func (b *Base) Render() string {

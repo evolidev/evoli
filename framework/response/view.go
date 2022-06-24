@@ -5,6 +5,7 @@ import (
 	"github.com/evolidev/evoli/framework/use"
 	"html/template"
 	"net/http"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -28,6 +29,22 @@ func View(template string) *ViewResponse {
 }
 
 func (r *ViewResponse) AsBytes() []byte {
+	return []byte(r.AsString())
+}
+
+func (r *ViewResponse) AsString() string {
+	b, err := r.parse()
+
+	if err != nil {
+		return ""
+	}
+
+	output := b.String()
+
+	return replaceTemplate(output)
+}
+
+func (r *ViewResponse) parse() (bytes.Buffer, error) {
 	view, _ := filepath.Abs(r.basePath + strings.Replace(r.template, ".", "/", -1) + ".html")
 
 	files := []string{view}
@@ -37,16 +54,13 @@ func (r *ViewResponse) AsBytes() []byte {
 		files = append(files, layout)
 	}
 
-	tmpl := template.Must(template.ParseFiles(files...))
+	tmp := template.New(path.Base(files[0]))
+	tmp.Delims("{%", "%}") // set delimiters (TODO read from config)
+	tmpl := template.Must(tmp.ParseFiles(files...))
 
 	var b bytes.Buffer
 	err := tmpl.Execute(&b, r.data)
-
-	if err != nil {
-		return []byte{}
-	}
-
-	return b.Bytes()
+	return b, err
 }
 
 func (r *ViewResponse) WithHeader(key string, value string) *ViewResponse {
@@ -77,4 +91,12 @@ func (r *ViewResponse) WithCode(code int) *ViewResponse {
 	r.code = code
 
 	return r
+}
+
+func replaceTemplate(template string) string {
+	s := template
+
+	s = strings.ReplaceAll(template, "@componentHeader", "<!-- @componentHeader -->")
+
+	return s
 }
