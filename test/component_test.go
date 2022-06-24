@@ -50,27 +50,27 @@ func TestRenderCorrectComponent(t *testing.T) {
 
 		assert.Equal(t, "<div>Hello {{ Name }}</div>", hello.GetRawContent())
 	})
-	//
+
 	t.Run("Return component with a given path", func(t *testing.T) {
 		hello := component.New(helloWorldWithPath{}, nil)
 
 		assert.Equal(t, "not-hello-world", hello.GetFilePath())
 	})
-	//
+
 	t.Run("Render component with Json data", func(t *testing.T) {
 		hello := component.New(helloWorldWithPath{}, nil)
 		hello.Set(map[string]interface{}{"Name": "Super"})
 
 		assert.Equal(t, "Super", hello.Get("Name"))
 	})
-	//
+
 	t.Run("Try to get component that is not registered", func(t *testing.T) {
 		json := `{"Name":"Foo"}`
 		hello := component.NewByNameWithData("helloWorldWithPath", json)
 
 		assert.Nil(t, hello)
 	})
-	//
+
 	t.Run("Make sure that components are empty", func(t *testing.T) {
 		assert.Equal(t, 0, component.GetRegisterComponentsCount())
 	})
@@ -80,7 +80,7 @@ func TestRenderCorrectComponent(t *testing.T) {
 
 		assert.Equal(t, 1, component.GetRegisterComponentsCount())
 	})
-	//
+
 	t.Run("Render component with JSON data by name", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 
@@ -90,7 +90,7 @@ func TestRenderCorrectComponent(t *testing.T) {
 
 		assert.Equal(t, "Foo", hello.Get("Name"))
 	})
-	//
+
 	t.Run("Call method of component", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 
@@ -100,7 +100,7 @@ func TestRenderCorrectComponent(t *testing.T) {
 
 		assert.Equal(t, "hello-world-returned", response.(string))
 	})
-	//
+
 	t.Run("Call method of component with parameters", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 		hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
@@ -115,11 +115,27 @@ func TestRenderCorrectComponent(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 		hello := component.NewByNameWithData("helloWorldWithPath", `{"Name":"Foo"}`)
 
-		//assert.Equal(t, "Foo", hello.Get("Name"))
+		assert.Equal(t, "Foo", hello.Get("Name"))
 
 		parameters := []interface{}{"FooUpdated"}
 		hello.Call("UpdateName", parameters)
 
 		assert.Equal(t, "FooUpdated", hello.Get("Name"))
+	})
+
+	t.Run("Make request to component handler", func(t *testing.T) {
+		component.Register(helloWorldWithPath{})
+
+		//request := component.Request{
+		//	Component: "helloWorldWithPath",
+		//	State:     `{"Name":"Foo"}`,
+		//	Action:    "click",
+		//	Value:     `TestMethod()`,
+		//}
+		//
+		//component.Handle(request)
+		//
+		//assert.Equal(t)
+
 	})
 }
