@@ -7,6 +7,7 @@ import (
 )
 
 func TestAddItemToCollectionShouldHasToValue(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 
 	collection.Add("foo", "bar")
@@ -15,6 +16,7 @@ func TestAddItemToCollectionShouldHasToValue(t *testing.T) {
 }
 
 func TestGetItemFromCollectionShouldReturnDesiredOne(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 
 	collection.Add("foo", "bar")
@@ -23,12 +25,14 @@ func TestGetItemFromCollectionShouldReturnDesiredOne(t *testing.T) {
 }
 
 func TestGetItemFormCollectionWhichNotExistsShouldReturnNil(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 
 	assert.Empty(t, collection.Get("some_not_existing_key"))
 }
 
 func TestCountShouldReturnAmountOfElementsInCollection(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 
 	assert.Zero(t, collection.Count())
@@ -39,6 +43,7 @@ func TestCountShouldReturnAmountOfElementsInCollection(t *testing.T) {
 }
 
 func TestAddAndRemoveItemFromCollection(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 
 	collection.Add("foo", "bar")
@@ -51,6 +56,7 @@ func TestAddAndRemoveItemFromCollection(t *testing.T) {
 }
 
 func TestNextShouldReturnNextItem(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 	collection.Add("foo", "bar")
 	collection.Add("foo2", "bar2")
@@ -60,6 +66,7 @@ func TestNextShouldReturnNextItem(t *testing.T) {
 }
 
 func TestPreviousShouldReturnPreviousItem(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 	collection.Add("foo", "bar")
 	collection.Add("foo2", "bar2")
@@ -70,6 +77,7 @@ func TestPreviousShouldReturnPreviousItem(t *testing.T) {
 }
 
 func TestFirstShouldReturnFirstItem(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 	collection.Add("foo", "bar")
 	collection.Add("foo2", "bar2")
@@ -81,6 +89,7 @@ func TestFirstShouldReturnFirstItem(t *testing.T) {
 }
 
 func TestKeyShouldReturnCurrentKeyItem(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 	collection.Add("foo", "bar")
 
@@ -88,6 +97,7 @@ func TestKeyShouldReturnCurrentKeyItem(t *testing.T) {
 }
 
 func TestCurrentShouldReturnCurrentValue(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 	collection.Add("foo", "bar")
 
@@ -95,6 +105,7 @@ func TestCurrentShouldReturnCurrentValue(t *testing.T) {
 }
 
 func TestLastShouldReturnLastElement(t *testing.T) {
+	t.Parallel()
 	collection := use.NewCollection[string, string]()
 	collection.Add("foo", "bar")
 	collection.Add("foo2", "bar2")
@@ -106,6 +117,7 @@ func TestLastShouldReturnLastElement(t *testing.T) {
 }
 
 func TestHasNext(t *testing.T) {
+	t.Parallel()
 	t.Run("Has next should return true if there is a next element", func(t *testing.T) {
 		collection := use.NewCollection[string, string]()
 		collection.Add("foo", "bar")
@@ -123,6 +135,7 @@ func TestHasNext(t *testing.T) {
 }
 
 func TestHasPrevious(t *testing.T) {
+	t.Parallel()
 	t.Run("Has previous should return true if there is a previous element", func(t *testing.T) {
 		collection := use.NewCollection[string, string]()
 		collection.Add("foo", "bar")

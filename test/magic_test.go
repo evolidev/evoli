@@ -9,6 +9,7 @@ import (
 )
 
 func TestCall(t *testing.T) {
+	t.Parallel()
 	t.Run("Call should call given function", func(t *testing.T) {
 		m := use.Magic(func() string { return "test" })
 
@@ -147,6 +148,7 @@ func TestCall(t *testing.T) {
 }
 
 func TestNewPointer(t *testing.T) {
+	t.Parallel()
 	t.Run("New pointer should return a pointer to struct", func(t *testing.T) {
 		myStruct := TestStructFirst{"success"}
 		m := use.Magic(myStruct)
@@ -158,6 +160,7 @@ func TestNewPointer(t *testing.T) {
 }
 
 func TestToPointer(t *testing.T) {
+	t.Parallel()
 	t.Run("To pointer should do nothing if given struct is already a pointer", func(t *testing.T) {
 		myStruct := &TestStructFirst{"success"}
 		m := use.Magic(myStruct)
@@ -178,6 +181,7 @@ func TestToPointer(t *testing.T) {
 }
 
 func TestFill(t *testing.T) {
+	t.Parallel()
 	t.Run("Fill should fill data to struct", func(t *testing.T) {
 		params := make(map[string]interface{})
 		params["TestProp"] = "test"
@@ -210,6 +214,7 @@ func TestFill(t *testing.T) {
 }
 
 func TestWithInjectable(t *testing.T) {
+	t.Parallel()
 	t.Run("With injectable should inject param if it match", func(t *testing.T) {
 		params := make([]interface{}, 1)
 		params[0] = TestStructFirst{TestProp: "test"}

@@ -15,10 +15,15 @@ func newParamParser(method *Reflection) *inputParser {
 
 func (i *inputParser) parse() []reflect.Value {
 	parsedParams := make([]reflect.Value, 0)
+	parsedParams = i.appendReceiver(parsedParams)
 
 	cnt := 0
 	for cnt < i.method.t.NumIn() {
 		currentInputParam := i.method.t.In(cnt)
+		if cnt == 0 && len(parsedParams) > 0 {
+			cnt++
+			continue
+		}
 		cnt++
 
 		inputKind := currentInputParam.String()

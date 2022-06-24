@@ -13,6 +13,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
+	t.Parallel()
 	router := evoli.NewRouter()
 
 	for method, fn := range router.MethodTable() {
@@ -120,30 +121,30 @@ func TestBasic(t *testing.T) {
 	})
 
 	t.Run("Basic route should get parameter injected", func(t *testing.T) {
-		path := "/controller/:param"
+		path := "/controller/only/:param"
 		router.Get(path, MyController.TestActionWithParam)
 
-		rr := sendRequest(t, router, http.MethodGet, "/controller/test")
+		rr := sendRequest(t, router, http.MethodGet, "/controller/only/test")
 
 		assert.Exactly(t, "test", rr.Body.String())
 	})
 
 	t.Run("Basic route should get parameter injected", func(t *testing.T) {
-		path := "/controller/:param"
+		path := "/controller/injected/:param"
 		router.Get(path, MyController.TestActionWithParamAndRequest)
 
-		rr := sendRequest(t, router, http.MethodGet, "/controller/test")
+		rr := sendRequest(t, router, http.MethodGet, "/controller/injected/test")
 
-		assert.Exactly(t, "/controller/test/test", rr.Body.String())
+		assert.Exactly(t, "/controller/injected/test/test", rr.Body.String())
 	})
 
 	t.Run("Basic route should get parameter injected in any order", func(t *testing.T) {
-		path := "/controller/:param"
+		path := "/controller/injected-any-order/:param"
 		router.Get(path, MyController.TestActionWithParamAndRequestOrdered)
 
-		rr := sendRequest(t, router, http.MethodGet, "/controller/test")
+		rr := sendRequest(t, router, http.MethodGet, "/controller/injected-any-order/test")
 
-		assert.Exactly(t, "/controller/test/test", rr.Body.String())
+		assert.Exactly(t, "/controller/injected-any-order/test/test", rr.Body.String())
 	})
 
 	t.Run("Basic callback route should get parameter injected", func(t *testing.T) {
@@ -159,6 +160,7 @@ func TestBasic(t *testing.T) {
 }
 
 func TestPrefix(t *testing.T) {
+	t.Parallel()
 	t.Run("Prefix should prefix all sub routes", func(t *testing.T) {
 		router := evoli.NewRouter()
 		router.Prefix("/prefix").Group(func(router *evoli.Router) {
@@ -198,6 +200,7 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestMiddleware(t *testing.T) {
+	t.Parallel()
 	t.Run("Middleware should accept a handler func", func(t *testing.T) {
 		router := evoli.NewRouter()
 
@@ -233,6 +236,7 @@ func TestMiddleware(t *testing.T) {
 }
 
 func TestRedirectResponse(t *testing.T) {
+	t.Parallel()
 	t.Run("A redirect response should redirect to desired route", func(t *testing.T) {
 		router := evoli.NewRouter()
 
@@ -243,7 +247,7 @@ func TestRedirectResponse(t *testing.T) {
 		rr := sendRequest(t, router, http.MethodGet, "/redirect/response")
 
 		assert.Equal(t, "/redirect/to", rr.Header().Get("Location"))
-		assert.Exactly(t, http.StatusTemporaryRedirect, rr.Code)
+		assert.Exactly(t, http.StatusSeeOther, rr.Code)
 	})
 }
 

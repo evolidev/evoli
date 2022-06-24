@@ -173,10 +173,7 @@ func NewRouter() *Router {
 	router.router.RedirectTrailingSlash = false
 	router.router.RedirectFixedPath = false
 
-	defaultMiddlewares := make([]middleware.Middleware, 0)
-	defaultMiddlewares = append(defaultMiddlewares, middleware.NewLoggingMiddleware())
-
-	router.middlewares = defaultMiddlewares
+	router.middlewares = make([]middleware.Middleware, 0)
 
 	return router
 }
