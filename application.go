@@ -20,10 +20,9 @@ type Application struct {
 
 func NewApplication() *Application {
 	handler := router.NewRouter()
-	handler.Middleware(middleware.NewLoggingMiddleware())
 
 	return &Application{
-		handler: handler,
+		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
 		logger: logging.NewLogger(&logging.Config{
 			Name:        "app",
 			PrefixColor: 120,
