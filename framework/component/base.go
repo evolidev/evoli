@@ -53,3 +53,7 @@ func (b *Base) Call(method string, parameters interface{}) interface{} {
 	response := result.Call()
 	return response.Interface()
 }
+
+func (b *Base) GetState() map[string]interface{} {
+	return b.Component.GetFields()
+}

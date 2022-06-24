@@ -126,16 +126,32 @@ func TestRenderCorrectComponent(t *testing.T) {
 	t.Run("Make request to component handler", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 
-		//request := component.Request{
-		//	Component: "helloWorldWithPath",
-		//	State:     `{"Name":"Foo"}`,
-		//	Action:    "click",
-		//	Value:     `TestMethod()`,
-		//}
-		//
-		//component.Handle(request)
-		//
-		//assert.Equal(t)
+		request := &component.Request{
+			Component:  "helloWorldWithPath",
+			State:      map[string]interface{}{"Name": "Foo"},
+			Action:     "click",
+			Method:     "TestMethodWithParameters",
+			Parameters: []interface{}{1, "string"},
+		}
 
+		response := component.Handle(request)
+
+		assert.Equal(t, response.Response, "1 string")
+	})
+
+	t.Run("Make request to and update the name property", func(t *testing.T) {
+		component.Register(helloWorldWithPath{})
+
+		request := &component.Request{
+			Component:  "helloWorldWithPath",
+			State:      map[string]interface{}{"Name": "Foo"},
+			Action:     "click",
+			Method:     "UpdateName",
+			Parameters: []interface{}{"FooUpdated"},
+		}
+
+		response := component.Handle(request)
+
+		assert.Equal(t, response.State["Name"], "FooUpdated")
 	})
 }
