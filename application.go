@@ -4,6 +4,7 @@ import (
 	"embed"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/logging"
+	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
 	"gorm.io/gorm"
@@ -18,8 +19,10 @@ type Application struct {
 }
 
 func NewApplication() *Application {
+	handler := router.NewRouter()
+
 	return &Application{
-		handler: router.NewRouter(),
+		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
 		logger: logging.NewLogger(&logging.Config{
 			Name:        "app",
 			PrefixColor: 120,

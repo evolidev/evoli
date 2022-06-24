@@ -31,7 +31,9 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 		start := time.Now()
 
 		body := make([]byte, 0)
-		request.Body.Read(body)
+		if request.Body != nil {
+			request.Body.Read(body)
+		}
 		request.ParseForm()
 		info := requestInfo{
 			Uri:    request.RequestURI,

@@ -7,6 +7,7 @@ import (
 )
 
 func TestParseSimpleCommand(t *testing.T) {
+	t.Parallel()
 	t.Run("Parse simple command with required parameter", func(t *testing.T) {
 		command := "mail:send foo"
 		definition := "mail:send {user}"

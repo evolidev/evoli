@@ -149,6 +149,12 @@ func (r *Router) Prefix(prefix string) *Group {
 	return group
 }
 
+func (r *Router) AddMiddleware(middleware middleware.Middleware) *Router {
+	r.middlewares = append(r.middlewares, middleware)
+
+	return r
+}
+
 func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
 	group := NewGroup(r)
 	group.router.middlewares = append(group.router.middlewares, middlewares...)
@@ -173,10 +179,7 @@ func NewRouter() *Router {
 	router.router.RedirectTrailingSlash = false
 	router.router.RedirectFixedPath = false
 
-	defaultMiddlewares := make([]middleware.Middleware, 0)
-	defaultMiddlewares = append(defaultMiddlewares, middleware.NewLoggingMiddleware())
-
-	router.middlewares = defaultMiddlewares
+	router.middlewares = make([]middleware.Middleware, 0)
 
 	return router
 }

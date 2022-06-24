@@ -11,7 +11,9 @@ type JsonResponse struct {
 }
 
 func Json(obj interface{}) *JsonResponse {
-	return &JsonResponse{obj: obj, baseResponse: baseResponse{myHeaders: use.NewCollection[string, string]()}}
+	response := &JsonResponse{obj: obj, baseResponse: baseResponse{myHeaders: use.NewCollection[string, string]()}}
+
+	return response.WithHeader("Content-Type", "application/json")
 }
 
 func (r *JsonResponse) AsBytes() []byte {

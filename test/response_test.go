@@ -8,6 +8,7 @@ import (
 )
 
 func TestResponseToByteArray(t *testing.T) {
+	t.Parallel()
 	t.Run("StringResponse should be able to get data as string", func(t *testing.T) {
 		resp := evoli.String("hello-world")
 
@@ -27,6 +28,7 @@ func TestResponseToByteArray(t *testing.T) {
 }
 
 func TestFactory(t *testing.T) {
+	t.Parallel()
 	t.Run("Factory should return StringResponse if input is already a StringResponse", func(t *testing.T) {
 		resp := evoli.NewResponse(evoli.String("hello-world"))
 
@@ -52,6 +54,7 @@ func TestFactory(t *testing.T) {
 }
 
 func TestView(t *testing.T) {
+	t.Parallel()
 	t.Run("ViewResponse should return value from template", func(t *testing.T) {
 		view := evoli.View("templates.test")
 

@@ -32,7 +32,7 @@ func (h *helloWorldWithPath) UpdateName(value string) {
 }
 
 func TestRenderCorrectComponent(t *testing.T) {
-
+	t.Parallel()
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
 		hello := component.New(helloWorld{}, nil)
 
