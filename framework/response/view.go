@@ -94,7 +94,15 @@ func (r *ViewResponse) WithCode(code int) *ViewResponse {
 }
 
 func (r *ViewResponse) GetAllData() any {
-	return r.data
+	data := r.data
+
+	if data == nil {
+		data = make(map[string]interface{})
+	}
+
+	data["Component"] = &ComponentMethods{}
+
+	return data
 }
 
 func replaceTemplate(template string) string {
@@ -105,4 +113,12 @@ func replaceTemplate(template string) string {
 	s = strings.ReplaceAll(s, "@componentFooter", "<!-- @componentFooter -->")
 
 	return s
+}
+
+// Extract to component logic
+type ComponentMethods struct{}
+
+func (c *ComponentMethods) Include(name string) string {
+	use.D("include component file: " + name)
+	return View("components/" + name).AsString()
 }
