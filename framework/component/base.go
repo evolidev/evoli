@@ -57,3 +57,13 @@ func (b *Base) Call(method string, parameters interface{}) interface{} {
 func (b *Base) GetState() map[string]interface{} {
 	return b.Component.GetFields()
 }
+
+func (b *Base) Trigger(args ...any) {
+	hook := args[0].(string)
+
+	parameters := args[1:]
+
+	if b.Component.HasMethod(hook) {
+		b.Component.Method(hook).WithParams(parameters).Call()
+	}
+}

@@ -4,6 +4,9 @@ import (
 	"github.com/evolidev/evoli/framework/use"
 )
 
+const MOUNT = "Mount"
+const UPDATE = "Update"
+
 var components = make(map[string]Component)
 
 type Component interface {

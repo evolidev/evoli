@@ -39,6 +39,18 @@ func (h *helloWorldWithPath) UpdateName(value string) {
 	h.Name = value
 }
 
+type ComponentWithLifeCycle struct {
+	Name string
+}
+
+func (c *ComponentWithLifeCycle) Mount() {
+	c.Name = "Mounted"
+}
+
+func (c *ComponentWithLifeCycle) Update(param1 string, param2 string) {
+	c.Name = param1 + " " + param2
+}
+
 func TestRenderCorrectComponent(t *testing.T) {
 	t.Parallel()
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
@@ -194,5 +206,29 @@ func TestComponentRendering(t *testing.T) {
 		content := parent.Render()
 
 		assert.Contains(t, content, "child component")
+	})
+}
+
+func TestComponentLifecycle(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Test out mount lifecycle hook", func(t *testing.T) {
+		hello := component.New(ComponentWithLifeCycle{}, map[string]any{"Name": "Mount"})
+
+		assert.Equal(t, "Mount", hello.Get("Name"))
+
+		hello.Trigger(component.MOUNT)
+
+		assert.Equal(t, "Mounted", hello.Get("Name"))
+	})
+
+	t.Run("Test out mount lifecycle hook with parameters", func(t *testing.T) {
+		hello := component.New(ComponentWithLifeCycle{}, map[string]any{"Name": "Update"})
+
+		assert.Equal(t, "Update", hello.Get("Name"))
+
+		hello.Trigger(component.UPDATE, "Updated", "with Parameters")
+
+		assert.Equal(t, "Updated with Parameters", hello.Get("Name"))
 	})
 }
