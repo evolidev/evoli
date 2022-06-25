@@ -72,10 +72,14 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 			fmt.Println(err)
 		}
 		myParams := make(map[string]interface{}, 0)
+		params := httprouter.ParamsFromContext(request.Context())
+
+		queryParams := request.URL.Query()
+
 		myParams["Request"] = request
 		myParams["Form"] = request.Form
-
-		params := httprouter.ParamsFromContext(request.Context())
+		myParams["Params"] = params
+		myParams["QueryParams"] = queryParams
 
 		myResponse := response.NewResponse(
 			tmp.WithParams(myParams).Fill().WithParams(params).Call(),

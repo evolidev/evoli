@@ -5,6 +5,7 @@ import (
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	evoli "github.com/evolidev/evoli/framework/router"
+	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -157,6 +158,28 @@ func TestBasic(t *testing.T) {
 		rr := sendRequest(t, router, http.MethodGet, "/inject/into/callback")
 
 		assert.Exactly(t, "/inject/into/callback", rr.Body.String())
+	})
+
+	t.Run("Basic callback routes should get route params injected", func(t *testing.T) {
+		path := "/inject/route/param/:test"
+		router.Get(path, func(params httprouter.Params) string {
+			return params.ByName("test")
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/inject/route/param/awesome")
+
+		assert.Exactly(t, "awesome", rr.Body.String())
+	})
+
+	t.Run("Basic callback routes should get query params injected", func(t *testing.T) {
+		path := "/inject/route/query"
+		router.Get(path, func(params url.Values) string {
+			return params.Get("test")
+		})
+
+		rr := sendRequest(t, router, http.MethodGet, "/inject/route/query?test=awesome")
+
+		assert.Exactly(t, "awesome", rr.Body.String())
 	})
 
 	t.Run("Basic callback with no response should return no data header", func(t *testing.T) {
