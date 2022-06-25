@@ -3,16 +3,18 @@ package response
 import (
 	"bytes"
 	"github.com/evolidev/evoli/framework/use"
-	"html/template"
+	"github.com/evolidev/evoli/framework/view"
 	"net/http"
+	"path"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 type ViewResponse struct {
 	baseResponse
 	template string
-	data     interface{}
+	data     map[string]interface{}
 	layout   string
 	basePath string
 }
@@ -28,6 +30,22 @@ func View(template string) *ViewResponse {
 }
 
 func (r *ViewResponse) AsBytes() []byte {
+	return []byte(r.AsString())
+}
+
+func (r *ViewResponse) AsString() string {
+	b, err := r.parse()
+
+	if err != nil {
+		return ""
+	}
+
+	output := b.String()
+
+	return r.replaceTemplate(output)
+}
+
+func (r *ViewResponse) parse() (bytes.Buffer, error) {
 	view, _ := filepath.Abs(r.basePath + strings.Replace(r.template, ".", "/", -1) + ".html")
 
 	files := []string{view}
@@ -37,16 +55,13 @@ func (r *ViewResponse) AsBytes() []byte {
 		files = append(files, layout)
 	}
 
-	tmpl := template.Must(template.ParseFiles(files...))
+	tmp := template.New(path.Base(files[0]))
+	tmp.Delims("{!", "!}") // set delimiters (TODO read from config)
+	tmpl := template.Must(tmp.ParseFiles(files...))
 
 	var b bytes.Buffer
-	err := tmpl.Execute(&b, r.data)
-
-	if err != nil {
-		return []byte{}
-	}
-
-	return b.Bytes()
+	err := tmpl.Execute(&b, r.GetAllData())
+	return b, err
 }
 
 func (r *ViewResponse) WithHeader(key string, value string) *ViewResponse {
@@ -55,7 +70,7 @@ func (r *ViewResponse) WithHeader(key string, value string) *ViewResponse {
 	return r
 }
 
-func (r *ViewResponse) WithData(data interface{}) *ViewResponse {
+func (r *ViewResponse) WithData(data map[string]interface{}) *ViewResponse {
 	r.data = data
 
 	return r
@@ -77,4 +92,47 @@ func (r *ViewResponse) WithCode(code int) *ViewResponse {
 	r.code = code
 
 	return r
+}
+
+func (r *ViewResponse) GetAllData() any {
+	data := r.data
+
+	if data == nil {
+		data = make(map[string]interface{})
+	}
+
+	engine := r.GetEngine()
+
+	if engine != nil {
+
+		for key, item := range engine.RenderData {
+			data[key] = item
+		}
+	}
+
+	return data
+}
+
+func (r *ViewResponse) GetEngine() *view.Engine {
+	engine := use.GetFacade("viewEngine")
+
+	if engine != nil {
+		return engine.(*view.Engine)
+	}
+
+	return nil
+}
+
+func (r *ViewResponse) replaceTemplate(template string) string {
+	s := template[:]
+
+	engine := r.GetEngine()
+
+	if engine != nil {
+		for key, item := range engine.Placeholders {
+			s = strings.ReplaceAll(s, key, item)
+		}
+	}
+
+	return s
 }

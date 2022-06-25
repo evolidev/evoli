@@ -16,7 +16,9 @@ func Web(web *router.Router) {
 			var persons []model.Person
 			use.DB().Find(&persons)
 
-			return response.View("test").WithData(persons)
+			return response.View("test").WithData(map[string]interface{}{
+				"Name": persons[0].Name,
+			})
 		})
 
 		personRouter.Post("/", func(form url.Values) *response.RedirectResponse {
@@ -33,5 +35,9 @@ func Web(web *router.Router) {
 
 			return &person
 		})
+	})
+
+	web.Get("/component", func() *response.ViewResponse {
+		return response.View("component")
 	})
 }

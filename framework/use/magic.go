@@ -209,6 +209,19 @@ func (r *Reflection) GetField(field string) interface{} {
 	return reflect.Indirect(r.v).FieldByName(field).Interface()
 }
 
+func (r *Reflection) GetFields() map[string]interface{} {
+	fields := make(map[string]interface{})
+	indirect := reflect.Indirect(r.v)
+	count := indirect.NumField()
+
+	for i := 0; i < count; i++ {
+		field := indirect.Type().Field(i)
+		fields[field.Name] = indirect.Field(i).Interface()
+	}
+
+	return fields
+}
+
 func (r *Reflection) WithInjectable(params []interface{}) *Reflection {
 	for _, value := range params {
 		r.injects.Add(reflect.TypeOf(value).String(), value)
