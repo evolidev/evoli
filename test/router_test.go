@@ -158,6 +158,15 @@ func TestBasic(t *testing.T) {
 
 		assert.Exactly(t, "/inject/into/callback", rr.Body.String())
 	})
+
+	t.Run("Basic callback with no response should return no data header", func(t *testing.T) {
+		path := "/basic/no-return"
+		router.Get(path, func() {})
+
+		rr := sendRequest(t, router, http.MethodGet, path)
+
+		assert.Exactly(t, http.StatusNoContent, rr.Code)
+	})
 }
 
 func TestPrefix(t *testing.T) {

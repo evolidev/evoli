@@ -51,6 +51,10 @@ func (b *Base) Call(method string, parameters interface{}) interface{} {
 
 	result := output.WithParams(parameters)
 	response := result.Call()
+
+	if !response.IsValid() {
+		return response
+	}
 	return response.Interface()
 }
 

@@ -16,7 +16,12 @@ func NewResponse(arg interface{}) Response {
 	case string:
 		return String(arg.(string))
 	case reflect.Value:
-		return NewResponse(arg.(reflect.Value).Interface())
+		refl := arg.(reflect.Value)
+		if !refl.IsValid() || refl.IsZero() {
+			return Empty()
+		}
+
+		return NewResponse(refl.Interface())
 	default:
 		return Json(arg)
 	}

@@ -93,6 +93,12 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 			return
 		}
 
+		responseCode := myResponse.Code()
+		if responseCode == 0 {
+			responseCode = http.StatusOK
+		}
+		writer.WriteHeader(responseCode)
+
 		_, werr := writer.Write(myResponse.AsBytes())
 		if werr != nil {
 			// todo log to our logger and redirect to 500?

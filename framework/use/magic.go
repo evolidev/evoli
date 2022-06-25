@@ -34,7 +34,7 @@ func (r *Reflection) Call() reflect.Value {
 		return result[0]
 	}
 
-	return r.v
+	return reflect.ValueOf(nil)
 }
 
 func (r *Reflection) Fill() *Reflection {
