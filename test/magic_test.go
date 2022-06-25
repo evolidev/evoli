@@ -226,10 +226,6 @@ func TestWithInjectable(t *testing.T) {
 	})
 }
 
-func test(test1 string) {
-
-}
-
 type TestStructFirst struct {
 	TestProp string
 }

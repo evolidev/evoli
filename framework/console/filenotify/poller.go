@@ -119,7 +119,11 @@ func (w *FilePoller) Close() error {
 	}
 
 	for name := range w.watches {
-		w.remove(name)
+		err := w.remove(name)
+		if err != nil {
+			//todo log to our logger
+			fmt.Println(err)
+		}
 	}
 	w.closed = true
 	return nil

@@ -71,7 +71,7 @@ func TestPollerEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := os.Chmod(f.Name(), 600); err != nil {
+	if err := os.Chmod(f.Name(), 0600); err != nil {
 		t.Fatal(err)
 	}
 	if err := assertEvent(w, fsnotify.Chmod); err != nil {

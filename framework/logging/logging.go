@@ -82,7 +82,11 @@ var LogLocation = func() string {
 	dir, _ := homedir.Dir()
 	dir, _ = homedir.Expand(dir)
 	dir = path.Join(dir, ".refresh")
-	os.MkdirAll(dir, 0755)
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		//todo log to logger
+		fmt.Println(err)
+	}
 	return dir
 }
 

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -8,7 +9,6 @@ import (
 	"github.com/markbates/refresh/refresh"
 )
 
-var id = refresh.ID()
 var lpath = refresh.ErrorLogPath()
 var tmpl *template.Template
 
@@ -24,7 +24,11 @@ func ErrorChecker(h http.Handler) http.Handler {
 			return
 		}
 		res.WriteHeader(500)
-		err = tmpl.Execute(res, string(ee))
+		tmplErr := tmpl.Execute(res, string(ee))
+		if tmplErr != nil {
+			// todo log to our logger
+			fmt.Println(tmplErr)
+		}
 	})
 }
 

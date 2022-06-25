@@ -3,7 +3,6 @@ package reload
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 )
@@ -70,30 +69,30 @@ func loadConfig(c *Configuration, path string) error {
 	return ErrConfigNotExist
 }
 
-var cfgFile string
+//var cfgFile string
 
-func createConfig() {
-	c := Configuration{
-		AppRoot:            ".",
-		IgnoredFolders:     []string{"vendor", "log", "logs", "tmp", "node_modules", "bin", "templates"},
-		IncludedExtensions: []string{".go"},
-		BuildTargetPath:    "",
-		BuildPath:          os.TempDir(),
-		BuildDelay:         200,
-		BinaryName:         "refresh-build",
-		CommandFlags:       []string{},
-		CommandEnv:         []string{},
-		EnableColors:       true,
-	}
-
-	if cfgFile == "" {
-		cfgFile = "refresh.yml"
-	}
-
-	_, err := os.Stat(cfgFile)
-	if !os.IsNotExist(err) {
-		fmt.Errorf("config file %q already exists, skipping init", cfgFile)
-	}
-
-	c.Dump(cfgFile)
-}
+//func createConfig() {
+//	c := Configuration{
+//		AppRoot:            ".",
+//		IgnoredFolders:     []string{"vendor", "log", "logs", "tmp", "node_modules", "bin", "templates"},
+//		IncludedExtensions: []string{".go"},
+//		BuildTargetPath:    "",
+//		BuildPath:          os.TempDir(),
+//		BuildDelay:         200,
+//		BinaryName:         "refresh-build",
+//		CommandFlags:       []string{},
+//		CommandEnv:         []string{},
+//		EnableColors:       true,
+//	}
+//
+//	if cfgFile == "" {
+//		cfgFile = "refresh.yml"
+//	}
+//
+//	_, err := os.Stat(cfgFile)
+//	if !os.IsNotExist(err) {
+//		fmt.Errorf("config file %q already exists, skipping init", cfgFile)
+//	}
+//
+//	c.Dump(cfgFile)
+//}
