@@ -2,6 +2,7 @@ package router
 
 import (
 	"embed"
+	"fmt"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
@@ -65,7 +66,11 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 	next = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		tmp := use.Magic(handler)
 
-		request.ParseForm()
+		err := request.ParseForm()
+		if err != nil {
+			// todo log into our logger
+			fmt.Println(err)
+		}
 		myParams := make(map[string]interface{}, 0)
 		myParams["Request"] = request
 		myParams["Form"] = request.Form
@@ -88,7 +93,11 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 			return
 		}
 
-		writer.Write(myResponse.AsBytes())
+		_, werr := writer.Write(myResponse.AsBytes())
+		if werr != nil {
+			// todo log to our logger and redirect to 500?
+			fmt.Println(werr)
+		}
 	})
 
 	for _, m := range r.middlewares {

@@ -36,6 +36,8 @@ func (a *Application) AddRoutes(prefix string, routes func(router *router.Router
 
 func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 	migrate(use.DB())
+	l := logging.NewLogger(&logging.Config{Name: "db", PrefixColor: 50})
+	l.Log("Models migrated successfully")
 }
 
 func (a *Application) Start() {

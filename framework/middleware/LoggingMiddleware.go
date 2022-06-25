@@ -28,9 +28,15 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		body := make([]byte, 0)
 		if request.Body != nil {
-			request.Body.Read(body)
+			_, err := request.Body.Read(body)
+			if err != nil {
+				//lm.logger.Error(err)
+			}
 		}
-		request.ParseForm()
+		err := request.ParseForm()
+		if err != nil {
+			lm.logger.Error(err)
+		}
 		info := requestInfo{
 			Uri:    request.RequestURI,
 			Body:   string(body),

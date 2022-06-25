@@ -22,7 +22,7 @@ func (s *Str) Kebab() *Str {
 	return s
 }
 
-func (s *Str) Snake(str string) *Str {
+func (s *Str) Snake() *Str {
 	s.value = s.toCase(s.value, "_")
 	return s
 }
