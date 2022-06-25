@@ -167,10 +167,23 @@ func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
 }
 
 func (r *Router) Static(path string, rootDir string) {
-	//filesystem := r.Fs.(rootDir)
+	_, err := fs.ReadDir(r.Fs, rootDir)
+	var servingFS http.FileSystem
 
-	sub, _ := fs.Sub(r.Fs, rootDir)
-	r.ServeFiles(path, http.FS(sub))
+	if err != nil {
+		servingFS = http.FileSystem(http.Dir(rootDir))
+	} else {
+		sub, _ := fs.Sub(r.Fs, rootDir)
+		servingFS = http.FS(sub)
+	}
+
+	r.ServeFiles(path, servingFS)
+}
+
+func (r *Router) File(path string, file string) {
+	r.router.Handler(http.MethodGet, r.pathWithPrefix(path), http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		http.ServeFile(writer, request, file)
+	}))
 }
 
 func NewRouter() *Router {

@@ -19,10 +19,11 @@ func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
 
 	app = evoli.NewApplication()
-	app.SetFS(content)
+	//app.SetFS(content)
 	app.AddRoutes("/", routes.Web)
 	app.AddRoutes("/api", routes.Api)
-	app.AddRoutes("/assets", routes.Files)
+	app.AddRoutes("/assets", routes.Folders)
+	app.AddRoutes("/", routes.Files)
 	app.AddMigration(database.Migrate)
 
 	app.Start()
