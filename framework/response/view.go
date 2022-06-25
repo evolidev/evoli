@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
-	"html/template"
 	"net/http"
 	"path"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 type ViewResponse struct {
