@@ -20,6 +20,7 @@ func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
 
 	component.Register(components.Login{})
+	component.Register(components.Input{})
 
 	app = evoli.NewApplication()
 	app.SetFS(content)
