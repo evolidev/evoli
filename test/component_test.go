@@ -36,13 +36,13 @@ func TestRenderCorrectComponent(t *testing.T) {
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
 		hello := component.New(helloWorld{}, nil)
 
-		assert.Equal(t, "templates/hello-world", hello.GetFilePath())
+		assert.Equal(t, "components/hello-world", hello.GetFilePath())
 	})
 
 	t.Run("Return the correct given component filesystem", func(t *testing.T) {
 		hello := component.New(helloWorld{}, nil)
 
-		assert.Equal(t, "templates/hello-world", hello.GetFilePath())
+		assert.Equal(t, "components/hello-world", hello.GetFilePath())
 	})
 
 	t.Run("Get the component filesystem content and make sure the double braces are not parsed", func(t *testing.T) {

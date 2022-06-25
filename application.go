@@ -2,11 +2,13 @@ package evoli
 
 import (
 	"embed"
+	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/view"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
@@ -20,6 +22,11 @@ type Application struct {
 
 func NewApplication() *Application {
 	handler := router.NewRouter()
+
+	viewEngine := view.NewEngine()
+	viewEngine.AddRenderData("Component", &component.Methods{})
+
+	use.AddFacade("viewEngine", viewEngine)
 
 	return &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),

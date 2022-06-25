@@ -3,6 +3,7 @@ package response
 import (
 	"bytes"
 	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/view"
 	"html/template"
 	"net/http"
 	"path"
@@ -100,7 +101,15 @@ func (r *ViewResponse) GetAllData() any {
 		data = make(map[string]interface{})
 	}
 
-	data["Component"] = &ComponentMethods{}
+	viewEngine := use.GetFacade("viewEngine")
+
+	if viewEngine != nil {
+		viewEngine := viewEngine.(*view.Engine)
+
+		for key, item := range viewEngine.RenderData {
+			data[key] = item
+		}
+	}
 
 	return data
 }
@@ -113,12 +122,4 @@ func replaceTemplate(template string) string {
 	s = strings.ReplaceAll(s, "@componentFooter", "<!-- @componentFooter -->")
 
 	return s
-}
-
-// Extract to component logic
-type ComponentMethods struct{}
-
-func (c *ComponentMethods) Include(name string) string {
-	use.D("include component file: " + name)
-	return View("components/" + name).AsString()
 }

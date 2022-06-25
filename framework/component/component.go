@@ -21,7 +21,6 @@ type Request struct {
 	Parameters []interface{}          `json:"parameters"`
 }
 
-//
 type Response struct {
 	Component string                 `json:"component"`
 	State     map[string]interface{} `json:"state"`
@@ -94,4 +93,11 @@ func Handle(request *Request) *Response {
 		State:     component.GetState(),
 		Response:  response,
 	}
+}
+
+type Methods struct{}
+
+func (c *Methods) Include(name string) string {
+	use.D("include component file: " + name)
+	return NewByName(name, nil).Render()
 }
