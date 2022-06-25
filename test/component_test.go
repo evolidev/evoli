@@ -2,10 +2,18 @@ package test
 
 import (
 	"github.com/evolidev/evoli/framework/component"
+	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/view"
 	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
 )
+
+type ParentComponent struct {
+}
+
+type ChildComponent struct {
+}
 
 type helloWorld struct {
 	Name string
@@ -55,6 +63,14 @@ func TestRenderCorrectComponent(t *testing.T) {
 		hello := component.New(helloWorldWithPath{}, nil)
 
 		assert.Equal(t, "not-hello-world", hello.GetFilePath())
+	})
+}
+
+func TestPropertyOfComponents(t *testing.T) {
+	t.Run("Do not return a not registered component", func(t *testing.T) {
+		hello := component.NewByName("NotExistingComponent", nil)
+
+		assert.Nil(t, hello)
 	})
 
 	t.Run("Render component with Json data", func(t *testing.T) {
@@ -123,6 +139,11 @@ func TestRenderCorrectComponent(t *testing.T) {
 		assert.Equal(t, "FooUpdated", hello.Get("Name"))
 	})
 
+}
+
+func TestComponentRequestResponseHandling(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Make request to component handler", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
 
@@ -153,5 +174,25 @@ func TestRenderCorrectComponent(t *testing.T) {
 		response := component.Handle(request)
 
 		assert.Equal(t, response.State["Name"], "FooUpdated")
+	})
+}
+
+func TestComponentRendering(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Include component in the page", func(t *testing.T) {
+		viewEngine := view.NewEngine()
+		component.SetupViewEngine(viewEngine)
+
+		use.AddFacade("viewEngine", viewEngine)
+
+		component.Register(ParentComponent{})
+		component.Register(ChildComponent{})
+
+		parent := component.NewByName("ParentComponent", nil)
+
+		content := parent.Render()
+
+		assert.Contains(t, content, "child component")
 	})
 }

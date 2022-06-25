@@ -2,7 +2,6 @@ package component
 
 import (
 	"github.com/evolidev/evoli/framework/use"
-	"github.com/evolidev/evoli/framework/view"
 )
 
 var components = make(map[string]Component)
@@ -15,23 +14,23 @@ type Data struct {
 }
 
 type Request struct {
-	Component  string                 `json:"component"`
-	Method     string                 `json:"method"`
-	State      map[string]interface{} `json:"state"`
-	Action     string                 `json:"action"`
-	Parameters []interface{}          `json:"parameters"`
+	Component  string         `json:"component"`
+	Method     string         `json:"method"`
+	State      map[string]any `json:"state"`
+	Action     string         `json:"action"`
+	Parameters []any          `json:"parameters"`
 }
 
 type Response struct {
-	Component string                 `json:"component"`
-	State     map[string]interface{} `json:"state"`
-	Type      string                 `json:"type"`
-	Content   string                 `json:"content"`
-	Response  interface{}            `json:"response"`
+	Component string         `json:"component"`
+	State     map[string]any `json:"state"`
+	Type      string         `json:"type"`
+	Content   string         `json:"content"`
+	Response  any            `json:"response"`
 }
 
-func New(componentStruct interface{}, data map[string]interface{}) *Base {
-	collection := use.NewCollection[string, interface{}]()
+func New(componentStruct any, data map[string]any) *Base {
+	collection := use.NewCollection[string, any]()
 	collection.Set(data)
 
 	component := use.Magic(componentStruct).ToPointer()
@@ -45,10 +44,6 @@ func New(componentStruct interface{}, data map[string]interface{}) *Base {
 func Register(component Component) {
 	name := use.GetInterfacedStructName(component)
 	components[name] = component
-}
-
-func GetRegisteredComponents() *map[string]Component {
-	return &components
 }
 
 func GetRegisterComponentsCount() int {
@@ -68,7 +63,7 @@ func NewByNameWithData(name string, data string) *Base {
 	return component
 }
 
-func NewByName(name string, data map[string]interface{}) *Base {
+func NewByName(name string, data map[string]any) *Base {
 	componentObject, ok := components[name]
 
 	if !ok {
@@ -83,7 +78,7 @@ func NewByName(name string, data map[string]interface{}) *Base {
 func Handle(request *Request) *Response {
 	component := NewByName(request.Component, request.State)
 
-	var response interface{}
+	var response any
 
 	if request.Action == "click" {
 		response = component.Call(request.Method, request.Parameters)
@@ -94,19 +89,4 @@ func Handle(request *Request) *Response {
 		State:     component.GetState(),
 		Response:  response,
 	}
-}
-
-type Methods struct{}
-
-func (c *Methods) Include(name string) string {
-	use.D("include component file: " + name)
-	return NewByName(name, nil).Render()
-}
-
-func SetupViewEngine(engine *view.Engine) {
-	engine.AddRenderData("Component", &Methods{})
-	engine.AddPlaceholder("@componentHeader", `
-	<script src="https://cdn.tailwindcss.com"></script>
-`)
-	engine.AddPlaceholder("@componentFooter", `<!-- @componentFooter -->`)
 }

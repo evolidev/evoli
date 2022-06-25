@@ -23,10 +23,7 @@ type Application struct {
 func NewApplication() *Application {
 	handler := router.NewRouter()
 
-	viewEngine := view.NewEngine()
-	component.SetupViewEngine(viewEngine)
-
-	use.AddFacade("viewEngine", viewEngine)
+	setupViewEngine()
 
 	return &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
@@ -35,6 +32,13 @@ func NewApplication() *Application {
 			PrefixColor: 120,
 		}),
 	}
+}
+
+func setupViewEngine() {
+	viewEngine := view.NewEngine()
+	component.SetupViewEngine(viewEngine)
+
+	use.AddFacade("viewEngine", viewEngine)
 }
 
 func (a *Application) AddRoutes(prefix string, routes func(router *router.Router)) {
@@ -65,8 +69,4 @@ func (a *Application) Serve(command *console.ParsedCommand) {
 
 	a.logger.Log("Serving application on http://localhost:%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, a.handler))
-}
-
-type MakeController struct {
-	console.Command
 }
