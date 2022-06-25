@@ -2,9 +2,12 @@ package test
 
 import (
 	"github.com/evolidev/evoli/framework/component"
+	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/url"
 	"strconv"
 	"testing"
 )
@@ -230,5 +233,23 @@ func TestComponentLifecycle(t *testing.T) {
 		hello.Trigger(component.UPDATE, "Updated", "with Parameters")
 
 		assert.Equal(t, "Updated with Parameters", hello.Get("Name"))
+	})
+}
+
+func TestComponentXhr(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Make request to component handler", func(t *testing.T) {
+		r := router.NewRouter()
+
+		r.Get("/internal/component", func(data url.Values) {
+			use.D(data)
+		})
+
+		data := url.Values{"rest": []string{"hello"}}
+		rr := sendRequestWithData(t, r, http.MethodGet, "/internal/component", data)
+
+		assert.Equal(t, "/redirect/to", rr.Body.String())
+		assert.Exactly(t, http.StatusOK, rr.Code)
 	})
 }

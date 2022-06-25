@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -317,6 +318,19 @@ type testStruct struct {
 
 func sendRequest(t *testing.T, router *evoli.Router, method string, path string) *httptest.ResponseRecorder {
 	req, err := http.NewRequest(method, path, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	router.ServeHTTP(rr, req)
+
+	return rr
+}
+
+func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data url.Values) *httptest.ResponseRecorder {
+	req, err := http.NewRequest(method, path, strings.NewReader(data.Encode()))
 	if err != nil {
 		t.Fatal(err)
 	}
