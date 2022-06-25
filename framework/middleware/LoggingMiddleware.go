@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"github.com/evolidev/evoli/framework/console/color"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/use"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type requestInfo struct {
@@ -26,6 +28,8 @@ func NewLoggingMiddleware() LoggingMiddleware {
 
 func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		start := time.Now()
+
 		body := make([]byte, 0)
 		if request.Body != nil {
 			_, err := request.Body.Read(body)
@@ -43,9 +47,14 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 			Form:   request.Form,
 			Method: request.Method,
 		}
-		jsonResponse := use.JsonEncode(info)
-		lm.logger.Log(jsonResponse)
 
 		next.ServeHTTP(writer, request)
+
+		jsonResponse := use.JsonEncode(info)
+
+		end := time.Now()
+		diff := end.Sub(start)
+
+		lm.logger.Log("%s %s", jsonResponse, color.Text(150, "("+diff.String()+")"))
 	})
 }

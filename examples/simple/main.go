@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"github.com/evolidev/evoli"
+	"github.com/evolidev/evoli/examples/simple/components"
 	"github.com/evolidev/evoli/examples/simple/database"
 	"github.com/evolidev/evoli/examples/simple/routes"
 	"github.com/evolidev/evoli/framework/component"
@@ -17,6 +18,9 @@ var content embed.FS
 
 func main() {
 	logger = logging.NewLogger(&logging.Config{Name: "simple application", PrefixColor: 73})
+
+	component.Register(components.Login{})
+	component.Register(components.Input{})
 
 	app = evoli.NewApplication()
 	//app.SetFS(content)
