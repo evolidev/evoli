@@ -24,7 +24,7 @@ func NewApplication() *Application {
 	handler := router.NewRouter()
 
 	viewEngine := view.NewEngine()
-	viewEngine.AddRenderData("Component", &component.Methods{})
+	component.SetupViewEngine(viewEngine)
 
 	use.AddFacade("viewEngine", viewEngine)
 

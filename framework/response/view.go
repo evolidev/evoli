@@ -42,7 +42,7 @@ func (r *ViewResponse) AsString() string {
 
 	output := b.String()
 
-	return replaceTemplate(output)
+	return r.replaceTemplate(output)
 }
 
 func (r *ViewResponse) parse() (bytes.Buffer, error) {
@@ -101,12 +101,11 @@ func (r *ViewResponse) GetAllData() any {
 		data = make(map[string]interface{})
 	}
 
-	viewEngine := use.GetFacade("viewEngine")
+	engine := r.GetEngine()
 
-	if viewEngine != nil {
-		viewEngine := viewEngine.(*view.Engine)
+	if engine != nil {
 
-		for key, item := range viewEngine.RenderData {
+		for key, item := range engine.RenderData {
 			data[key] = item
 		}
 	}
@@ -114,12 +113,26 @@ func (r *ViewResponse) GetAllData() any {
 	return data
 }
 
-func replaceTemplate(template string) string {
-	s := template
+func (r *ViewResponse) GetEngine() *view.Engine {
+	engine := use.GetFacade("viewEngine")
 
-	// TODO add an adapter to add custom tags
-	s = strings.ReplaceAll(template, "@componentHeader", "<!-- @componentHeader -->")
-	s = strings.ReplaceAll(s, "@componentFooter", "<!-- @componentFooter -->")
+	if engine != nil {
+		return engine.(*view.Engine)
+	}
+
+	return nil
+}
+
+func (r *ViewResponse) replaceTemplate(template string) string {
+	s := template[:]
+
+	engine := r.GetEngine()
+
+	if engine != nil {
+		for key, item := range engine.Placeholders {
+			s = strings.ReplaceAll(s, key, item)
+		}
+	}
 
 	return s
 }
