@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
@@ -361,11 +362,8 @@ func sendRequest(t *testing.T, router *evoli.Router, method string, path string)
 	return rr
 }
 
-func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data url.Values) *httptest.ResponseRecorder {
-	req, err := http.NewRequest(method, path, strings.NewReader(data.Encode()))
-	if err != nil {
-		t.Fatal(err)
-	}
+func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, bytes.NewBufferString(data))
 
 	rr := httptest.NewRecorder()
 

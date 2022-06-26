@@ -6,8 +6,9 @@ import (
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"log"
 	"net/http"
-	"net/url"
 	"strconv"
 	"testing"
 )
@@ -242,14 +243,21 @@ func TestComponentXhr(t *testing.T) {
 	t.Run("Make request to component handler", func(t *testing.T) {
 		r := router.NewRouter()
 
-		r.Get("/internal/component", func(data url.Values) {
-			use.D(data)
+		r.Post("/internal/component", func(request *http.Request) string {
+			r, err := ioutil.ReadAll(request.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			data := use.JsonDecode(string(r)).(map[string]any)
+
+			return data["Data"].(string)
 		})
 
-		data := url.Values{"rest": []string{"hello"}}
-		rr := sendRequestWithData(t, r, http.MethodGet, "/internal/component", data)
+		data := use.JsonEncode(map[string]any{"Data": "Foo"})
+		rr := sendRequestWithData(t, r, http.MethodPost, "/internal/component", data)
 
-		assert.Equal(t, "/redirect/to", rr.Body.String())
+		assert.Equal(t, "Foo", rr.Body.String())
 		assert.Exactly(t, http.StatusOK, rr.Code)
 	})
 }
