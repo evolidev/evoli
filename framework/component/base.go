@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
+	"github.com/matoous/go-nanoid/v2"
 )
 
 type Base struct {
+	Id        string
 	File      string
 	Component *use.Reflection
 	Data      *use.Collection[string, interface{}]
@@ -74,4 +76,12 @@ func (b *Base) Trigger(args ...any) {
 	if b.Component.HasMethod(hook) {
 		b.Component.Method(hook).WithParams(parameters).Call()
 	}
+}
+
+func (b *Base) GetCid() string {
+	if b.Id == "" {
+		b.Id, _ = gonanoid.New()
+	}
+
+	return b.Id
 }

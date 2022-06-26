@@ -106,28 +106,31 @@ func Handle(request *Request) *Response {
 }
 
 func RegisterRoutes(r *router.Router) {
-	r.Post(ENDPOINT, func(request *http.Request) any {
-		r, err := ioutil.ReadAll(request.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
+	r.Post(ENDPOINT, handleRouterRequest)
+	r.File("/static/component.js", "./../../resources/component.js")
+}
 
-		componentRequest := &Request{}
-		use.JsonDecodeStruct(string(r), componentRequest)
+func handleRouterRequest(request *http.Request) any {
+	r, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		if valid := validateRequest(componentRequest); !valid {
-			log.Println("Invalid request")
-			return nil
-		}
+	componentRequest := &Request{}
+	use.JsonDecodeStruct(string(r), componentRequest)
 
-		res := Handle(componentRequest)
+	if valid := validateRequest(componentRequest); !valid {
+		log.Println("Invalid request")
+		return nil
+	}
 
-		if res == nil {
-			return response.Json(map[string]any{"error": true}).WithCode(400)
-		}
+	res := Handle(componentRequest)
 
-		return res
-	})
+	if res == nil {
+		return response.Json(map[string]any{"error": true}).WithCode(400)
+	}
+
+	return res
 }
 
 func validateRequest(request *Request) bool {

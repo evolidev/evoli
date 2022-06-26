@@ -1,11 +1,33 @@
 package component
 
-import "github.com/evolidev/evoli/framework/view"
+import (
+	"fmt"
+	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/view"
+	"html"
+	"strings"
+)
 
 type Methods struct{}
 
 func (c *Methods) Include(name string) string {
-	return NewByName(name, nil).Render()
+	component := NewByName(name, nil)
+	rendered := component.Render()
+
+	rendered = strings.ReplaceAll(
+		rendered,
+		"@scope",
+		fmt.Sprintf(
+			` data-cid="%s" data-scope="%s"`,
+			component.GetCid(),
+			html.EscapeString(use.JsonEncode(map[string]any{
+				"state": component.GetState(),
+				"name":  name,
+			})),
+		),
+	)
+
+	return rendered
 }
 
 func SetupViewEngine(engine *view.Engine) {
@@ -13,5 +35,8 @@ func SetupViewEngine(engine *view.Engine) {
 	engine.AddPlaceholder("@componentHeader", `
 	<script src="https://cdn.tailwindcss.com"></script>
 `)
-	engine.AddPlaceholder("@componentFooter", `<!-- @componentFooter -->`)
+	engine.AddPlaceholder("@componentFooter", `
+	<script src="https://unpkg.com/petite-vue"></script>
+	<script src="/static/component.js"></script>
+`)
 }
