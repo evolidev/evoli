@@ -31,3 +31,9 @@ func JsonDecodeObject(data string) map[string]interface{} {
 
 	return mapData
 }
+
+func JsonDecodeStruct(data string, object any) {
+	if err := json.Unmarshal([]byte(data), object); err != nil {
+		// TODO log error
+	}
+}

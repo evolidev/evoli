@@ -1,11 +1,18 @@
 package component
 
 import (
+	"github.com/evolidev/evoli/framework/response"
+	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
+	"io/ioutil"
+	"log"
+	"net/http"
 )
 
 const MOUNT = "Mount"
 const UPDATE = "Update"
+
+const ENDPOINT = "/internal/component"
 
 var components = make(map[string]Component)
 
@@ -81,6 +88,10 @@ func NewByName(name string, data map[string]any) *Base {
 func Handle(request *Request) *Response {
 	component := NewByName(request.Component, request.State)
 
+	if component == nil {
+		return nil
+	}
+
 	var response any
 
 	if request.Action == "click" {
@@ -92,4 +103,41 @@ func Handle(request *Request) *Response {
 		State:     component.GetState(),
 		Response:  response,
 	}
+}
+
+func RegisterRoutes(r *router.Router) {
+	r.Post(ENDPOINT, func(request *http.Request) any {
+		r, err := ioutil.ReadAll(request.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		componentRequest := &Request{}
+		use.JsonDecodeStruct(string(r), componentRequest)
+
+		if valid := validateRequest(componentRequest); !valid {
+			log.Println("Invalid request")
+			return nil
+		}
+
+		res := Handle(componentRequest)
+
+		if res == nil {
+			return response.Json(map[string]any{"error": true}).WithCode(400)
+		}
+
+		return res
+	})
+}
+
+func validateRequest(request *Request) bool {
+	if request.Component == "" {
+		return false
+	}
+
+	if request.Action == "" {
+		return false
+	}
+
+	return true
 }

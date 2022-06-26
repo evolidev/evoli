@@ -47,6 +47,10 @@ func (b *Base) Get(key string) interface{} {
 }
 
 func (b *Base) Call(method string, parameters interface{}) interface{} {
+	if b.Component == nil {
+		return nil
+	}
+
 	output := b.Component.Method(method)
 
 	result := output.WithParams(parameters)

@@ -6,8 +6,6 @@ import (
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"testing"
@@ -242,22 +240,36 @@ func TestComponentXhr(t *testing.T) {
 
 	t.Run("Make request to component handler", func(t *testing.T) {
 		r := router.NewRouter()
+		component.RegisterRoutes(r)
 
-		r.Post("/internal/component", func(request *http.Request) string {
-			r, err := ioutil.ReadAll(request.Body)
-			if err != nil {
-				log.Fatal(err)
-			}
+		request := &component.Request{
+			Component:  "helloWorldWithPath",
+			State:      map[string]interface{}{"Name": "Foo"},
+			Action:     "click",
+			Method:     "UpdateName",
+			Parameters: []interface{}{"FooUpdated"},
+		}
+		rr := sendRequestWithData(t, r, http.MethodPost, component.ENDPOINT, request)
 
-			data := use.JsonDecode(string(r)).(map[string]any)
+		assert.Equal(t, `{"error":true}`, rr.Body.String())
+		assert.Equal(t, http.StatusBadRequest, rr.Code)
+	})
 
-			return data["Data"].(string)
-		})
+	t.Run("Make request to component handler", func(t *testing.T) {
+		r := router.NewRouter()
+		component.RegisterRoutes(r)
+		component.Register(helloWorldWithPath{})
 
-		data := map[string]any{"Data": "Foo"}
-		rr := sendRequestWithData(t, r, http.MethodPost, "/internal/component", data)
+		request := &component.Request{
+			Component:  "helloWorldWithPath",
+			State:      map[string]interface{}{"Name": "Foo"},
+			Action:     "click",
+			Method:     "UpdateName",
+			Parameters: []interface{}{"FooUpdated"},
+		}
+		rr := sendRequestWithData(t, r, http.MethodPost, component.ENDPOINT, request)
 
-		assert.Equal(t, "Foo", rr.Body.String())
+		assert.NotEqual(t, "invalid", rr.Body.String())
 		assert.Exactly(t, http.StatusOK, rr.Code)
 	})
 }

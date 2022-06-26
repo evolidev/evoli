@@ -360,7 +360,7 @@ func sendRequest(t *testing.T, router *evoli.Router, method string, path string)
 	return rr
 }
 
-func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data map[string]any) *httptest.ResponseRecorder {
+func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data any) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, path, bytes.NewBufferString(use.JsonEncode(data)))
 
 	rr := httptest.NewRecorder()

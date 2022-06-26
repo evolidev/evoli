@@ -2,10 +2,10 @@ package response
 
 import (
 	"github.com/evolidev/evoli/framework/use"
-	"net/http"
 )
 
 type StringResponse struct {
+	baseResponse
 	body      string
 	myHeaders *use.Collection[string, string]
 }
@@ -18,12 +18,14 @@ func (r *StringResponse) AsBytes() []byte {
 	return []byte(r.body)
 }
 
+func (r *StringResponse) WithCode(code int) *StringResponse {
+	r.code = code
+
+	return r
+}
+
 func (r *StringResponse) Headers() *use.Collection[string, string] {
 	r.myHeaders.Add("Content-Type", "text/plain")
 
 	return r.myHeaders
-}
-
-func (r *StringResponse) Code() int {
-	return http.StatusOK
 }

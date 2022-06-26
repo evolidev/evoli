@@ -25,6 +25,7 @@ func NewApplication() *Application {
 	handler := router.NewRouter()
 
 	setupViewEngine()
+	component.RegisterRoutes(handler)
 
 	return &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
