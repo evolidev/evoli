@@ -24,14 +24,10 @@ func aboutRun(cmd *console.ParsedCommand) {
 	table.SetAutoFormatHeaders(true)
 	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
 	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("..")
-	table.SetColumnSeparator(color.Text(200, "................."))
-	table.SetTablePadding("..")
-	table.SetRowSeparator("...")
 	table.SetHeaderLine(false)
 	table.SetBorder(false)
 	table.SetTablePadding("\t") // pad with tabs
-	table.SetNoWhiteSpace(false)
+	table.SetNoWhiteSpace(true)
 
 	table.SetColumnColor(
 		tablewriter.Colors{tablewriter.FgHiMagentaColor},
