@@ -350,10 +350,7 @@ type testStruct struct {
 }
 
 func sendRequest(t *testing.T, router *evoli.Router, method string, path string) *httptest.ResponseRecorder {
-	req, err := http.NewRequest(method, path, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	req := httptest.NewRequest(method, path, nil)
 
 	rr := httptest.NewRecorder()
 
