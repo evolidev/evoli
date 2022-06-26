@@ -6,6 +6,7 @@ import (
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
 	"github.com/stretchr/testify/assert"
+
 	"net/http"
 	"strconv"
 	"testing"
@@ -238,12 +239,12 @@ func TestComponentLifecycle(t *testing.T) {
 func TestComponentXhr(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Make request to component handler", func(t *testing.T) {
+	t.Run("Make request to component handler of not existing component", func(t *testing.T) {
 		r := router.NewRouter()
 		component.RegisterRoutes(r)
 
 		request := &component.Request{
-			Component:  "helloWorldWithPath",
+			Component:  "NotExistingComponent",
 			State:      map[string]interface{}{"Name": "Foo"},
 			Action:     "click",
 			Method:     "UpdateName",
