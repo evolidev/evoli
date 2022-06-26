@@ -74,7 +74,7 @@ func (c *Console) Add(command *Command) {
 
 func (c *Console) AddCommand(name string, description string, execution func(c *ParsedCommand)) *Command {
 	command := &Command{name, description, execution}
-	c.Commands[command.GetName()] = command
+	c.Add(command)
 
 	return command
 }
@@ -88,7 +88,7 @@ func New() *Console {
 func groupCommands(commands map[string]*Command) []CommandGroup {
 	groups := make(map[string][]*Command)
 
-	var keys []string
+	var groupKeys []string
 	for _, cmd := range commands {
 		commandParts := strings.Split(cmd.GetName(), ":")
 		prefix := ""
@@ -97,21 +97,27 @@ func groupCommands(commands map[string]*Command) []CommandGroup {
 		}
 
 		if _, ok := groups[prefix]; !ok {
-			keys = append(keys, prefix)
+			groupKeys = append(groupKeys, prefix)
 		}
 
 		groups[prefix] = append(groups[prefix], cmd)
 	}
 
-	sort.Strings(keys)
+	sort.Strings(groupKeys)
 
 	var groupedCommands []CommandGroup
-	for _, key := range keys {
+	for _, key := range groupKeys {
+		groupItems := groups[key]
+
+		sort.Slice(groupItems, func(i, j int) bool {
+			return groupItems[i].GetCommand() < groupItems[j].GetCommand()
+		})
+
 		groupedCommands = append(groupedCommands, CommandGroup{
 			Name:        key,
 			Description: "",
 			Prefix:      key,
-			Commands:    groups[key],
+			Commands:    groupItems,
 		})
 	}
 

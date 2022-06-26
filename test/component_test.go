@@ -254,7 +254,7 @@ func TestComponentXhr(t *testing.T) {
 			return data["Data"].(string)
 		})
 
-		data := use.JsonEncode(map[string]any{"Data": "Foo"})
+		data := map[string]any{"Data": "Foo"}
 		rr := sendRequestWithData(t, r, http.MethodPost, "/internal/component", data)
 
 		assert.Equal(t, "Foo", rr.Body.String())

@@ -2,6 +2,7 @@ package evoli
 
 import (
 	"embed"
+	"github.com/evolidev/evoli/framework/command"
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/logging"
@@ -55,6 +56,7 @@ func (a *Application) Start() {
 	cli := console.New()
 
 	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
+	cli.Add(command.About())
 
 	cli.Run()
 }

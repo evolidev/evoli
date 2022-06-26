@@ -6,6 +6,7 @@ import (
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	evoli "github.com/evolidev/evoli/framework/router"
+	"github.com/evolidev/evoli/framework/use"
 	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -359,8 +360,8 @@ func sendRequest(t *testing.T, router *evoli.Router, method string, path string)
 	return rr
 }
 
-func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data string) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(method, path, bytes.NewBufferString(data))
+func sendRequestWithData(t *testing.T, router *evoli.Router, method string, path string, data map[string]any) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, bytes.NewBufferString(use.JsonEncode(data)))
 
 	rr := httptest.NewRecorder()
 
