@@ -114,3 +114,9 @@ func (c *Collection[Key, Value]) Previous() interface{} {
 
 	return c.values[c.Key()]
 }
+
+func (c *Collection[Key, Value]) Merge(other *Collection[Key, Value]) {
+	other.Iterate(func(key Key, value Value) {
+		c.Add(key, value)
+	})
+}

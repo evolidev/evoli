@@ -153,3 +153,19 @@ func TestHasPrevious(t *testing.T) {
 		assert.False(t, collection.HasPrevious())
 	})
 }
+
+func TestMerge(t *testing.T) {
+	t.Parallel()
+	t.Run("Merge should merge to collection together", func(t *testing.T) {
+		collection := use.NewCollection[string, string]()
+		collection.Add("foo", "bar")
+
+		collection2 := use.NewCollection[string, string]()
+		collection2.Add("foo2", "bar2")
+
+		collection.Merge(collection2)
+
+		assert.True(t, collection.Has("foo"))
+		assert.True(t, collection.Has("foo2"))
+	})
+}
