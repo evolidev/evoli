@@ -42,22 +42,21 @@ function parseOutMethodAndParams (rawMethod, scope) {
 const componentStates = reactive({});
 
 window.Evo = {
-    init:(id, data) => {
+    init:(data) => {
         // use this property to define component specific data
         const defaultComponent = {
             // name,
         }
 
-        const dataObject = {
-            ...defaultComponent,
-            // ...BrightComponents[name] ?? {},
-            ...componentStates[id] ?? {},
-            ...data,
-        };
+        let {state, id} = data
 
-        // console.info('Component INIT:', id, data, dataObject);
+        if (componentStates[id]) {
+            state = {...componentStates[id], ...state}
+        }
 
-        return data.state;
+        console.log('Init component:', id, data, state);
+
+        return state
     }
 }
 
@@ -165,15 +164,15 @@ const link = (context) => {
 }
 
 const init = ()  => {
-    // get all node elements with the attribute 'data-scope'
-    const nodes = document.querySelectorAll('[data-scope]');
+    // get all node elements with the attribute 'v-scope'
+    const nodes = document.querySelectorAll('[v-scope]');
     console.log('Found component nodes:', nodes);
 
     // loop through all nodes and register the component
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         const id = node.getAttribute('data-cid');
-        const dataRaw = node.getAttribute('data-scope');
+        const dataRaw = node.getAttribute('v-scope');
 
         const data = JSON.parse(dataRaw);
 
@@ -193,11 +192,16 @@ const init = ()  => {
             .directive('link', link)
             .mount(node);
 
-        node.removeAttribute('data-scope');
+        node.removeAttribute('v-scope');
     }
 }
 
-init();
+// init();
+PetiteVue.createApp({
+    mount(data) {
+        return Evo.init(data)
+    }
+}).mount();
 
 window.init = init;
 

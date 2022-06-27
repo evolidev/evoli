@@ -4,9 +4,7 @@ import (
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
-	"io/ioutil"
 	"log"
-	"net/http"
 )
 
 const MOUNT = "Mount"
@@ -110,14 +108,11 @@ func RegisterRoutes(r *router.Router) {
 	r.File("/static/component.js", "./../../resources/component.js")
 }
 
-func handleRouterRequest(request *http.Request) any {
-	r, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+func handleRouterRequest(request *router.Request) any {
+	r := request.Body()
 
 	componentRequest := &Request{}
-	use.JsonDecodeStruct(string(r), componentRequest)
+	use.JsonDecodeStruct(use.JsonEncode(r), componentRequest)
 
 	if valid := validateRequest(componentRequest); !valid {
 		log.Println("Invalid request")

@@ -18,11 +18,11 @@ func (c *Methods) Include(name string) string {
 		rendered,
 		"@scope",
 		fmt.Sprintf(
-			` data-cid="%s" data-scope="%s"`,
-			component.GetCid(),
+			`v-scope="mount(%s)"`,
 			html.EscapeString(use.JsonEncode(map[string]any{
 				"state": component.GetState(),
 				"name":  name,
+				"id":    component.GetCid(),
 			})),
 		),
 	)
