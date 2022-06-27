@@ -64,25 +64,11 @@ func (r *Router) Trace(path string, handler interface{}) {
 func (r *Router) handle(method string, path string, handler interface{}) {
 	var next http.Handler
 	next = http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		req := NewRequest(request)
 		tmp := use.Magic(handler)
 
-		err := request.ParseForm()
-		if err != nil {
-			// todo log into our logger
-			fmt.Println(err)
-		}
-		myParams := make(map[string]interface{}, 0)
-		params := httprouter.ParamsFromContext(request.Context())
-
-		queryParams := request.URL.Query()
-
-		myParams["Request"] = request
-		myParams["Form"] = request.Form
-		myParams["Params"] = params
-		myParams["QueryParams"] = queryParams
-
 		myResponse := response.NewResponse(
-			tmp.WithParams(myParams).Fill().WithParams(params).Call(),
+			tmp.WithParams(req.Params()).Fill().WithParams(req.Params().Get("Route")).Call(),
 		)
 
 		myResponse.Headers().Iterate(func(key string, value string) {

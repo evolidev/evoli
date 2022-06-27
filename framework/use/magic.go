@@ -145,6 +145,8 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 		for _, param := range params.(httprouter.Params) {
 			r.p.Add(param.Key, param.Value)
 		}
+	case *Collection[string, interface{}]:
+		r.p.Merge(params.(*Collection[string, interface{}]))
 	}
 
 	return r

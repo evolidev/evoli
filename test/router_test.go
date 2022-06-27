@@ -286,6 +286,57 @@ func TestRedirectResponse(t *testing.T) {
 	})
 }
 
+func TestRequest(t *testing.T) {
+	t.Parallel()
+	t.Run("Request struct should return route param by name", func(t *testing.T) {
+		r := evoli.NewRouter()
+
+		r.Get("/request/route/param/:test", func(request *evoli.Request) string {
+			return request.Get("test").(string)
+		})
+
+		rr := sendRequest(t, r, http.MethodGet, "/request/route/param/test")
+
+		assert.Equal(t, "test", rr.Body.String())
+	})
+
+	t.Run("Request struct should return query param by name", func(t *testing.T) {
+		r := evoli.NewRouter()
+
+		r.Get("/request/route/param/query", func(request *evoli.Request) string {
+			return request.Get("test").(string)
+		})
+
+		rr := sendRequest(t, r, http.MethodGet, "/request/route/param/query?test=awesome")
+
+		assert.Equal(t, "awesome", rr.Body.String())
+	})
+	t.Run("Request struct should return form param by name", func(t *testing.T) {
+		r := evoli.NewRouter()
+		f := url.Values{}
+		f.Add("form", "my-form")
+		r.Post("/request/form/param", func(request *evoli.Request) string {
+			return request.Get("form").(string)
+		})
+
+		rr := sendRequestWithForm(t, r, http.MethodGet, "/request/form/param", f)
+
+		assert.Equal(t, "my-form", rr.Body.String())
+	})
+	t.Run("Request struct should return body param by name", func(t *testing.T) {
+		r := evoli.NewRouter()
+		f := make(map[string]string)
+		f["body"] = "myBody"
+		r.Get("/request/body/param", func(request *evoli.Request) string {
+			return request.Get("body").(string)
+		})
+
+		rr := sendRequestWithData(t, r, http.MethodGet, "/request/body/param", f)
+
+		assert.Equal(t, "myBody", rr.Body.String())
+	})
+}
+
 type MyMiddleware struct {
 	testHeader string
 }
@@ -299,7 +350,7 @@ func (m MyMiddleware) Middleware(next http.Handler) http.Handler {
 }
 
 type MyController struct {
-	Request http.Request
+	HttpRequest http.Request
 }
 
 func (m MyController) TestActionWithParam(test string) string {
@@ -315,7 +366,7 @@ func (m MyController) TestActionWithParamAndRequestOrdered(test string, request 
 }
 
 func (m MyController) TestAction() string {
-	return m.Request.URL.Path
+	return m.HttpRequest.URL.Path
 }
 
 func handler() interface{} {
@@ -352,6 +403,18 @@ type testStruct struct {
 
 func sendRequest(t *testing.T, router *evoli.Router, method string, path string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, path, nil)
+
+	rr := httptest.NewRecorder()
+
+	router.ServeHTTP(rr, req)
+
+	return rr
+}
+
+func sendRequestWithForm(t *testing.T, router *evoli.Router, method string, path string, form url.Values) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, nil)
+	req.Form = form
+	req.Method = http.MethodPost
 
 	rr := httptest.NewRecorder()
 
