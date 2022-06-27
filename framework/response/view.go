@@ -46,7 +46,8 @@ func (r *ViewResponse) AsString() string {
 }
 
 func (r *ViewResponse) parse() (bytes.Buffer, error) {
-	view, _ := filepath.Abs(r.basePath + strings.Replace(r.template, ".", "/", -1) + ".html")
+	rootDir := use.BasePath()
+	view, _ := filepath.Abs(rootDir + r.basePath + strings.Replace(r.template, ".", "/", -1) + ".html")
 
 	files := []string{view}
 

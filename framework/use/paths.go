@@ -1,7 +1,6 @@
 package use
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path"
@@ -18,19 +17,19 @@ func isBuildAsRun() bool {
 	p := "go-build\\d+"
 
 	res, _ := regexp.MatchString(p, s)
-	fmt.Println("matching", res)
+
 	return res
 }
 
 func BasePath(path ...string) string {
-	if rootDir != "" {
-		return rootDir
-	}
+	if rootDir == "" {
+		if !isBuildAsRun() {
+			rootDir = getByExecutable()
+		} else {
+			rootDir = getByRuntime()
+		}
 
-	if !isBuildAsRun() {
-		rootDir = getByExecutable()
-	} else {
-		rootDir = getByRuntime()
+		rootDir = rootDir + "/"
 	}
 
 	output := strings.TrimSpace(rootDir)
@@ -72,6 +71,10 @@ func getByRuntime() string {
 			return path.Join(path.Dir(c))
 		}
 		cnt++
+
+		if cnt > 50 {
+			break
+		}
 	}
 
 	return ""
