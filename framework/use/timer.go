@@ -1,15 +1,22 @@
 package use
 
-import "time"
+import (
+	"github.com/evolidev/evoli/framework/console/color"
+	"time"
+)
 
-type Timer struct {
+type timer struct {
 	start time.Time
 }
 
-func TimeRecord() *Timer {
-	return &Timer{start: time.Now()}
+func TimeRecord() *timer {
+	return &timer{start: time.Now()}
 }
 
-func (t *Timer) Elapsed() time.Duration {
+func (t *timer) Elapsed() time.Duration {
 	return time.Now().Sub(t.start)
+}
+
+func (t *timer) ElapsedColored() string {
+	return color.Text(150, "("+t.Elapsed().String()+")")
 }

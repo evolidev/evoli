@@ -3,7 +3,6 @@ package reload
 import (
 	"context"
 	"fmt"
-	"github.com/evolidev/evoli/framework/console/color"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/use"
 	"log"
@@ -119,10 +118,9 @@ func (m *Manager) build() *exec.Cmd {
 		return nil
 	}
 
-	diff := timer.Elapsed()
-	m.Logger.Success("Buildings Completed (PID: %d) (Time: %s)",
+	m.Logger.Success("Buildings Completed (PID: %d) %s",
 		cmd.Process.Pid,
-		color.Text(150, "("+diff.String()+")"),
+		timer.ElapsedColored(),
 	)
 
 	return cmd
