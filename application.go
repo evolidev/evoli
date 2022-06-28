@@ -28,6 +28,7 @@ type Application struct {
 
 func NewApplication() *Application {
 	handler := router.NewRouter()
+	handler = handler.AddMiddleware(middleware.NewLoggingMiddleware())
 
 	setupViewEngine()
 	component.RegisterRoutes(handler)
@@ -42,7 +43,7 @@ func NewApplication() *Application {
 	logging.SetAppLogger(logger)
 
 	return &Application{
-		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
+		handler: handler,
 		logger:  logger,
 	}
 }
