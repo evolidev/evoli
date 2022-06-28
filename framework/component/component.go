@@ -22,6 +22,7 @@ type Data struct {
 }
 
 type Request struct {
+	Id         string         `json:"_id"`
 	Component  string         `json:"component"`
 	Method     string         `json:"method"`
 	State      map[string]any `json:"state"`
@@ -30,6 +31,7 @@ type Request struct {
 }
 
 type Response struct {
+	Id        string         `json:"_id"`
 	Component string         `json:"component"`
 	State     map[string]any `json:"state"`
 	Type      string         `json:"type"`

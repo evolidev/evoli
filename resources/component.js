@@ -275,8 +275,6 @@ function sendXhr(data) {
 
     // handle response
     xhr.onload = function() {
-        const data = JSON.parse(xhr.responseText);
-        console.log('XHR response', xhr.response, data, xhr.responseText);
-        // onResponse(xhr.response);
+        onResponse(xhr.responseText);
     }
 }
