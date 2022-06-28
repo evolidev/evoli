@@ -78,6 +78,11 @@ func (l *Logger) Print(msg interface{}, args ...interface{}) {
 	l.log.Printf(fmt.Sprintf(logFormat, color.Text(textColor, msg)), args...)
 }
 
+func (l *Logger) Fatal(msg interface{}, args ...interface{}) {
+	l.log.Printf(fmt.Sprintf(logFormat, color.Text(textColor, msg)), args...)
+	os.Exit(1)
+}
+
 var LogLocation = func() string {
 	dir, _ := homedir.Dir()
 	dir, _ = homedir.Expand(dir)

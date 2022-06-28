@@ -14,7 +14,6 @@ import (
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
 	"gorm.io/gorm"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -99,7 +98,7 @@ func (a *Application) Serve(command *console.ParsedCommand) {
 	defer filesystem.Delete(use.StoragePath("tmp/serve.pid"))
 
 	a.logger.Log("Serving application on http://localhost:%s (PID: %d)", port, os.Getpid())
-	log.Fatal(http.ListenAndServe(":"+port, a.handler))
+	a.logger.Fatal(http.ListenAndServe(":"+port, a.handler))
 }
 
 func (a *Application) listenForSignal() {

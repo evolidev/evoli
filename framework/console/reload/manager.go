@@ -3,6 +3,7 @@ package reload
 import (
 	"context"
 	"fmt"
+	"github.com/evolidev/evoli/framework/console/color"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/use"
 	"log"
@@ -101,7 +102,7 @@ func (m *Manager) Start() error {
 
 func (m *Manager) build() *exec.Cmd {
 
-	now := time.Now()
+	timer := use.TimeRecord()
 	//m.Logger.Print("Rebuild on: %s", event.Name)
 
 	command, args := m.getCommandArguments()
@@ -118,8 +119,11 @@ func (m *Manager) build() *exec.Cmd {
 		return nil
 	}
 
-	tt := time.Since(now)
-	m.Logger.Success("Buildings Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
+	diff := timer.Elapsed()
+	m.Logger.Success("Buildings Completed (PID: %d) (Time: %s)",
+		cmd.Process.Pid,
+		color.Text(150, "("+diff.String()+")"),
+	)
 
 	return cmd
 }
