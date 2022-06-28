@@ -20,6 +20,9 @@ import (
 	"syscall"
 )
 
+//go:embed resources
+var evoliFs embed.FS
+
 type Application struct {
 	handler *router.Router
 	logger  *logging.Logger
@@ -29,6 +32,11 @@ type Application struct {
 func NewApplication() *Application {
 	handler := router.NewRouter()
 	handler = handler.AddMiddleware(middleware.NewLoggingMiddleware())
+
+	oldFs := handler.Fs
+	handler.Fs = evoliFs
+	handler.Static("/vendor/evoli/static", "resources")
+	handler.Fs = oldFs
 
 	setupViewEngine()
 	component.RegisterRoutes(handler)

@@ -44,6 +44,6 @@ func SetupViewEngine(engine *view.Engine) {
 `)
 	engine.AddPlaceholder("@componentFooter", `
 	<script src="https://unpkg.com/petite-vue"></script>
-	<script src="/static/component.js"></script>
+	<script src="/vendor/evoli/static/component.js"></script>
 `)
 }

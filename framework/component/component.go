@@ -105,7 +105,7 @@ func Handle(request *Request) *Response {
 
 func RegisterRoutes(r *router.Router) {
 	r.Post(ENDPOINT, handleRouterRequest)
-	r.File("/static/component.js", "./../../resources/component.js")
+	//r.File("/static/component.js", "./../../resources/component.js")
 }
 
 func handleRouterRequest(request *router.Request) any {
