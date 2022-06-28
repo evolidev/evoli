@@ -30,6 +30,10 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		timer := use.TimeRecord()
 
+		err := request.ParseForm()
+		if err != nil {
+			lm.logger.Error(err)
+		}
 		body := make([]byte, 0)
 		if request.Body != nil {
 			var err error
@@ -38,10 +42,7 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 				lm.logger.Error(err)
 			}
 		}
-		err := request.ParseForm()
-		if err != nil {
-			lm.logger.Error(err)
-		}
+
 		info := requestInfo{
 			Uri:    request.RequestURI,
 			Body:   string(body),
