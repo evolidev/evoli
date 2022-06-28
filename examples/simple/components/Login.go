@@ -5,6 +5,6 @@ type Login struct {
 	Password string
 }
 
-func (l *Login) Update() {
+func (l *Login) Update(p any) {
 	l.Email = "email@from.remote"
 }
