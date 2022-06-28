@@ -2,10 +2,12 @@ package evoli
 
 import (
 	"embed"
+	"fmt"
 	"github.com/evolidev/evoli/framework/command"
 	"github.com/evolidev/evoli/framework/component"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/console/reload"
+	"github.com/evolidev/evoli/framework/filesystem"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/router"
@@ -32,16 +34,18 @@ func NewApplication() *Application {
 	component.RegisterRoutes(handler)
 
 	rootPath := use.BasePath()
-	fsLogger := logging.NewLogger(&logging.Config{Name: "fs", PrefixColor: 32})
-	fsLogger.Log("Setting root path to: " + rootPath)
 
-	return &Application{
+	app := &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
 		logger: logging.NewLogger(&logging.Config{
 			Name:        "app",
-			PrefixColor: 120,
+			PrefixColor: 32,
 		}),
 	}
+
+	app.logger.Log("Setting root path to: " + rootPath)
+
+	return app
 }
 
 func setupViewEngine() {
@@ -62,7 +66,7 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 }
 
 func (a *Application) Start() {
-	a.listen()
+	a.listenForSignal()
 
 	cli := console.New()
 
@@ -95,24 +99,23 @@ func (a *Application) Watch(command *console.ParsedCommand) {
 func (a *Application) Serve(command *console.ParsedCommand) {
 	port := command.GetOptionWithDefault("port", 8081).(string)
 
-	// get pid
+	filesystem.Write(use.StoragePath("tmp/serve.pid"), fmt.Sprintf("%d", os.Getpid()))
+	defer filesystem.Delete(use.StoragePath("tmp/serve.pid"))
+
 	a.logger.Log("Serving application on http://localhost:%s (PID: %d)", port, os.Getpid())
 	log.Fatal(http.ListenAndServe(":"+port, a.handler))
 }
 
-func (a *Application) listen() {
-
-	log.Println("listen")
-
-	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc,
+func (a *Application) listenForSignal() {
+	sigChannel := make(chan os.Signal, 1)
+	signal.Notify(sigChannel,
 		syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 	go func() {
-		s := <-sigc
-		log.Println("received signal", s)
+		s := <-sigChannel
+		a.logger.Debug("received signal: %s", s)
 		os.Exit(0)
 		//panic("done")
 		// ... do something ...

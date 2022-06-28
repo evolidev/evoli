@@ -21,6 +21,15 @@ func isBuildAsRun() bool {
 	return res
 }
 
+func StoragePath(path ...string) string {
+	output := ""
+	for _, p := range path {
+		output += "/" + p
+	}
+
+	return BasePath("storage/" + output)
+}
+
 func BasePath(path ...string) string {
 	if rootDir == "" {
 		if !isBuildAsRun() {
@@ -29,10 +38,10 @@ func BasePath(path ...string) string {
 			rootDir = getByRuntime()
 		}
 
-		rootDir = rootDir + "/"
+		rootDir = strings.TrimSpace(rootDir + "/")
 	}
 
-	output := strings.TrimSpace(rootDir)
+	output := rootDir
 	for _, p := range path {
 		output = output + "/" + p
 	}

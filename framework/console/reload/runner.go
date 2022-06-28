@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/evolidev/evoli/framework/filesystem"
+	"github.com/evolidev/evoli/framework/use"
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"syscall"
-	"time"
 )
 
 func (m *Manager) runner() {
@@ -20,27 +22,17 @@ func (m *Manager) runner() {
 		<-m.Restart
 		m.Logger.Log("Restarting...")
 
-		if m.cmd != nil && m.cmd.Process != nil {
-			// kill the previous command
-			pid := m.cmd.Process.Pid
-			m.Logger.Log("Stopping: PID %d", pid)
-
-			err := m.cmd.Process.Signal(syscall.SIGTERM)
-			m.Logger.Error(err)
-
-			err = m.cmd.Process.Kill()
-			m.Logger.Error(err)
-
-			err = m.cmd.Process.Release()
-			m.Logger.Error(err)
+		pid := filesystem.Read(use.StoragePath("tmp/serve.pid"))
+		if pid != "" {
+			m.Logger.Log("Killing process with PID: %s", pid)
+			// convert pid to int
+			pidInt, _ := strconv.Atoi(pid)
+			syscall.Kill(pidInt, syscall.SIGTERM)
 
 		} else {
 			m.Logger.Print("No process running")
 		}
 
-		time.Sleep(20000 * time.Millisecond)
-
-		m.Logger.Print("==== RESTART")
 		go m.build()
 	}
 }
