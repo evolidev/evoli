@@ -43,7 +43,7 @@ type FilePoller struct {
 // Add adds a filename to the list of watches
 // once added the file is polled for changes in a separate goroutine
 func (w *FilePoller) Add(name string) error {
-	log.Print("Adding file", name)
+	//log.Print("Adding file", name)
 	w.mu.Lock()
 	defer w.mu.Unlock()
 

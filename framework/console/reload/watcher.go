@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,11 +36,28 @@ func NewWatcher(r *Manager) *Watcher {
 }
 
 func (w *Watcher) Start() {
-
 	if w.ForcePolling {
 		w.watchWithPolling()
 	} else {
-		w.FileWatcher.Add(w.AppRoot)
+		w.watchWithFsNotify()
+	}
+}
+
+func (w *Watcher) watchWithFsNotify() {
+	watchDir := w.AppRoot
+
+	if err := filepath.WalkDir(watchDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return w.FileWatcher.Add(path)
+		}
+
+		return nil
+	}); err != nil {
+		w.Logger.Error(err)
 	}
 }
 
@@ -63,7 +81,7 @@ func (w *Watcher) watchWithPolling() {
 					}
 				}
 				if w.isWatchedFile(path) {
-					w.Logger.Print(fmt.Sprintf("Add file: %s", path))
+					//w.Logger.Print(fmt.Sprintf("Add file: %s", path))
 					w.Add(path)
 				}
 				return nil

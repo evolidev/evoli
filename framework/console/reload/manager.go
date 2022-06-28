@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/evolidev/evoli/framework/logging"
+	"github.com/evolidev/evoli/framework/use"
 	"log"
 	"os"
 	"os/exec"
@@ -22,6 +23,7 @@ type Manager struct {
 	cancelFunc context.CancelFunc
 	context    context.Context
 	gil        *sync.Once
+	cmd        *exec.Cmd
 }
 
 func New(c *Configuration) *Manager {
@@ -49,20 +51,25 @@ func NewWithContext(c *Configuration, ctx context.Context) *Manager {
 func (m *Manager) Start() error {
 	w := NewWatcher(m)
 	w.Start()
-	go m.build(fsnotify.Event{Name: ":start:"})
+
+	restart := func() {
+		m.Restart <- true
+	}
+
+	debounced := use.Debounce(100 * time.Millisecond)
 
 	if !m.Debug {
 		go func() {
 			for {
 				select {
 				case event := <-w.Events():
-					//log.Println("received event", event)
+
 					if !w.isFileEligibleForChange(event.Name) {
 						continue
 					}
 
 					if event.Op != fsnotify.Chmod {
-						go m.build(event)
+						debounced(restart)
 					}
 
 					if w.ForcePolling {
@@ -88,41 +95,34 @@ func (m *Manager) Start() error {
 			}
 		}
 	}()
+
 	m.runner()
 	return nil
 }
 
-func (m *Manager) build(event fsnotify.Event) {
-	m.gil.Do(func() {
-		defer func() {
-			m.gil = &sync.Once{}
-		}()
+func (m *Manager) build() *exec.Cmd {
 
-		m.buildTransaction(func() error {
-			// time.Sleep(r.BuildDelay * time.Millisecond)
+	now := time.Now()
+	//m.Logger.Print("Rebuild on: %s", event.Name)
 
-			now := time.Now()
-			m.Logger.Print("Rebuild on: %s", event.Name)
+	command, args := m.getCommandArguments()
+	cmd := exec.CommandContext(m.context, command, args...)
+	cmd.Dir = m.AppRoot
 
-			command, args := m.getCommandArguments()
-			cmd := exec.CommandContext(m.context, command, args...)
-			cmd.Dir = m.AppRoot
+	err := m.runAndListen(cmd)
+	m.cmd = cmd
+	if err != nil {
+		if strings.Contains(err.Error(), "no buildable Go source files") {
+			m.cancelFunc()
+			log.Fatal(err)
+		}
+		return nil
+	}
 
-			err := m.runAndListen(cmd)
-			if err != nil {
-				if strings.Contains(err.Error(), "no buildable Go source files") {
-					m.cancelFunc()
-					log.Fatal(err)
-				}
-				return err
-			}
+	tt := time.Since(now)
+	m.Logger.Success("Buildings Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
 
-			tt := time.Since(now)
-			m.Logger.Success("Buildings Completed (PID: %d) (Time: %s)", cmd.Process.Pid, tt)
-			//m.Restart <- true
-			return nil
-		})
-	})
+	return cmd
 }
 
 func (m *Manager) buildTransaction(fn func() error) {
