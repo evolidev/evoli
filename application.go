@@ -31,6 +31,10 @@ func NewApplication() *Application {
 	setupViewEngine()
 	component.RegisterRoutes(handler)
 
+	rootPath := use.BasePath()
+	fsLogger := logging.NewLogger(&logging.Config{Name: "fs", PrefixColor: 32})
+	fsLogger.Log("Setting root path to: " + rootPath)
+
 	return &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
 		logger: logging.NewLogger(&logging.Config{
