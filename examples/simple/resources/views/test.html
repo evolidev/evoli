@@ -22,12 +22,12 @@
     </thead>
 
     <tbody>
-    {{ range $val := . }}
+    {! range $val := .persons !}
     <tr>
-        <td>{{$val.Name}}</td>
-        <td>{{$val.CreatedAt}}</td>
+        <td>{!$val.Name!}</td>
+        <td>{!$val.CreatedAt!}</td>
     </tr>
-    {{ end }}
+    {! end !}
     </tbody>
 
 </table>
