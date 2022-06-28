@@ -33,19 +33,15 @@ func NewApplication() *Application {
 	setupViewEngine()
 	component.RegisterRoutes(handler)
 
-	rootPath := use.BasePath()
+	use.BasePath()
 
-	app := &Application{
+	return &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
 		logger: logging.NewLogger(&logging.Config{
 			Name:        "app",
 			PrefixColor: 32,
 		}),
 	}
-
-	app.logger.Log("Setting root path to: " + rootPath)
-
-	return app
 }
 
 func setupViewEngine() {
@@ -112,12 +108,11 @@ func (a *Application) listenForSignal() {
 		syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGTERM,
-		syscall.SIGQUIT)
+		syscall.SIGQUIT,
+	)
 	go func() {
 		s := <-sigChannel
 		a.logger.Debug("received signal: %s", s)
 		os.Exit(0)
-		//panic("done")
-		// ... do something ...
 	}()
 }

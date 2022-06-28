@@ -3,7 +3,6 @@ package reload
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -62,7 +61,6 @@ func (w *Watcher) watchWithFsNotify() {
 }
 
 func (w *Watcher) watchWithPolling() {
-	w.Logger.Print(fmt.Sprintf("Watching path: %s", w.AppRoot))
 	go func() {
 		for {
 			err := filepath.Walk(w.AppRoot, func(path string, info os.FileInfo, err error) error {
