@@ -75,8 +75,6 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 			writer.Header().Add(key, value)
 		})
 
-		writer.Header().Add("Content-Type", "charset=utf-8")
-
 		if redirect, ok := myResponse.(*response.RedirectResponse); ok {
 			http.Redirect(writer, request, redirect.To, myResponse.Code())
 
