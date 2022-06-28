@@ -34,12 +34,16 @@ func NewApplication() *Application {
 
 	use.BasePath()
 
+	logger := logging.NewLogger(&logging.Config{
+		Name:        "app",
+		PrefixColor: 32,
+	})
+
+	logging.SetAppLogger(logger)
+
 	return &Application{
 		handler: handler.AddMiddleware(middleware.NewLoggingMiddleware()),
-		logger: logging.NewLogger(&logging.Config{
-			Name:        "app",
-			PrefixColor: 32,
-		}),
+		logger:  logger,
 	}
 }
 

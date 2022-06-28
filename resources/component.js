@@ -272,4 +272,10 @@ function sendXhr(data) {
     xhr.open('POST', '/internal/component');
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(data));
+
+    // handle response
+    xhr.onload = function() {
+        console.log('XHR response', xhr.response);
+        // onResponse(xhr.response);
+    }
 }

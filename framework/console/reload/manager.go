@@ -2,11 +2,9 @@ package reload
 
 import (
 	"context"
-	"fmt"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/use"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -124,17 +122,4 @@ func (m *Manager) build() *exec.Cmd {
 	)
 
 	return cmd
-}
-
-func (m *Manager) buildTransaction(fn func() error) {
-	logPath := logging.ErrorLogPath()
-	err := fn()
-	if err != nil {
-		f, _ := os.Create(logPath)
-		fmt.Fprint(f, err)
-		m.Logger.Error("Error!")
-		m.Logger.Error(err)
-	} else {
-		os.Remove(logPath)
-	}
 }

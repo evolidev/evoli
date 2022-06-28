@@ -1,10 +1,10 @@
 package component
 
 import (
+	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
-	"log"
 )
 
 const MOUNT = "Mount"
@@ -115,7 +115,7 @@ func handleRouterRequest(request *router.Request) any {
 	use.JsonDecodeStruct(use.JsonEncode(r), componentRequest)
 
 	if valid := validateRequest(componentRequest); !valid {
-		log.Println("Invalid request")
+		logging.Error("Invalid request")
 		return nil
 	}
 
