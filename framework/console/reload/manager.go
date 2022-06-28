@@ -63,7 +63,6 @@ func (m *Manager) Start() error {
 			for {
 				select {
 				case event := <-w.Events():
-
 					if !w.isFileEligibleForChange(event.Name) {
 						continue
 					}
@@ -89,7 +88,7 @@ func (m *Manager) Start() error {
 		for {
 			select {
 			case err := <-w.Errors():
-				m.Logger.Error(err)
+				m.Logger.Error("Manager error", err)
 			case <-m.context.Done():
 				break
 			}

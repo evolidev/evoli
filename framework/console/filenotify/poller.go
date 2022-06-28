@@ -185,7 +185,7 @@ func (w *FilePoller) watch(f *os.File, lastFi os.FileInfo, chClose chan struct{}
 		}
 
 		if lastFi == nil {
-			if err := w.sendEvent(fsnotify.Event{Op: fsnotify.Create, Name: fi.Name()}, chClose); err != nil {
+			if err := w.sendEvent(fsnotify.Event{Op: fsnotify.Create, Name: f.Name()}, chClose); err != nil {
 				return
 			}
 			lastFi = fi
@@ -193,7 +193,7 @@ func (w *FilePoller) watch(f *os.File, lastFi os.FileInfo, chClose chan struct{}
 		}
 
 		if fi.ModTime() != lastFi.ModTime() || fi.Size() != lastFi.Size() {
-			if err := w.sendEvent(fsnotify.Event{Op: fsnotify.Write, Name: fi.Name()}, chClose); err != nil {
+			if err := w.sendEvent(fsnotify.Event{Op: fsnotify.Write, Name: f.Name()}, chClose); err != nil {
 				return
 			}
 			lastFi = fi
@@ -201,7 +201,7 @@ func (w *FilePoller) watch(f *os.File, lastFi os.FileInfo, chClose chan struct{}
 		}
 
 		if fi.Mode() != lastFi.Mode() {
-			if err := w.sendEvent(fsnotify.Event{Op: fsnotify.Chmod, Name: fi.Name()}, chClose); err != nil {
+			if err := w.sendEvent(fsnotify.Event{Op: fsnotify.Chmod, Name: f.Name()}, chClose); err != nil {
 				return
 			}
 			lastFi = fi

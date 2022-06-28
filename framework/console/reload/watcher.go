@@ -57,7 +57,7 @@ func (w *Watcher) watchWithFsNotify() {
 
 		return nil
 	}); err != nil {
-		w.Logger.Error(err)
+		w.Logger.Error("Watch FS", err)
 	}
 }
 
@@ -132,7 +132,7 @@ func (w *Watcher) isFileEligibleForChange(path string) bool {
 
 	info, err := os.Stat(path)
 	if err != nil {
-		w.Logger.Error(err)
+		w.Logger.Error("Is file eligible: %s", err)
 		return false
 	}
 
