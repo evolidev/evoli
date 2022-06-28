@@ -5,6 +5,7 @@ import (
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/matoous/go-nanoid/v2"
+	"log"
 )
 
 type Base struct {
@@ -50,6 +51,11 @@ func (b *Base) Get(key string) interface{} {
 
 func (b *Base) Call(method string, parameters interface{}) interface{} {
 	if b.Component == nil {
+		return nil
+	}
+
+	if !b.Component.HasMethod(method) {
+		log.Printf("Component method not found: %s@%s", b.Component.Name(), method)
 		return nil
 	}
 

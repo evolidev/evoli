@@ -4,3 +4,7 @@ type Login struct {
 	Email    string
 	Password string
 }
+
+//func (l *Login) Update() {
+//
+//}

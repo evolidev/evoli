@@ -57,7 +57,7 @@ func (r *ViewResponse) parse() (bytes.Buffer, error) {
 	}
 
 	tmp := template.New(path.Base(files[0]))
-	tmp.Delims("{!", "!}") // set delimiters (TODO read from config)
+	tmp.Delims("${", "}") // set delimiters (TODO read from config)
 	tmpl := template.Must(tmp.ParseFiles(files...))
 
 	var b bytes.Buffer

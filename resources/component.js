@@ -17,9 +17,9 @@ window.onpopstate = function(event) {
 //     ));
 // })
 
-function parseOutMethodAndParams (rawMethod, scope) {
+function parseOutMethodAndParams (rawMethod, scope = {}) {
     let method = rawMethod
-    let params = []
+    let parameters = []
     const parts = method.match(/(.*?)\((.*)\)/s)
 
     if (parts) {
@@ -32,14 +32,15 @@ function parseOutMethodAndParams (rawMethod, scope) {
             return [].concat(p);
         })(${parts[2]})`)
 
-        params = func(...Object.values(scope))
+        parameters = func(...Object.values(scope))
     }
 
-    return {method, params}
+    return {method, parameters}
 }
 
 
 const componentStates = reactive({});
+const components = {};
 
 window.Evo = {
     init:(data) => {
@@ -52,6 +53,11 @@ window.Evo = {
 
         if (componentStates[id]) {
             state = {...componentStates[id], ...state}
+        }
+
+        state._id = id
+        components[id] = {
+            name: data.name,
         }
 
         console.log('Init component:', id, data, state);
@@ -107,17 +113,17 @@ const getComponentData = (data) => {
 const click = (context) => {
     const { el, effect, exp, ctx } = context;
     const handler = () => {
-        // console.log(ctx.scope, context);
-        console.log('click: ' + exp);
         const state = getComponentData(ctx.scope);
-        const {component} = state;
-        delete state.component;
+        // console.log(ctx.scope, context);
+        console.log('click: ' + exp, state, context);
+        // const {component} = state;
+        // delete state.component;
 
         send({
             action: 'click',
-            value: exp,
+            expression: exp,
             state,
-            component
+            // component
         });
     };
 
@@ -197,11 +203,15 @@ const init = ()  => {
 }
 
 // init();
-PetiteVue.createApp({
-    mount(data) {
-        return Evo.init(data)
-    }
-}).mount();
+PetiteVue
+    .createApp({
+        mount(data) {
+            return Evo.init(data)
+        }
+    })
+    .directive('click', click)
+    .directive('link', link)
+    .mount();
 
 window.init = init;
 
@@ -232,7 +242,34 @@ window.init = init;
 // }
 
 function send(data) {
-    console.log('SEND socket data', data);
-    socket.send(JSON.stringify(data));
+
+    const requestData = parseOutMethodAndParams(data.expression, data.state)
+    console.log(requestData, data);
+
+    const request = {
+        component: components[data.state._id].name,
+        state: data.state,
+        action: data.action,
+        ...requestData
+    }
+
+    sendXhr(request)
+
+    // sendXhr({
+    //     component: 'Login',
+    //     state: {},
+    //     action: 'click',
+    // })
+
+    // console.log('SEND socket data', data);
+    // socket.send(JSON.stringify(data));
     // input.value = "";
+}
+
+function sendXhr(data) {
+    console.log('SEND xhr data', data);
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', '/internal/component');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
 }
