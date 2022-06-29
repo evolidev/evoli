@@ -2,10 +2,7 @@ package component
 
 import (
 	"fmt"
-	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
-	"html"
-	"strings"
 )
 
 type Methods struct{}
@@ -19,18 +16,7 @@ func (c *Methods) Include(name string, arg ...any) string {
 		component.Trigger(args...)
 	}
 
-	rendered := component.Render()
-
-	rendered = strings.ReplaceAll(
-		rendered,
-		"@scope",
-		fmt.Sprintf(
-			`v-scope="mount(%s)"`,
-			html.EscapeString(use.JsonEncode(component.GetData())),
-		),
-	)
-
-	return rendered
+	return component.RenderParsed()
 }
 
 func SetupViewEngine(engine *view.Engine) {
@@ -39,7 +25,7 @@ func SetupViewEngine(engine *view.Engine) {
 	<script src="https://cdn.tailwindcss.com"></script>
 `)
 	engine.AddPlaceholder("@componentFooter", fmt.Sprintf(`
-	<script src="https://unpkg.com/evoli-petite-vue"></script>
+	<script src="https://unpkg.com/evoli-petite-vue@0.0.3"></script>
 	<script src="%s"></script>
 	`, ASSET))
 }

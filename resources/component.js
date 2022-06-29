@@ -44,25 +44,9 @@ const components = {};
 
 window.Evo = {
     init:(data) => {
-        // use this property to define component specific data
-        const defaultComponent = {
-            // name,
-        }
 
         let {state, _id, component} = data
         state = reactive({...state, _id})
-
-        // if (componentStates[_id]) {
-        //     // state = {...componentStates[_id], ...state}
-        //     Object.assign(componentStates[_id], state)
-        // } else {
-
-        // }
-
-        // loop through state and make everything reactive
-        // for (let key in state) {
-        //     state[key] = reactive(state[key])
-        // }
 
         components[_id] = { ...data }
 
@@ -86,16 +70,15 @@ const onResponse = (data) => {
         return
     }
 
-    console.log('Received response:', response);
 
+    console.log('Received response:', response);
 
     if (!response.component) {
         console.error('Invalid response', data)
         return;
     }
 
-    const { state, _id, component } = response
-
+    const { state, _id, component, content } = response
 
     if (!componentStates[_id]) {
         componentStates[_id] = {}
@@ -114,6 +97,22 @@ const onResponse = (data) => {
         document.querySelector('.router-view').innerHTML = response.content;
         // re-initialize components
         init();
+    }
+
+    if (content != null) {
+        const el = document.querySelector(`[data-cid="${_id}"]`)
+
+        if (!el) {
+            console.error('No element found for', _id)
+            return
+        }
+
+        // replace the content of the page
+        el.parentNode.innerHTML = content;
+
+        init();
+        // re-initialize components
+        // init();
     }
 }
 
@@ -192,69 +191,25 @@ const link = (context) => {
     }
 }
 
-// const init = ()  => {
-//     // get all node elements with the attribute 'v-scope'
-//     const nodes = document.querySelectorAll('[v-scope]');
-//     console.log('Found component nodes:', nodes);
-//
-//     // loop through all nodes and register the component
-//     for (let i = 0; i < nodes.length; i++) {
-//         const node = nodes[i];
-//         const id = node.getAttribute('data-cid');
-//         const dataRaw = node.getAttribute('v-scope');
-//
-//         const data = JSON.parse(dataRaw);
-//
-//         console.log('Registering component:', id, data);
-//
-//         let state = reactive({});
-//         if (id) {
-//             state = reactive(Evo.init(id, data));
-//         }
-//
-//         componentStates[id] = state;
-//
-//         console.log('Component state:', state, node);
-//
-//         createApp(state)
-//             .directive('click', click)
-//             .directive('link', link)
-//             .mount(node);
-//
-//         node.removeAttribute('v-scope');
-//     }
-// }
-
-const play = reactive({
-    Name: 'OMer',
-    Email: 'OMer',
-    Type: 'OMer',
-    Password: 'OMer',
-    mount(data) {
-        console.log('mounting', play);
-        return play
-        return Evo.init(data)
-    }
-})
-
-// init();
-const app = PetiteVue
+function init() {
+    PetiteVue
     .createApp({
-        mount(data) {
+        mount(data, el) {
+            console.log(el);
             // return play
-            return Evo.init(data)
+            const state = Evo.init(data)
+
+            el.setAttribute('data-cid', state._id)
+
+            return state;
         }
     })
-    // .createApp(play)
     .directive('click', click)
     .directive('link', link)
     .mount();
+}
 
-// window.init = init;
-
-// createApp({store})
-//     .directive('click', click)
-//     .mount()
+init();
 
 /**
  * Socket section

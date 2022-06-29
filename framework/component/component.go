@@ -104,6 +104,7 @@ func Handle(request *Request) *Response {
 		Component: request.Component,
 		State:     component.GetState(),
 		Response:  response,
+		Content:   component.RenderParsed(),
 	}
 }
 
