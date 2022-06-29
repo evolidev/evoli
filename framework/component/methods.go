@@ -26,11 +26,7 @@ func (c *Methods) Include(name string, arg ...any) string {
 		"@scope",
 		fmt.Sprintf(
 			`v-scope="mount(%s)"`,
-			html.EscapeString(use.JsonEncode(map[string]any{
-				"state": component.GetState(),
-				"name":  name,
-				"id":    component.GetCid(),
-			})),
+			html.EscapeString(use.JsonEncode(component.GetData())),
 		),
 	)
 
@@ -42,8 +38,8 @@ func SetupViewEngine(engine *view.Engine) {
 	engine.AddPlaceholder("@componentHeader", `
 	<script src="https://cdn.tailwindcss.com"></script>
 `)
-	engine.AddPlaceholder("@componentFooter", `
-	<script src="https://unpkg.com/petite-vue"></script>
-	<script src="/vendor/evoli/static/component.js"></script>
-`)
+	engine.AddPlaceholder("@componentFooter", fmt.Sprintf(`
+	<script src="https://unpkg.com/evoli-petite-vue"></script>
+	<script src="%s"></script>
+	`, ASSET))
 }

@@ -84,6 +84,14 @@ func (b *Base) Trigger(args ...any) {
 	}
 }
 
+func (b *Base) GetData() map[string]any {
+	return map[string]any{
+		"state":     b.GetState(),
+		"component": b.GetComponentName(),
+		"_id":       b.GetCid(),
+	}
+}
+
 func (b *Base) GetCid() string {
 	if b.Id == "" {
 		b.Id, _ = gonanoid.New()

@@ -11,6 +11,7 @@ const MOUNT = "Mount"
 const UPDATE = "Update"
 
 const ENDPOINT = "/internal/component"
+const ASSET = "/vendor/evoli/static/component.js"
 
 var components = make(map[string]Component)
 
@@ -99,6 +100,7 @@ func Handle(request *Request) *Response {
 	}
 
 	return &Response{
+		Id:        request.Id,
 		Component: request.Component,
 		State:     component.GetState(),
 		Response:  response,
@@ -107,7 +109,7 @@ func Handle(request *Request) *Response {
 
 func RegisterRoutes(r *router.Router) {
 	r.Post(ENDPOINT, handleRouterRequest)
-	//r.File("/static/component.js", "../../resources/component.js")
+	r.File("/vendor/evoli/static/component.js", "../../resources/component.js")
 }
 
 func handleRouterRequest(request *router.Request) any {
@@ -118,7 +120,7 @@ func handleRouterRequest(request *router.Request) any {
 
 	if valid := validateRequest(componentRequest); !valid {
 		logging.Error("Invalid request")
-		return nil
+		return response.Json(map[string]any{"error": true}).WithCode(400)
 	}
 
 	res := Handle(componentRequest)

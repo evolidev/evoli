@@ -49,45 +49,69 @@ window.Evo = {
             // name,
         }
 
-        let {state, id} = data
+        let {state, _id, component} = data
+        state = reactive({...state, _id})
 
-        if (componentStates[id]) {
-            state = {...componentStates[id], ...state}
-        }
+        // if (componentStates[_id]) {
+        //     // state = {...componentStates[_id], ...state}
+        //     Object.assign(componentStates[_id], state)
+        // } else {
 
-        state._id = id
-        components[id] = {
-            name: data.name,
-        }
+        // }
 
-        console.log('Init component:', id, data, state);
+        // loop through state and make everything reactive
+        // for (let key in state) {
+        //     state[key] = reactive(state[key])
+        // }
 
-        return state
+        components[_id] = { ...data }
+
+        componentStates[_id] = state
+
+        console.log('Init component:', data, componentStates[_id]);
+
+        return componentStates[_id]
     }
 }
 
+
+
 const onResponse = (data) => {
     // try to decode data
+    let response
     try {
-        data = JSON.parse(data);
+        response = JSON.parse(data)
     } catch (e) {
-        console.error('Error parsing JSON', e);
+        console.error('Error parsing JSON', e)
+        return
     }
 
-    if (!data.component?.name) {
-        console.error('Invalid response', data);
+    console.log('Received response:', response);
+
+
+    if (!response.component) {
+        console.error('Invalid response', data)
         return;
     }
 
-    if (!componentStates[data.component.name]) {
-        componentStates[data.component.name] = {};
+    const { state, _id, component } = response
+
+
+    if (!componentStates[_id]) {
+        componentStates[_id] = {}
     }
 
-    Object.assign(componentStates[data.component.name], data.state);
+    console.log(componentStates[_id], state);
 
-    if (data.type === 'page') {
+    Object.assign(componentStates[_id], state)
+
+    // for (let key in state) {
+    //     componentStates[_id][key] = state[key]
+    // }
+
+    if (response.type === 'page') {
         // replace the content of the page
-        document.querySelector('.router-view').innerHTML = data.content;
+        document.querySelector('.router-view').innerHTML = response.content;
         // re-initialize components
         init();
     }
@@ -107,7 +131,6 @@ const getComponentData = (data) => {
         }
         return acc
     }, {})
-
 }
 
 const click = (context) => {
@@ -115,7 +138,7 @@ const click = (context) => {
     const handler = () => {
         const state = getComponentData(ctx.scope);
         // console.log(ctx.scope, context);
-        console.log('click: ' + exp, state, context);
+        // console.log('click: ' + exp, state, context);
         // const {component} = state;
         // delete state.component;
 
@@ -169,51 +192,65 @@ const link = (context) => {
     }
 }
 
-const init = ()  => {
-    // get all node elements with the attribute 'v-scope'
-    const nodes = document.querySelectorAll('[v-scope]');
-    console.log('Found component nodes:', nodes);
+// const init = ()  => {
+//     // get all node elements with the attribute 'v-scope'
+//     const nodes = document.querySelectorAll('[v-scope]');
+//     console.log('Found component nodes:', nodes);
+//
+//     // loop through all nodes and register the component
+//     for (let i = 0; i < nodes.length; i++) {
+//         const node = nodes[i];
+//         const id = node.getAttribute('data-cid');
+//         const dataRaw = node.getAttribute('v-scope');
+//
+//         const data = JSON.parse(dataRaw);
+//
+//         console.log('Registering component:', id, data);
+//
+//         let state = reactive({});
+//         if (id) {
+//             state = reactive(Evo.init(id, data));
+//         }
+//
+//         componentStates[id] = state;
+//
+//         console.log('Component state:', state, node);
+//
+//         createApp(state)
+//             .directive('click', click)
+//             .directive('link', link)
+//             .mount(node);
+//
+//         node.removeAttribute('v-scope');
+//     }
+// }
 
-    // loop through all nodes and register the component
-    for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        const id = node.getAttribute('data-cid');
-        const dataRaw = node.getAttribute('v-scope');
-
-        const data = JSON.parse(dataRaw);
-
-        console.log('Registering component:', id, data);
-
-        let state = reactive({});
-        if (id) {
-            state = reactive(Evo.init(id, data));
-        }
-
-        componentStates[id] = state;
-
-        console.log('Component state:', state, node);
-
-        createApp(state)
-            .directive('click', click)
-            .directive('link', link)
-            .mount(node);
-
-        node.removeAttribute('v-scope');
+const play = reactive({
+    Name: 'OMer',
+    Email: 'OMer',
+    Type: 'OMer',
+    Password: 'OMer',
+    mount(data) {
+        console.log('mounting', play);
+        return play
+        return Evo.init(data)
     }
-}
+})
 
 // init();
-PetiteVue
+const app = PetiteVue
     .createApp({
         mount(data) {
+            // return play
             return Evo.init(data)
         }
     })
+    // .createApp(play)
     .directive('click', click)
     .directive('link', link)
     .mount();
 
-window.init = init;
+// window.init = init;
 
 // createApp({store})
 //     .directive('click', click)
@@ -242,13 +279,24 @@ window.init = init;
 // }
 
 function send(data) {
+    console.log('send', data);
 
     const requestData = parseOutMethodAndParams(data.expression, data.state)
     console.log(requestData, data);
 
+    let state = {...data.state}
+    const id = state._id
+
+    // remove _id from state
+    delete state._id
+
+    const component = components[id]
+    console.log('Component:', component);
+
     const request = {
-        component: components[data.state._id].name,
-        state: data.state,
+        _id: component._id,
+        component: component.component,
+        state,
         action: data.action,
         ...requestData
     }

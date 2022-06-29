@@ -38,7 +38,7 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 
 		body := make([]byte, 0)
 		if request.Body != nil {
-			body, err := ioutil.ReadAll(request.Body)
+			body, err = ioutil.ReadAll(request.Body)
 			if err != nil {
 				lm.logger.Error(err)
 			}
