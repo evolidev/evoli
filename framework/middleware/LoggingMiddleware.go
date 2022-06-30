@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"bytes"
 	"github.com/evolidev/evoli/framework/console/color"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/use"
@@ -30,18 +31,20 @@ func (lm LoggingMiddleware) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		timer := use.TimeRecord()
 
-		body := make([]byte, 0)
-		if request.Body != nil {
-			var err error
-			body, err = ioutil.ReadAll(request.Body)
-			if err != nil {
-				lm.logger.Error(err)
-			}
-		}
 		err := request.ParseForm()
 		if err != nil {
 			lm.logger.Error(err)
 		}
+
+		body := make([]byte, 0)
+		if request.Body != nil {
+			body, err = ioutil.ReadAll(request.Body)
+			if err != nil {
+				lm.logger.Error(err)
+			}
+			request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		}
+
 		info := requestInfo{
 			Uri:    request.RequestURI,
 			Body:   string(body),
