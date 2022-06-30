@@ -6,20 +6,20 @@ import (
 )
 
 type ParsedCommand struct {
-	arguments  map[string]interface{}
-	options    map[string]interface{}
+	arguments  map[string]any
+	options    map[string]any
 	command    string
 	name       string
 	subCommand string
 	prefix     string
 }
 
-func (p *ParsedCommand) GetArgument(name string) interface{} {
+func (p *ParsedCommand) GetArgument(name string) any {
 	argumentValue := p.arguments[name]
 	return argumentValue
 }
 
-func (p *ParsedCommand) GetOption(name string) interface{} {
+func (p *ParsedCommand) GetOption(name string) any {
 	optionValue := p.options[name]
 	return optionValue
 }
@@ -36,7 +36,7 @@ func (p *ParsedCommand) GetSubCommand() string {
 	return p.subCommand
 }
 
-func (p *ParsedCommand) GetOptionWithDefault(s string, defaultValue interface{}) interface{} {
+func (p *ParsedCommand) GetOptionWithDefault(s string, defaultValue any) any {
 	option := p.GetOption(s)
 	if option == nil {
 		return defaultValue
@@ -48,8 +48,8 @@ var parseRegex = "[\\/-]{0,2}?((\\w+)(?:[=:](\"[^\"]+\"|[^\\s\"]+))?)(?:\\s+|$)"
 
 func Parse(definition string, command string) *ParsedCommand {
 
-	arguments := make(map[string]interface{})
-	options := make(map[string]interface{})
+	arguments := make(map[string]any)
+	options := make(map[string]any)
 
 	var argumentsMap []string
 
@@ -77,7 +77,7 @@ func Parse(definition string, command string) *ParsedCommand {
 	}
 }
 
-func parseDefinition(definition string, options map[string]interface{}, arguments map[string]interface{}, argumentsMap []string) []string {
+func parseDefinition(definition string, options map[string]any, arguments map[string]any, argumentsMap []string) []string {
 	definitionItems := strings.Split(definition, " ")
 	for i := range definitionItems {
 		definitionItems[i] = strings.TrimSpace(definitionItems[i])
@@ -111,7 +111,7 @@ func parseDefinition(definition string, options map[string]interface{}, argument
 	return argumentsMap
 }
 
-func parseCommand(command string, options map[string]interface{}, argumentsMap []string, arguments map[string]interface{}) []string {
+func parseCommand(command string, options map[string]any, argumentsMap []string, arguments map[string]any) []string {
 	// extract all arguments and options
 	r, _ := regexp.Compile(parseRegex)
 	items := r.FindAllString(command, -1)
@@ -135,12 +135,12 @@ func parseCommand(command string, options map[string]interface{}, argumentsMap [
 	return items
 }
 
-func extractField(item string, prefix string) (string, interface{}) {
+func extractField(item string, prefix string) (string, any) {
 	option := strings.TrimPrefix(item, prefix)
 	// extract option name and value
 	parts := strings.Split(option, "=")
 	optionName := parts[0]
-	var optionValue interface{}
+	var optionValue any
 	if len(parts) > 1 && parts[1] != "" {
 		optionValue = parts[1]
 	} else {
