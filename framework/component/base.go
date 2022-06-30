@@ -5,6 +5,9 @@ import (
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/matoous/go-nanoid/v2"
+	"html"
+	"log"
+	"strings"
 )
 
 type Base struct {
@@ -40,6 +43,21 @@ func (b *Base) Render() string {
 	return b.GetRawContent()
 }
 
+func (b *Base) RenderParsed() string {
+	rendered := b.Render()
+
+	rendered = strings.ReplaceAll(
+		rendered,
+		"@scope",
+		fmt.Sprintf(
+			`v-scope="mount(%s, $el)"`,
+			html.EscapeString(use.JsonEncode(b.GetData())),
+		),
+	)
+
+	return rendered
+}
+
 func (b *Base) Set(data map[string]interface{}) {
 	b.Component = b.Component.WithParams(data).Fill()
 }
@@ -50,6 +68,11 @@ func (b *Base) Get(key string) interface{} {
 
 func (b *Base) Call(method string, parameters interface{}) interface{} {
 	if b.Component == nil {
+		return nil
+	}
+
+	if !b.Component.HasMethod(method) {
+		log.Printf("Component method not found: %s@%s", b.Component.Name(), method)
 		return nil
 	}
 
@@ -75,6 +98,14 @@ func (b *Base) Trigger(args ...any) {
 
 	if b.Component.HasMethod(hook) {
 		b.Component.Method(hook).WithParams(parameters).Call()
+	}
+}
+
+func (b *Base) GetData() map[string]any {
+	return map[string]any{
+		"state":     b.GetState(),
+		"component": b.GetComponentName(),
+		"_id":       b.GetCid(),
 	}
 }
 

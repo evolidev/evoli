@@ -1,7 +1,6 @@
 <div @scope class="relative mb-4">
-    <label for="email" class="leading-7 text-sm text-gray-600">
-        Name ({{ Name ?? '-' }}) | {{ Email ?? '-' }}
+    <label class="leading-7 text-sm text-gray-600">
+        {{ Name }}
     </label>
-    <input type="text" name="email" v-model="Name" class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" :placeholder="'From component' + Name">
-    <input type="email" name="email" v-model="Email" class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" :placeholder="'From component' + Name">
+    <input :type="Type" v-model="${ .Field }" class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-base outline-none text-gray-700 py-1 px-3 leading-8 transition-colors duration-200 ease-in-out" :placeholder="Name">
 </div>

@@ -1,16 +1,17 @@
 package component
 
 import (
+	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
-	"log"
 )
 
 const MOUNT = "Mount"
 const UPDATE = "Update"
 
 const ENDPOINT = "/internal/component"
+const ASSET = "/vendor/evoli/static/component.js"
 
 var components = make(map[string]Component)
 
@@ -22,6 +23,7 @@ type Data struct {
 }
 
 type Request struct {
+	Id         string         `json:"_id"`
 	Component  string         `json:"component"`
 	Method     string         `json:"method"`
 	State      map[string]any `json:"state"`
@@ -30,6 +32,7 @@ type Request struct {
 }
 
 type Response struct {
+	Id        string         `json:"_id"`
 	Component string         `json:"component"`
 	State     map[string]any `json:"state"`
 	Type      string         `json:"type"`
@@ -97,15 +100,17 @@ func Handle(request *Request) *Response {
 	}
 
 	return &Response{
+		Id:        request.Id,
 		Component: request.Component,
 		State:     component.GetState(),
 		Response:  response,
+		Content:   component.RenderParsed(),
 	}
 }
 
 func RegisterRoutes(r *router.Router) {
 	r.Post(ENDPOINT, handleRouterRequest)
-	r.File("/static/component.js", "./../../resources/component.js")
+	r.File("/vendor/evoli/static/component.js", "../../resources/component.js")
 }
 
 func handleRouterRequest(request *router.Request) any {
@@ -115,8 +120,8 @@ func handleRouterRequest(request *router.Request) any {
 	use.JsonDecodeStruct(use.JsonEncode(r), componentRequest)
 
 	if valid := validateRequest(componentRequest); !valid {
-		log.Println("Invalid request")
-		return nil
+		logging.Error("Invalid request")
+		return response.Json(map[string]any{"error": true}).WithCode(400)
 	}
 
 	res := Handle(componentRequest)
@@ -125,7 +130,7 @@ func handleRouterRequest(request *router.Request) any {
 		return response.Json(map[string]any{"error": true}).WithCode(400)
 	}
 
-	return res
+	return response.Json(res)
 }
 
 func validateRequest(request *Request) bool {

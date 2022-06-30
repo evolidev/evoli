@@ -17,7 +17,7 @@ func Web(web *router.Router) {
 			use.DB().Find(&persons)
 
 			return response.View("test").WithData(map[string]interface{}{
-				"Name": persons[0].Name,
+				"persons": persons,
 			})
 		})
 

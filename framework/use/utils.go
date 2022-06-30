@@ -12,10 +12,10 @@ func AbortUnless(e interface{}) {
 	}
 }
 
-func D(e interface{}) {
+func D(e ...any) {
 	log.Println(dd.Dump(e))
 }
 
-func P(e interface{}) {
+func P(e ...any) {
 	log.Println(p.P(e))
 }

@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"time"
 
 	"github.com/evolidev/evoli/framework/console/color"
-	"github.com/mitchellh/go-homedir"
 )
 
 const logFormat = "%s"
@@ -83,18 +81,32 @@ func (l *Logger) Fatal(msg interface{}, args ...interface{}) {
 	os.Exit(1)
 }
 
-var LogLocation = func() string {
-	dir, _ := homedir.Dir()
-	dir, _ = homedir.Expand(dir)
-	dir = path.Join(dir, ".refresh")
-	err := os.MkdirAll(dir, 0755)
-	if err != nil {
-		//todo log to logger
-		fmt.Println(err)
-	}
-	return dir
+var appLogger *Logger
+
+func GetAppLogger() *Logger {
+	return appLogger
 }
 
-var ErrorLogPath = func() string {
-	return path.Join(LogLocation(), "error.log")
+func SetAppLogger(l *Logger) {
+	appLogger = l
+}
+
+func Debug(msg interface{}, args ...interface{}) {
+	appLogger.Debug(msg, args...)
+}
+
+func Error(msg interface{}, args ...interface{}) {
+	appLogger.Error(msg, args...)
+}
+
+func Fatal(msg interface{}, args ...interface{}) {
+	appLogger.Fatal(msg, args...)
+}
+
+func Log(msg interface{}, args ...interface{}) {
+	appLogger.Log(msg, args...)
+}
+
+func Success(msg interface{}, args ...interface{}) {
+	appLogger.Success(msg, args...)
 }
