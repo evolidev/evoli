@@ -3,6 +3,7 @@ package use
 import (
 	"github.com/Code-Hex/dd"
 	"github.com/Code-Hex/dd/p"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 	"log"
 )
 
@@ -18,4 +19,9 @@ func D(e ...any) {
 
 func P(e ...any) {
 	log.Println(p.P(e))
+}
+
+func StringRandom(length int) string {
+	str, _ := gonanoid.Generate("", length)
+	return str
 }

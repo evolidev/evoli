@@ -23,6 +23,10 @@ type Logger struct {
 }
 
 func NewLogger(c *Config) *Logger {
+	if c == nil {
+		c = &Config{}
+	}
+
 	var w = c.Stdout
 	if w == nil {
 		w = os.Stdout
@@ -81,7 +85,7 @@ func (l *Logger) Fatal(msg interface{}, args ...interface{}) {
 	os.Exit(1)
 }
 
-var appLogger *Logger
+var appLogger = NewLogger(nil)
 
 func GetAppLogger() *Logger {
 	return appLogger
