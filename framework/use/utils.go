@@ -22,6 +22,7 @@ func P(e ...any) {
 }
 
 func StringRandom(length int) string {
-	str, _ := gonanoid.Generate("", length)
-	return str
+	random, _ := gonanoid.New(length)
+
+	return random
 }

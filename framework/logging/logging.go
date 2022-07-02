@@ -24,7 +24,9 @@ type Logger struct {
 
 func NewLogger(c *Config) *Logger {
 	if c == nil {
-		c = &Config{}
+		c = &Config{
+			Name: "app",
+		}
 	}
 
 	var w = c.Stdout
