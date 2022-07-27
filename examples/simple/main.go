@@ -4,6 +4,7 @@ import (
 	"embed"
 	"github.com/evolidev/evoli"
 	"github.com/evolidev/evoli/examples/simple/components"
+	"github.com/evolidev/evoli/examples/simple/database"
 	"github.com/evolidev/evoli/examples/simple/routes"
 	"github.com/evolidev/evoli/framework/component"
 )
@@ -24,7 +25,7 @@ func main() {
 	app.AddRoutes("/api", routes.Api)
 	app.AddRoutes("/assets", routes.Folders)
 	app.AddRoutes("/", routes.Files)
-	//app.AddMigration(database.Migrate)
+	app.AddMigration(database.Migrate)
 
 	app.Start()
 }
