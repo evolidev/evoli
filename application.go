@@ -68,9 +68,7 @@ func (a *Application) AddRoutes(prefix string, routes func(router *router.Router
 }
 
 func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
-	migrate(use.DB())
-	l := logging.NewLogger(&logging.Config{Name: "db", PrefixColor: 50})
-	l.Log("Models migrated successfully")
+	use.Migration().Add(migrate)
 }
 
 func (a *Application) Start() {
@@ -81,6 +79,7 @@ func (a *Application) Start() {
 	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
 	cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
 	cli.Add(command.About())
+	cli.Add(command.Migrate())
 
 	cli.Run()
 }
@@ -105,6 +104,8 @@ func (a *Application) Watch(command *console.ParsedCommand) {
 }
 
 func (a *Application) Serve(command *console.ParsedCommand) {
+	autoMigrateIfEnabled()
+
 	port := command.GetOptionWithDefault("port", 8081).(string)
 
 	filesystem.Write(use.StoragePath("tmp/serve.pid"), fmt.Sprintf("%d", os.Getpid()))
@@ -112,6 +113,12 @@ func (a *Application) Serve(command *console.ParsedCommand) {
 
 	a.logger.Log("Serving application on http://localhost:%s (PID: %d)", port, os.Getpid())
 	a.logger.Fatal(http.ListenAndServe(":"+port, a.handler))
+}
+
+func autoMigrateIfEnabled() {
+	if use.Config("db.auto_migrate").Value().(bool) {
+		use.Migration().Migrate(use.DB())
+	}
 }
 
 func (a *Application) listenForSignal() {
