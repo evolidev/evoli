@@ -37,7 +37,7 @@ func TestConfig(t *testing.T) {
 			t.Fail()
 		}
 
-		result = result.Value().(config.Config).Get("path")
+		result = result.Value().(*config.Config).Get("path")
 		assert.Equal(t, "storage", result.Value())
 	})
 
@@ -48,5 +48,18 @@ func TestConfig(t *testing.T) {
 		result := conf.Value()
 
 		assert.Equal(t, "test", result)
+	})
+}
+
+func TestSetConfig(t *testing.T) {
+	config.SetDirectory("./configs")
+
+	t.Run("config should set config value", func(t *testing.T) {
+		conf := use.Config("storage")
+		conf.Set("local.path", "test")
+
+		result := conf.Get("local.path")
+
+		assert.Equal(t, "test", result.Value())
 	})
 }

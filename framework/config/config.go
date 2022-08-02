@@ -16,7 +16,7 @@ type Config struct {
 	key      string
 }
 
-func (c Config) Get(key string) *Config {
+func (c *Config) Get(key string) *Config {
 	sub := c.instance.Sub(key)
 	if nil == sub {
 		sub = c.instance
@@ -27,12 +27,18 @@ func (c Config) Get(key string) *Config {
 	return &Config{instance: sub, key: key}
 }
 
-func (c Config) Value() interface{} {
+func (c *Config) Value() interface{} {
 	if c.key == "" {
 		return c
 	}
 
 	return c.instance.Get(c.key)
+}
+
+func (c *Config) Set(key string, value interface{}) *Config {
+	c.instance.Set(key, value)
+
+	return c
 }
 
 func NewConfig(prefix string) *Config {
