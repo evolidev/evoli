@@ -1,17 +1,12 @@
 package use
 
 import (
-	"fmt"
 	"github.com/evolidev/evoli/framework/database"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"io/fs"
-	"os"
-	"strings"
+	"time"
 )
 
 var myDb *gorm.DB
-var migrations Collection[int, func(db *gorm.DB)]
 var migration *database.Migration
 
 func Migration() *database.Migration {
@@ -27,30 +22,24 @@ func DB() *gorm.DB {
 		return myDb
 	}
 
-	config := Config("db.sqlite.path")
+	dbConfig := Config("db")
+	dbConfig.Set("base", BasePath())
+	myDb = database.Get(dbConfig).Connect()
 
-	dir := config.Value().(string)
-
-	directories := strings.Split(dir, "/")
-	directories = directories[:len(directories)-1]
-
-	//todo get from storage
-	tmp := os.DirFS(BasePath())
-
-	for _, d := range directories {
-		_, err := fs.ReadDir(tmp, d)
-		if err != nil {
-			fmt.Println(err)
-			err = os.Mkdir(d, 0755)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-	}
-
-	db, _ := gorm.Open(sqlite.Open(dir), &gorm.Config{})
-
-	myDb = db
+	configurePooling()
 
 	return myDb
+}
+
+func configurePooling() {
+	sqlDB, _ := myDb.DB()
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	sqlDB.SetMaxIdleConns(10)
+
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	sqlDB.SetMaxOpenConns(100)
+
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	sqlDB.SetConnMaxLifetime(time.Hour)
 }
