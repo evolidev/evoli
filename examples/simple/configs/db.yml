@@ -1,4 +1,15 @@
-default: "sqlite"
+default: "mysql"
 auto_migrate: false
+
 sqlite:
   path: "database/mydb.db"
+mysql:
+  dsn: ""
+  host: "127.0.0.1"
+  port: "3306"
+  protocol: "tcp"
+  database: "evoli"
+  username: "evoli"
+  password: "evoli"
+  charset: "utf8mb4"
+  collation: "utf8mb4_unicode_ci"
