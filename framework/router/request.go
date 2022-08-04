@@ -81,9 +81,14 @@ func NewRequest(r *http.Request) *Request {
 		//lm.logger.Error(err)
 	}
 
+	myForm := r.PostForm
+	if len(myForm) == 0 {
+		myForm = r.Form
+	}
+
 	p := params{
 		route: httprouter.ParamsFromContext(r.Context()),
-		form:  r.Form,
+		form:  myForm,
 		query: r.URL.Query(),
 		body:  use.JsonDecode(string(body)),
 	}
