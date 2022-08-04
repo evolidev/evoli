@@ -27,7 +27,7 @@ type helloWorldWithPath struct {
 }
 
 func (h *helloWorldWithPath) GetFilePath() string {
-	return "not-hello-world"
+	return "components.hello-world"
 }
 
 func (h *helloWorldWithPath) TestMethod() string {
@@ -77,7 +77,7 @@ func TestRenderCorrectComponent(t *testing.T) {
 	t.Run("Return component with a given path", func(t *testing.T) {
 		hello := component.New(helloWorldWithPath{}, nil)
 
-		assert.Equal(t, "not-hello-world", hello.GetFilePath())
+		assert.Equal(t, "components.hello-world", hello.GetFilePath())
 	})
 }
 
@@ -158,6 +158,7 @@ func TestPropertyOfComponents(t *testing.T) {
 
 func TestComponentRequestResponseHandling(t *testing.T) {
 	t.Parallel()
+	use.Embed(tmp)
 
 	t.Run("Make request to component handler", func(t *testing.T) {
 		component.Register(helloWorldWithPath{})
@@ -194,6 +195,7 @@ func TestComponentRequestResponseHandling(t *testing.T) {
 
 func TestComponentRendering(t *testing.T) {
 	t.Parallel()
+	use.Embed(tmp)
 
 	t.Run("Include component in the page", func(t *testing.T) {
 		viewEngine := view.NewEngine()

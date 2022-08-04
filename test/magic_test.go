@@ -1,9 +1,11 @@
 package test
 
 import (
+	"github.com/evolidev/evoli/framework/config"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
+	"path/filepath"
 	"strconv"
 	"testing"
 )
@@ -108,6 +110,8 @@ func TestCall(t *testing.T) {
 	})
 
 	t.Run("Call should call given function where param is a model", func(t *testing.T) {
+		p, _ := filepath.Abs("./configs")
+		config.SetDirectory(p)
 		db := use.DB()
 		db.AutoMigrate(&MyModel{})
 		db.Create(&MyModel{Test: "test"})

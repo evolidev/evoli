@@ -1,0 +1,5 @@
+default: "sqlite"
+auto_migrate: false
+
+sqlite:
+  path: "database/mydb.db"

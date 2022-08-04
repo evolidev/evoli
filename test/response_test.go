@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/json"
 	evoli "github.com/evolidev/evoli/framework/response"
+	"github.com/evolidev/evoli/framework/use"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -54,7 +55,7 @@ func TestFactory(t *testing.T) {
 }
 
 func TestView(t *testing.T) {
-	t.Parallel()
+	use.Embed(tmp)
 	t.Run("ViewResponse should return value from template", func(t *testing.T) {
 		view := evoli.View("templates.test")
 

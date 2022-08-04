@@ -19,6 +19,7 @@ import (
 func TestBasic(t *testing.T) {
 	t.Parallel()
 	router := evoli.NewRouter()
+	use.Embed(tmp)
 
 	for method, fn := range router.MethodTable() {
 		t.Run("Basic "+method+" route should have the returned string of the callback in the body", func(t *testing.T) {
@@ -195,6 +196,8 @@ func TestBasic(t *testing.T) {
 }
 
 func TestPrefix(t *testing.T) {
+	use.Embed(tmp)
+
 	t.Parallel()
 	t.Run("Prefix should prefix all sub routes", func(t *testing.T) {
 		router := evoli.NewRouter()
@@ -235,6 +238,8 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestMiddleware(t *testing.T) {
+	use.Embed(tmp)
+
 	t.Parallel()
 	t.Run("Middleware should accept a handler func", func(t *testing.T) {
 		router := evoli.NewRouter()
@@ -271,7 +276,9 @@ func TestMiddleware(t *testing.T) {
 }
 
 func TestRedirectResponse(t *testing.T) {
-	t.Parallel()
+	use.Embed(tmp)
+
+	//t.Parallel()
 	t.Run("A redirect response should redirect to desired route", func(t *testing.T) {
 		router := evoli.NewRouter()
 
@@ -287,6 +294,8 @@ func TestRedirectResponse(t *testing.T) {
 }
 
 func TestRequest(t *testing.T) {
+	use.Embed(tmp)
+
 	t.Parallel()
 	t.Run("Request struct should return route param by name", func(t *testing.T) {
 		r := evoli.NewRouter()

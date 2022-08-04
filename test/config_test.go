@@ -32,7 +32,7 @@ func TestConfig(t *testing.T) {
 
 		result := conf.Get("local")
 
-		if _, ok := result.Value().(config.Config); !ok {
+		if _, ok := result.Value().(*config.Config); !ok {
 			t.Errorf("Not a config")
 			t.Fail()
 		}
