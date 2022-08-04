@@ -44,5 +44,7 @@ func (m *MySql) buildDSN() string {
 		mysqlConf.Params["charset"] = v
 	}
 
+	mysqlConf.Params["parseTime"] = "True"
+
 	return mysqlConf.FormatDSN()
 }
