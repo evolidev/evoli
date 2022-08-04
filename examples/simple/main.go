@@ -11,7 +11,7 @@ import (
 
 var app *evoli.Application
 
-//go:embed resources public
+//go:embed resources public configs
 var content embed.FS
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	component.Register(components.Input{})
 
 	app = evoli.NewApplication()
-	//app.SetFS(content)
+	app.SetFS(content)
 	app.AddRoutes("/", routes.Web)
 	app.AddRoutes("/api", routes.Api)
 	app.AddRoutes("/assets", routes.Folders)
