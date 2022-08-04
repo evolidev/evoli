@@ -1,8 +1,10 @@
 package config
 
 import (
+	"embed"
 	"flag"
 	"github.com/joho/godotenv"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"os"
 	"strings"
@@ -10,6 +12,7 @@ import (
 
 var configDir string
 var envRead = false
+var embedFs embed.FS
 
 type Config struct {
 	instance *viper.Viper
@@ -41,6 +44,12 @@ func (c *Config) Set(key string, value interface{}) *Config {
 	return c
 }
 
+func (c *Config) SetDefault(key string, value interface{}) *Config {
+	c.instance.SetDefault(key, value)
+
+	return c
+}
+
 func NewConfig(prefix string) *Config {
 	if !envRead {
 		readEnv()
@@ -50,15 +59,28 @@ func NewConfig(prefix string) *Config {
 	conf.SetEnvPrefix(prefix)
 	conf.SetConfigName(prefix)
 	conf.AddConfigPath(configDir)
+	conf.SetFs(afero.FromIOFS{FS: embedFs})
 	conf.AutomaticEnv()
 	conf.SetEnvKeyReplacer(getReplacer())
-	conf.ReadInConfig()
+	err := conf.ReadInConfig()
+
+	if err != nil {
+		conf.SetFs(afero.NewOsFs())
+		err = conf.ReadInConfig()
+		if err != nil {
+			//fmt.Println(err)
+		}
+	}
 
 	return &Config{instance: conf}
 }
 
 func SetDirectory(dir string) {
 	configDir = dir
+}
+
+func SetEmbed(embed embed.FS) {
+	embedFs = embed
 }
 
 func Directory() string {
