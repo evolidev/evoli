@@ -5,7 +5,6 @@ import (
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
-	"net/url"
 )
 
 func Web(web *router.Router) {
@@ -21,19 +20,12 @@ func Web(web *router.Router) {
 			})
 		})
 
-		personRouter.Post("/", func(form url.Values) *response.RedirectResponse {
+		personRouter.Post("/", func(r *router.Request) *response.RedirectResponse {
 			var p model.Person
-			p.Name = form.Get("Name")
+			p.Name = r.Form().Get("Name")
 			use.DB().Create(&p)
 
 			return response.Redirect("/person")
-		})
-
-		personRouter.Post("/:name", func(name string) *model.Person {
-			person := model.Person{Name: name}
-			use.DB().Create(&person)
-
-			return &person
 		})
 	})
 
