@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/evolidev/evoli/framework/command"
 	"github.com/evolidev/evoli/framework/component"
+	"github.com/evolidev/evoli/framework/config"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/console/reload"
 	"github.com/evolidev/evoli/framework/filesystem"
@@ -85,8 +86,8 @@ func (a *Application) Start() {
 }
 
 func (a *Application) SetFS(fs embed.FS) {
-	a.fs = fs
-	a.handler.Fs = a.fs
+	use.Embed(fs)
+	config.SetEmbed(fs)
 }
 
 func (a *Application) Watch(command *console.ParsedCommand) {

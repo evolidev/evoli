@@ -22,6 +22,9 @@ func Config(path string) *config.Config {
 }
 
 func addConfig(prefix string) *config.Config {
+	if instances.Has(prefix) {
+		return instances.Get(prefix)
+	}
 	conf := config.NewConfig(prefix)
 	instances.Add(prefix, conf)
 
