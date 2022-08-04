@@ -2,11 +2,11 @@ package response
 
 import (
 	"bytes"
+	"github.com/evolidev/evoli/framework/config"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/evolidev/evoli/framework/view"
 	"net/http"
 	"path"
-	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -16,15 +16,17 @@ type ViewResponse struct {
 	template string
 	data     map[string]interface{}
 	layout   string
-	basePath string
+	config   *config.Config
 }
 
 func View(template string) *ViewResponse {
 	response := &ViewResponse{
+		config:       use.Config("view"),
 		template:     template,
-		basePath:     "resources/views/", //todo get from config
 		baseResponse: baseResponse{myHeaders: use.NewCollection[string, string]()},
 	}
+
+	response.ensureConfigSettings()
 
 	return response.WithCode(http.StatusOK).WithHeader("Content-Type", "text/html")
 }
@@ -46,22 +48,11 @@ func (r *ViewResponse) AsString() string {
 }
 
 func (r *ViewResponse) parse() (bytes.Buffer, error) {
-	rootDir := use.BasePath()
-	view, _ := filepath.Abs(rootDir + r.basePath + strings.Replace(r.template, ".", "/", -1) + ".html")
-
-	files := []string{view}
-
-	if r.layout != "" {
-		layout, _ := filepath.Abs(strings.Replace(r.layout, ".", "/", -1) + ".html")
-		files = append(files, layout)
-	}
-
-	tmp := template.New(path.Base(files[0]))
-	tmp.Delims("${", "}") // set delimiters (TODO read from config)
-	tmpl := template.Must(tmp.ParseFiles(files...))
+	tmpl := r.parseTemplate()
 
 	var b bytes.Buffer
 	err := tmpl.Execute(&b, r.GetAllData())
+
 	return b, err
 }
 
@@ -78,13 +69,7 @@ func (r *ViewResponse) WithData(data map[string]interface{}) *ViewResponse {
 }
 
 func (r *ViewResponse) WithLayout(layout string) *ViewResponse {
-	r.layout = r.basePath + "/" + layout
-
-	return r
-}
-
-func (r *ViewResponse) SetBasePath(path string) *ViewResponse {
-	r.basePath = path
+	r.layout = layout
 
 	return r
 }
@@ -136,4 +121,39 @@ func (r *ViewResponse) replaceTemplate(template string) string {
 	}
 
 	return s
+}
+
+func (r *ViewResponse) ensureConfigSettings() {
+	r.config.SetDefault("path", "resources/views")
+	r.config.SetDefault("delimiters.left", "${")
+	r.config.SetDefault("delimiters.right", "}")
+	r.config.SetDefault("extension", "html")
+}
+
+func (r *ViewResponse) parseTemplate() *template.Template {
+	files := r.getFilesToParse()
+
+	fs := use.Storage().FS()
+
+	tmpl := template.New(path.Base(files[0]))
+	tmpl.Delims(r.config.Get("delimiters.left").Value().(string), r.config.Get("delimiters.right").Value().(string))
+	tmpl = template.Must(tmpl.ParseFS(fs, files...))
+
+	return tmpl
+}
+
+func (r *ViewResponse) getFilesToParse() []string {
+	tmpDir := r.config.Get("path").Value().(string)
+	extension := r.config.Get("extension").Value().(string)
+
+	files := make([]string, 0)
+	file := strings.Replace(r.template, ".", "/", -1) + "." + extension
+	files = append(files, tmpDir+"/"+file)
+
+	if r.layout != "" {
+		layout := strings.Replace(r.layout, ".", "/", -1) + ".html"
+		files = append(files, tmpDir+"/"+layout)
+	}
+
+	return files
 }
