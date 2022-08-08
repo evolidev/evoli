@@ -3,18 +3,19 @@ package use
 import (
 	"embed"
 	"github.com/evolidev/evoli/framework/filesystem"
+	"io/fs"
+	"os"
 )
 
 func init() {
 	myStores = NewCollection[string, filesystem.Store]()
 }
 
-var embedFs embed.FS
-
 var myStores *Collection[string, filesystem.Store]
 
-func Storage(stores ...string) filesystem.Store {
+func Store(stores ...string) filesystem.Store {
 	var store string
+
 	if len(stores) == 0 {
 		cnf := Config("storage")
 		cnf.SetDefault("default", "embed")
@@ -27,12 +28,19 @@ func Storage(stores ...string) filesystem.Store {
 		return myStores.Get(store)
 	}
 
-	myStores.Add(store, filesystem.NewEmbedFS(embedFs))
+	myStores.Add(store, filesystem.NewFS(getStorage()))
 
-	return Storage(stores...)
+	return Store(stores...)
 }
 
 func Embed(toEmbed embed.FS) {
-	embedFs = toEmbed
-	//fs.GlobFS()
+	if myStores.Has("embed") {
+		return
+	}
+
+	myStores.Add("embed", filesystem.NewFS(toEmbed))
+}
+
+func getStorage() fs.FS {
+	return os.DirFS(BasePath())
 }

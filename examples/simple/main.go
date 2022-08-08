@@ -20,7 +20,7 @@ func main() {
 	component.Register(components.Input{})
 
 	app = evoli.NewApplication()
-	app.SetFS(content)
+	app.AddEmbedFS(content)
 	app.AddRoutes("/", routes.Web)
 	app.AddRoutes("/api", routes.Api)
 	app.AddRoutes("/assets", routes.Folders)

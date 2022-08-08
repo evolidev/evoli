@@ -10,6 +10,7 @@ import (
 
 func TestConfig(t *testing.T) {
 	config.SetDirectory("./configs")
+	use.Embed(tmp)
 
 	t.Run("config should get config value", func(t *testing.T) {
 		conf := use.Config("storage")

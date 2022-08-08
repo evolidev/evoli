@@ -1,6 +1,7 @@
 package use
 
 import (
+	"embed"
 	"github.com/evolidev/evoli/framework/config"
 	"strings"
 )
@@ -25,16 +26,16 @@ func addConfig(prefix string) *config.Config {
 	if instances.Has(prefix) {
 		return instances.Get(prefix)
 	}
+
+	config.SetEmbed(Store("embed").FS().(embed.FS))
 	conf := config.NewConfig(prefix)
 	instances.Add(prefix, conf)
-
-	instances.Add("test", config.NewConfig("test"))
 
 	return conf
 }
 
 func ensureConfigPath() {
 	if config.Directory() == "" {
-		config.SetDirectory(BasePath("configs"))
+		config.SetDirectory(BasePath() + "configs")
 	}
 }

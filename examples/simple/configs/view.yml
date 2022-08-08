@@ -1,0 +1,5 @@
+path: "resources/views"
+delimiters:
+  left: "${"
+  right: "}"
+extension: "html"

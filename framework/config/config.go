@@ -58,13 +58,14 @@ func NewConfig(prefix string) *Config {
 	conf := viper.New()
 	conf.SetEnvPrefix(prefix)
 	conf.SetConfigName(prefix)
-	conf.AddConfigPath(configDir)
-	conf.SetFs(afero.FromIOFS{FS: embedFs})
+	conf.SetFs(MyFS{afero.FromIOFS{FS: embedFs}})
+	conf.AddConfigPath("/configs")
 	conf.AutomaticEnv()
 	conf.SetEnvKeyReplacer(getReplacer())
 	err := conf.ReadInConfig()
 
 	if err != nil {
+		conf.AddConfigPath(configDir)
 		conf.SetFs(afero.NewOsFs())
 		err = conf.ReadInConfig()
 		if err != nil {
@@ -73,6 +74,33 @@ func NewConfig(prefix string) *Config {
 	}
 
 	return &Config{instance: conf}
+}
+
+type MyFS struct {
+	afero.FromIOFS
+}
+
+// Open will be overridden to strip the "/" away since viper will use an absolute path
+func (receiver MyFS) Open(name string) (afero.File, error) {
+	name = trimLeftChar(name)
+
+	return receiver.FromIOFS.Open(name)
+}
+
+// Stat will be overridden to strip the "/" away since viper will use an absolute path
+func (receiver MyFS) Stat(name string) (os.FileInfo, error) {
+	name = trimLeftChar(name)
+
+	return receiver.FromIOFS.Stat(name)
+}
+
+func trimLeftChar(s string) string {
+	for i := range s {
+		if i > 0 {
+			return s[i:]
+		}
+	}
+	return s[:0]
 }
 
 func SetDirectory(dir string) {

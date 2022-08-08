@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/evolidev/evoli/framework/command"
 	"github.com/evolidev/evoli/framework/component"
-	"github.com/evolidev/evoli/framework/config"
 	"github.com/evolidev/evoli/framework/console"
 	"github.com/evolidev/evoli/framework/console/reload"
 	"github.com/evolidev/evoli/framework/filesystem"
@@ -27,7 +26,6 @@ import (
 type Application struct {
 	handler *router.Router
 	logger  *logging.Logger
-	fs      embed.FS
 }
 
 func NewApplication() *Application {
@@ -85,9 +83,8 @@ func (a *Application) Start() {
 	cli.Run()
 }
 
-func (a *Application) SetFS(fs embed.FS) {
+func (a *Application) AddEmbedFS(fs embed.FS) {
 	use.Embed(fs)
-	config.SetEmbed(fs)
 }
 
 func (a *Application) Watch(command *console.ParsedCommand) {

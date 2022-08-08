@@ -8,7 +8,6 @@ import (
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
 	"github.com/julienschmidt/httprouter"
-	"io/fs"
 	"net/http"
 	"strings"
 )
@@ -170,22 +169,14 @@ func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
 }
 
 func (r *Router) Static(path string, rootDir string) {
-	_, err := fs.ReadDir(r.Fs, rootDir)
-	var servingFS http.FileSystem
+	storage := use.Store()
 
-	if err != nil {
-		servingFS = http.FileSystem(http.Dir(rootDir))
-	} else {
-		sub, _ := fs.Sub(r.Fs, rootDir)
-		servingFS = http.FS(sub)
-	}
-
-	r.ServeFiles(path, servingFS)
+	r.ServeFiles(path, storage.HttpFS())
 }
 
 func (r *Router) File(path string, file string) {
 	r.router.Handler(http.MethodGet, r.pathWithPrefix(path), http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		http.ServeFile(writer, request, file)
+		use.Store().ServeContent(writer, request, file)
 	}))
 }
 

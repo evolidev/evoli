@@ -133,7 +133,7 @@ func (r *ViewResponse) ensureConfigSettings() {
 func (r *ViewResponse) parseTemplate() *template.Template {
 	files := r.getFilesToParse()
 
-	fs := use.Storage().FS()
+	fs := use.Store().FS()
 
 	tmpl := template.New(path.Base(files[0]))
 	tmpl.Delims(r.config.Get("delimiters.left").Value().(string), r.config.Get("delimiters.right").Value().(string))

@@ -1,9 +1,13 @@
 package filesystem
 
-import "io/fs"
+import (
+	"io/fs"
+	"net/http"
+)
 
 type Store interface {
 	HasDir(dir string) bool
+	HttpFS() http.FileSystem
 	FS() fs.FS
-	Sub(dir string) fs.FS
+	ServeContent(writer http.ResponseWriter, request *http.Request, file string)
 }
