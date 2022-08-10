@@ -29,30 +29,10 @@ type Application struct {
 }
 
 func NewApplication() *Application {
-	handler := router.NewRouter()
-	handler = handler.AddMiddleware(middleware.NewLoggingMiddleware())
+	app := &Application{}
+	app.Init()
 
-	//oldFs := handler.Fs
-	//handler.Fs = evoliFs
-	//handler.Static("/vendor/evoli/static", "resources")
-	//handler.Fs = oldFs
-
-	setupViewEngine()
-	component.RegisterRoutes(handler)
-
-	use.BasePath()
-
-	logger := logging.NewLogger(&logging.Config{
-		Name:        "app",
-		PrefixColor: 32,
-	})
-
-	logging.SetAppLogger(logger)
-
-	return &Application{
-		handler: handler,
-		logger:  logger,
-	}
+	return app
 }
 
 func setupViewEngine() {
@@ -79,8 +59,42 @@ func (a *Application) Start() {
 	cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
 	cli.Add(command.About())
 	cli.Add(command.Migrate())
+	cli.Add(command.Generate())
+	cli.Add(command.Init())
+	cli.Add(command.Route())
+	cli.Add(command.Component())
+	cli.Add(command.Model())
 
 	cli.Run()
+}
+
+func (a *Application) Init() {
+	handler := router.NewRouter()
+	handler = handler.AddMiddleware(middleware.NewLoggingMiddleware())
+
+	//oldFs := handler.Fs
+	//handler.Fs = evoliFs
+	//handler.Static("/vendor/evoli/static", "resources")
+	//handler.Fs = oldFs
+
+	setupViewEngine()
+	component.RegisterRoutes(handler)
+
+	use.BasePath()
+
+	logger := logging.NewLogger(&logging.Config{
+		Name:        "app",
+		PrefixColor: 32,
+	})
+
+	logging.SetAppLogger(logger)
+
+	a.handler = handler
+	a.logger = logger
+}
+
+func (a *Application) RegisterComponent(comp component.Component) {
+	component.Register(comp)
 }
 
 func (a *Application) AddEmbedFS(fs embed.FS) {

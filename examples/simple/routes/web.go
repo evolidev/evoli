@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"github.com/evolidev/evoli/examples/simple/model"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/router"
 	"github.com/evolidev/evoli/framework/use"
+	"simple/model"
 )
 
 func Web(web *router.Router) {

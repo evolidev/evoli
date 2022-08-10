@@ -1,8 +1,8 @@
 package database
 
 import (
-	"github.com/evolidev/evoli/examples/simple/model"
 	"gorm.io/gorm"
+	"simple/model"
 )
 
 func Migrate(db *gorm.DB) {
