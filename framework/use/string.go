@@ -41,3 +41,7 @@ func (s *Str) toCase(str string, delimiter string) string {
 
 	return strings.ToLower(snake)
 }
+
+func ReplaceStringAtIndex(str string, replacement string, index int) string {
+	return str[:index] + replacement + str[index+1:]
+}

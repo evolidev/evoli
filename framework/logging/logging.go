@@ -40,6 +40,13 @@ func NewLogger(c *Config) *Logger {
 	}
 }
 
+func NewLoggerByName(name string, colorCode int) *Logger {
+	return NewLogger(&Config{
+		Name:        name,
+		PrefixColor: colorCode,
+	})
+}
+
 func (l *Logger) getPrefix() string {
 	var prefixColor = l.config.PrefixColor
 	currentTime := time.Now()
