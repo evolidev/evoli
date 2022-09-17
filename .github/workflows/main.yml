@@ -21,8 +21,5 @@ jobs:
     - name: Run test
       run: |
         go version
-#        go install golang.org/x/lint/golint
-#        go mod tidy
-#        golint .
         go vet .
         go test ./test
