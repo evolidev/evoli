@@ -46,7 +46,12 @@ func BasePath(path ...string) string {
 		if p == "" {
 			continue
 		}
-		output = output + "/" + p
+
+		if output[len(output)-1:] != "/" {
+			output += "/"
+		}
+
+		output += p
 	}
 
 	return strings.TrimSpace(output)

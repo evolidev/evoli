@@ -52,6 +52,10 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 }
 
 func (a *Application) Start() {
+	if a.Cli == nil {
+		a.Cli = console.New()
+	}
+
 	a.listenForSignal()
 
 	a.Cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
