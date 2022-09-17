@@ -54,21 +54,17 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 func (a *Application) Start() {
 	a.listenForSignal()
 
-	cli := console.New()
+	a.Cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
+	a.Cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
+	a.Cli.Add(command.About())
+	a.Cli.Add(command.Migrate())
+	a.Cli.Add(command.Generate())
+	a.Cli.Add(command.Init())
+	a.Cli.Add(command.Route())
+	a.Cli.Add(command.Component())
+	a.Cli.Add(command.Model())
 
-	a.Cli = cli
-
-	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
-	cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
-	cli.Add(command.About())
-	cli.Add(command.Migrate())
-	cli.Add(command.Generate())
-	cli.Add(command.Init())
-	cli.Add(command.Route())
-	cli.Add(command.Component())
-	cli.Add(command.Model())
-
-	cli.Run()
+	a.Cli.Run()
 }
 
 func (a *Application) Init() {
@@ -94,6 +90,7 @@ func (a *Application) Init() {
 
 	a.handler = handler
 	a.logger = logger
+	a.Cli = console.New()
 }
 
 func (a *Application) RegisterComponent(comp component.Component) {
