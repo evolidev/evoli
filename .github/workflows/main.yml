@@ -16,11 +16,12 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
-        go-version: '1.18.3'
+        go-version: '>=1.19.0'
 
     - name: Run test
       run: |
+        go version
         go install golang.org/x/lint/golint
         go vet .
-        go lint .
+        golint .
         go test ./test
