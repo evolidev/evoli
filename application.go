@@ -26,6 +26,7 @@ import (
 type Application struct {
 	handler *router.Router
 	logger  *logging.Logger
+	Cli     *console.Console
 }
 
 func NewApplication() *Application {
@@ -54,6 +55,8 @@ func (a *Application) Start() {
 	a.listenForSignal()
 
 	cli := console.New()
+
+	a.Cli = cli
 
 	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
 	cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
