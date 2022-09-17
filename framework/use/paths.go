@@ -43,10 +43,13 @@ func BasePath(path ...string) string {
 
 	output := rootDir
 	for _, p := range path {
+		if p == "" {
+			continue
+		}
 		output = output + "/" + p
 	}
 
-	return output
+	return strings.TrimSpace(output)
 }
 
 func getByExecutable() string {
