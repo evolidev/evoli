@@ -18,12 +18,9 @@ jobs:
       with:
         go-version: '1.18.3'
 
-    - name: Lint go files
-      uses: golangci/golangci-lint-action@v3
-
-    - name: Run vet
-      run: |
-        make vet
     - name: Run test
       run: |
+        go install golang.org/x/lint/golint
+        go vet .
+        go lint .
         go test ./test
