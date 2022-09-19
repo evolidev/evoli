@@ -50,7 +50,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, true, cmd.GetOption("queue").(bool))
+		assert.Equal(t, true, cmd.GetOption("queue").Bool())
 	})
 
 	t.Run("Parse command and pass required option", func(t *testing.T) {
@@ -59,7 +59,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, "", cmd.GetOption("queue"))
+		assert.Equal(t, "", cmd.GetOption("queue").String())
 	})
 
 	t.Run("Parse command and pass option and alias", func(t *testing.T) {
@@ -68,7 +68,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, true, cmd.GetOption("Q").(bool))
+		assert.Equal(t, true, cmd.GetOption("Q").Bool())
 	})
 
 	t.Run("Get name of command", func(t *testing.T) {

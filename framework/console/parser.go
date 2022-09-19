@@ -1,6 +1,8 @@
 package console
 
 import (
+	"fmt"
+	"github.com/spf13/cast"
 	"regexp"
 	"strings"
 )
@@ -14,14 +16,31 @@ type ParsedCommand struct {
 	prefix     string
 }
 
+type Option struct {
+	fmt.Stringer
+	Value any
+}
+
+func (o *Option) Bool() bool {
+	return cast.ToBool(o.Value)
+}
+
+func (o *Option) Integer() int {
+	return cast.ToInt(o.Value)
+}
+
+func (o *Option) String() string {
+	return cast.ToString(o.Value)
+}
+
 func (p *ParsedCommand) GetArgument(name string) any {
 	argumentValue := p.arguments[name]
 	return argumentValue
 }
 
-func (p *ParsedCommand) GetOption(name string) any {
+func (p *ParsedCommand) GetOption(name string) *Option {
 	optionValue := p.options[name]
-	return optionValue
+	return &Option{Value: optionValue}
 }
 
 func (p *ParsedCommand) GetName() string {
@@ -87,7 +106,7 @@ func parseDefinition(definition string, options map[string]any, arguments map[st
 		// remove curly bracket at the beginning and end of definition item
 		definitionItem = strings.Trim(definitionItem, "{}?")
 
-		// split definition item into name and value
+		// split definition item into name and Value
 		definitionItemParts := strings.Split(definitionItem, "=")
 		definitionItemName := definitionItemParts[0]
 		definitionItemValue := ""
@@ -137,7 +156,7 @@ func parseCommand(command string, options map[string]any, argumentsMap []string,
 
 func extractField(item string, prefix string) (string, any) {
 	option := strings.TrimPrefix(item, prefix)
-	// extract option name and value
+	// extract option name and Value
 	parts := strings.Split(option, "=")
 	optionName := parts[0]
 	var optionValue any
