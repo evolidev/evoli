@@ -8,7 +8,7 @@ on:
 jobs:
 
   build:
-    runs-on: golang-latest
+    runs-on: golang
     steps:
     - uses: actions/checkout@v3
 
