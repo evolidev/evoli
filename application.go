@@ -75,7 +75,7 @@ func (a *Application) Init() {
 
 	//oldFs := handler.Fs
 	//handler.Fs = evoliFs
-	handler.Static("/vendor/evoli/static", "resources")
+	//handler.Static("/vendor/evoli/static", "resources")
 	//handler.Fs = oldFs
 
 	setupViewEngine()
