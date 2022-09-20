@@ -120,7 +120,7 @@ func (a *Application) Watch(command *console.ParsedCommand) {
 func (a *Application) Serve(command *console.ParsedCommand) {
 	autoMigrateIfEnabled()
 
-	port := command.GetOptionWithDefault("port", 8081).(string)
+	port := command.GetOption("port").String()
 
 	filesystem.Write(use.StoragePath("tmp/serve.pid"), fmt.Sprintf("%d", os.Getpid()))
 	defer filesystem.Delete(use.StoragePath("tmp/serve.pid"))
