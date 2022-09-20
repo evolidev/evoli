@@ -31,6 +31,11 @@ func (f *FS) ServeContent(writer http.ResponseWriter, request *http.Request, fil
 	http.ServeContent(writer, request, file, time.Now(), bytes.NewReader(data))
 }
 
+func (f *FS) Sub(path string) *FS {
+	sub, _ := fs.Sub(f.fs, path)
+	return NewFS(sub)
+}
+
 func NewFS(fs fs.FS) *FS {
 	return &FS{fs}
 }

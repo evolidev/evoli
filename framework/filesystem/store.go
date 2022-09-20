@@ -10,4 +10,5 @@ type Store interface {
 	HttpFS() http.FileSystem
 	FS() fs.FS
 	ServeContent(writer http.ResponseWriter, request *http.Request, file string)
+	Sub(path string) *FS
 }
