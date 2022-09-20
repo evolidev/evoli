@@ -67,9 +67,8 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 		req := NewRequest(request)
 		tmp := use.Magic(handler)
 
-		myResponse := response.NewResponse(
-			tmp.WithParams(req.Params()).Fill().WithParams(req.Params().Get("Route")).Call(),
-		)
+		result := tmp.WithParams(req.Params()).Fill().WithParams(req.Params().Get("Route")).WithParams(req.Params().Get("Form")).Call()
+		myResponse := response.NewResponse(result)
 
 		myResponse.Headers().Iterate(func(key string, value string) {
 			writer.Header().Add(key, value)

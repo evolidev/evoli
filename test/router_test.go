@@ -197,6 +197,35 @@ func TestBasic(t *testing.T) {
 	})
 }
 
+func TestBasicPost(t *testing.T) {
+	router := evoli.NewRouter()
+	t.Run("Basic post should map form data to struct", func(t *testing.T) {
+		path := "/basic/post/form"
+		router.Post(path, func(inputStruct InputStruct) string {
+			return inputStruct.Test
+		})
+
+		f := url.Values{}
+		f.Add("test", "my-form")
+		rr := sendRequestWithForm(t, router, http.MethodGet, path, f)
+
+		assert.Exactly(t, "my-form", rr.Body.String())
+	})
+
+	t.Run("Basic post with url params should map form data to struct", func(t *testing.T) {
+		path := "/basic/post/with-param/:param"
+		router.Post(path, func(param string, inputStruct InputStruct) string {
+			return param + " " + inputStruct.Test
+		})
+
+		f := url.Values{}
+		f.Add("test", "my-form")
+		rr := sendRequestWithForm(t, router, http.MethodGet, "/basic/post/with-param/test", f)
+
+		assert.Exactly(t, "test my-form", rr.Body.String())
+	})
+}
+
 func TestPrefix(t *testing.T) {
 	use.Embed(tmp)
 
@@ -379,6 +408,10 @@ func TestStatic(t *testing.T) {
 
 		assert.Equal(t, "test", rr.Body.String())
 	})
+}
+
+type InputStruct struct {
+	Test string
 }
 
 type MyMiddleware struct {

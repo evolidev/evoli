@@ -1,6 +1,7 @@
 package use
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"strconv"
 )
@@ -56,6 +57,16 @@ func (i *inputParser) parseSingle(input reflect.Type, value interface{}) reflect
 		id := i.parseIntParam(value)
 
 		parsedParam = getRecordFromTypeAndId(input, int(id.Int()))
+	} else if kind == reflect.Struct {
+		form := i.parseFormValues(value)
+
+		destination := reflect.New(input).Elem().Interface()
+		reflectValue := reflect.ValueOf(destination)
+		destination = reflect.New(reflectValue.Type()).Interface()
+
+		mapstructure.Decode(form, destination)
+
+		parsedParam = reflect.ValueOf(destination).Elem()
 	}
 
 	return parsedParam
@@ -123,4 +134,8 @@ func (i *inputParser) parseBoolParam(param interface{}) reflect.Value {
 	}
 
 	return parsedParam
+}
+
+func (i *inputParser) parseFormValues(param interface{}) interface{} {
+	return param
 }

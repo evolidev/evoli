@@ -3,6 +3,7 @@ package use
 import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/mitchellh/mapstructure"
+	"net/url"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -141,6 +142,13 @@ func (r *Reflection) WithParams(params interface{}) *Reflection {
 		for key, value := range params.(map[string]interface{}) {
 			r.p.Add(key, value)
 		}
+	case url.Values:
+		data := make(map[string]interface{})
+		myParams := params.(url.Values)
+		for key, _ := range myParams {
+			data[key] = myParams.Get(key)
+		}
+		r.p.Add("form", data)
 	case httprouter.Params:
 		for _, param := range params.(httprouter.Params) {
 			r.p.Add(param.Key, param.Value)
