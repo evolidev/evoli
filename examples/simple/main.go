@@ -13,8 +13,7 @@ type TestApp struct {
 }
 
 func main() {
-	app := evoli.NewApplication()
-	//app.Init()
+	app := &TestApp{}
 
 	use.D(use.BasePath("storage"))
 

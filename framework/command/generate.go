@@ -191,7 +191,6 @@ func (app *{{.App}}) Start() {
 	app.{{$.Accessor}}.RegisterComponent({{ . }})
 	{{- end }}
 
-	app.{{.Accessor}}.Init()
 	app.{{.Accessor}}.Start()
 }
 
