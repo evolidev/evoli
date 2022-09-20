@@ -5,6 +5,7 @@ import (
 	"github.com/evolidev/evoli/framework/config"
 	"github.com/evolidev/evoli/framework/filesystem"
 	"github.com/stretchr/testify/assert"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -24,6 +25,15 @@ func TestEmbedFS(t *testing.T) {
 		embedFs := filesystem.NewFS(tmp)
 
 		assert.False(t, embedFs.HasDir("not_exists"))
+	})
+
+	t.Run("sub should return sub tree", func(t *testing.T) {
+		embedFs := filesystem.NewFS(tmp)
+		sub, _ := fs.Sub(embedFs.FS(), "resources/views")
+		f, _ := sub.Open("templates/layout.html")
+		i, _ := f.Stat()
+
+		assert.Equal(t, "layout.html", i.Name())
 	})
 }
 

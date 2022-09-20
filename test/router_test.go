@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/evolidev/evoli/framework/config"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	evoli "github.com/evolidev/evoli/framework/router"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -343,6 +345,39 @@ func TestRequest(t *testing.T) {
 		rr := sendRequestWithData(t, r, http.MethodGet, "/request/body/param", f)
 
 		assert.Equal(t, "myBody", rr.Body.String())
+	})
+}
+
+func TestStatic(t *testing.T) {
+	t.Run("static should serve static files in folder", func(t *testing.T) {
+		config.SetDirectory("./")
+		cnf := use.Config("storage")
+		abs, _ := filepath.Abs("./")
+		cnf.Set("local.base_path", abs)
+
+		r := evoli.NewRouter()
+
+		r.Static("/resources/local", "resources/files")
+
+		rr := sendRequest(t, r, http.MethodGet, "/resources/local/test.txt")
+
+		assert.Equal(t, "test", rr.Body.String())
+	})
+
+	t.Run("static should serve static files in folder in right storage", func(t *testing.T) {
+		use.Embed(tmp)
+		config.SetDirectory("./")
+		cnf := use.Config("storage")
+		abs, _ := filepath.Abs("./")
+		cnf.Set("local.base_path", abs)
+
+		r := evoli.NewRouter()
+
+		r.Static("/resources/static/local", "local:static")
+
+		rr := sendRequest(t, r, http.MethodGet, "/resources/static/local/test.txt")
+
+		assert.Equal(t, "test", rr.Body.String())
 	})
 }
 
