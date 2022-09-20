@@ -50,6 +50,8 @@ func generateRun(cmd *console.ParsedCommand) {
 		Components: make([]string, 0),
 		Accessor:   "Application",
 	}
+
+	reg.Imports = append(reg.Imports, "github.com/evolidev/evoli")
 	reg.Pkg = "main"
 
 	dir, _ := os.ReadDir("routes")
@@ -178,6 +180,7 @@ import (
 var content embed.FS
 
 func (app *{{.App}}) Start() {
+    app.{{.Accessor}} = evoli.NewApplication()
 	app.{{.Accessor}}.AddEmbedFS(content)
 
 	{{- range $func, $route := .Routes}}
