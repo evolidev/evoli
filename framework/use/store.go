@@ -28,6 +28,10 @@ func Store(stores ...string) filesystem.Store {
 		return myStores.Get(store)
 	}
 
+	if store == "embed" {
+		return nil
+	}
+
 	myStores.Add(store, filesystem.NewFS(getStorage()))
 
 	return Store(stores...)
@@ -42,5 +46,8 @@ func Embed(toEmbed embed.FS) {
 }
 
 func getStorage() fs.FS {
-	return os.DirFS(BasePath())
+	cnf := Config("storage")
+	cnf.SetDefault("local.base_path", BasePath())
+
+	return os.DirFS(cnf.Get("local.base_path").Value().(string))
 }

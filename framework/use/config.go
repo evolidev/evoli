@@ -27,7 +27,14 @@ func addConfig(prefix string) *config.Config {
 		return instances.Get(prefix)
 	}
 
-	config.SetEmbed(Store("embed").FS().(embed.FS))
+	store := Store("embed")
+	if store != nil {
+		storeFs := store.FS()
+		if store, ok := storeFs.(embed.FS); ok {
+			config.SetEmbed(store)
+		}
+	}
+
 	conf := config.NewConfig(prefix)
 	instances.Add(prefix, conf)
 
