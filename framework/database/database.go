@@ -27,6 +27,7 @@ func Get(config *config.Config) *Database {
 }
 
 func driver(config *config.Config) Driver {
+	config.SetDefault("default", "sqlite")
 	switch config.Get("default").Value().(string) {
 	case "sqlite":
 		myConf := config.Get("sqlite")

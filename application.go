@@ -52,23 +52,21 @@ func (a *Application) AddMigration(migrate func(db *gorm.DB)) {
 }
 
 func (a *Application) Start() {
-	if a.Cli == nil {
-		a.Cli = console.New()
-	}
+	cli := getCli(a)
 
 	a.listenForSignal()
 
-	a.Cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
-	a.Cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
-	a.Cli.Add(command.About())
-	a.Cli.Add(command.Migrate())
-	a.Cli.Add(command.Generate())
-	a.Cli.Add(command.Init())
-	a.Cli.Add(command.Route())
-	a.Cli.Add(command.Component())
-	a.Cli.Add(command.Model())
+	cli.AddCommand("serve {--port=8081}", "Serve the application", a.Serve)
+	cli.AddCommand("watch {--port=8081}", "Serve and watch the application", a.Watch)
+	cli.Add(command.About())
+	cli.Add(command.Migrate())
+	cli.Add(command.Generate())
+	cli.Add(command.Init())
+	cli.Add(command.Route())
+	cli.Add(command.Component())
+	cli.Add(command.Model())
 
-	a.Cli.Run()
+	cli.Run()
 }
 
 func (a *Application) Init() {
@@ -77,7 +75,7 @@ func (a *Application) Init() {
 
 	//oldFs := handler.Fs
 	//handler.Fs = evoliFs
-	//handler.Static("/vendor/evoli/static", "resources")
+	handler.Static("/vendor/evoli/static", "resources")
 	//handler.Fs = oldFs
 
 	setupViewEngine()
@@ -132,6 +130,7 @@ func (a *Application) Serve(command *console.ParsedCommand) {
 }
 
 func autoMigrateIfEnabled() {
+	use.Config("db").SetDefault("auto_migrate", true)
 	if use.Config("db.auto_migrate").Value().(bool) {
 		use.Migration().Migrate(use.DB())
 	}
@@ -150,4 +149,20 @@ func (a *Application) listenForSignal() {
 		a.logger.Debug("received signal: %s", s)
 		os.Exit(0)
 	}()
+}
+
+func getCli(a *Application) *console.Console {
+	var cli *console.Console
+
+	if a == nil {
+		cli = console.New()
+	} else {
+		if a.Cli == nil {
+			a.Cli = console.New()
+		}
+
+		cli = a.Cli
+	}
+
+	return cli
 }

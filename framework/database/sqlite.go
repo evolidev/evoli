@@ -15,6 +15,7 @@ type Sqlite struct {
 }
 
 func (s *Sqlite) Open() gorm.Dialector {
+	s.config.SetDefault("path", "database/db.sqlite")
 	dir := s.config.Get("path").Value().(string)
 
 	directories := strings.Split(dir, "/")
