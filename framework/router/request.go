@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/validation"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"
@@ -67,6 +68,32 @@ func (r *Request) Params() *use.Collection[string, interface{}] {
 	p.Add("Route", r.p.route)
 
 	return p
+}
+
+func (r *Request) ValidateStruct(s interface{}) {
+	validator := validation.NewValidator()
+
+	result := validator.ValidateStruct(s)
+
+	if nil != result {
+		panic(validation.Error{})
+	}
+}
+
+func (r *Request) Validate(rules map[string]interface{}) {
+	validator := validation.NewValidator()
+	form := r.Params().Get("Form").(url.Values)
+	data := make(map[string]interface{})
+
+	for key, _ := range form {
+		data[key] = form.Get(key)
+	}
+
+	result := validator.Validate(data, rules)
+
+	if len(result) > 0 {
+		panic(validation.Error{})
+	}
 }
 
 func NewRequest(r *http.Request) *Request {

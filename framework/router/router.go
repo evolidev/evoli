@@ -8,6 +8,7 @@ import (
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
 	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/validation"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strings"
@@ -67,6 +68,15 @@ func (r *Router) handle(method string, path string, handler interface{}) {
 		req := NewRequest(request)
 		tmp := use.Magic(handler)
 
+		defer func() {
+			if r := recover(); r != nil {
+				if _, ok := r.(validation.Error); ok {
+					fmt.Println(r)
+				} else {
+					fmt.Println("something")
+				}
+			}
+		}()
 		result := tmp.WithParams(req.Params()).Fill().WithParams(req.Params().Get("Route")).WithParams(req.Params().Get("Form")).Call()
 		myResponse := response.NewResponse(result)
 
