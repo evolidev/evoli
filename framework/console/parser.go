@@ -40,6 +40,11 @@ func (p *ParsedCommand) GetArgument(name string) any {
 
 func (p *ParsedCommand) GetOption(name string) *Option {
 	optionValue := p.options[name]
+
+	if optionValue == nil {
+		return nil
+	}
+
 	return &Option{Value: optionValue}
 }
 
@@ -55,18 +60,17 @@ func (p *ParsedCommand) GetSubCommand() string {
 	return p.subCommand
 }
 
-func (p *ParsedCommand) GetOptionWithDefault(s string, defaultValue any) any {
-	option := p.GetOption(s)
-	if option == nil {
-		return defaultValue
+func (p *ParsedCommand) GetOptionWithDefault(name string, defaultValue any) *Option {
+	optionValue := p.options[name]
+	if optionValue == nil || optionValue == "" {
+		return &Option{Value: defaultValue}
 	}
-	return option
+	return &Option{Value: optionValue}
 }
 
 var parseRegex = "[\\/-]{0,2}?((\\w+)(?:[=:](\"[^\"]+\"|[^\\s\"]+))?)(?:\\s+|$)"
 
 func Parse(definition string, command string) *ParsedCommand {
-
 	arguments := make(map[string]any)
 	options := make(map[string]any)
 
