@@ -3,6 +3,7 @@ package router
 import (
 	"embed"
 	"fmt"
+	"github.com/evolidev/evoli/framework/filesystem"
 	"github.com/evolidev/evoli/framework/logging"
 	"github.com/evolidev/evoli/framework/middleware"
 	"github.com/evolidev/evoli/framework/response"
@@ -169,9 +170,36 @@ func (r *Router) Middleware(middlewares ...middleware.Middleware) *Group {
 }
 
 func (r *Router) Static(path string, rootDir string) {
-	storage := use.Store()
+	storage, dir := getServingPath(rootDir)
 
-	r.ServeFiles(path, storage.HttpFS())
+	r.ServeFiles(path, storage.Sub(dir).HttpFS())
+}
+
+func getServingPath(path string) (filesystem.Store, string) {
+	var store = ""
+	var rootDir = ""
+	var storage filesystem.Store
+
+	servingPath := strings.Split(path, ":")
+
+	rootDir = servingPath[0]
+
+	if len(servingPath) > 1 {
+		store = servingPath[0]
+		rootDir = servingPath[1]
+	}
+
+	if store != "" {
+		storage = use.Store(store)
+	} else {
+		storage = use.Store()
+	}
+
+	if nil == storage {
+		storage = use.Store("local")
+	}
+
+	return storage, rootDir
 }
 
 func (r *Router) File(path string, file string) {
