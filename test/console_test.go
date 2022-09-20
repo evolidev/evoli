@@ -53,6 +53,15 @@ func TestParseSimpleCommand(t *testing.T) {
 		assert.Equal(t, true, cmd.GetOption("queue").Bool())
 	})
 
+	t.Run("Parse command and pass options", func(t *testing.T) {
+		command := "serve"
+		definition := "serve {--port}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, 1010, cmd.GetOptionWithDefault("port", 1010).Integer())
+	})
+
 	t.Run("Parse command and pass required option", func(t *testing.T) {
 		command := "mail:send"
 		definition := "mail:send {user} {--queue=}"
