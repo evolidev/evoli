@@ -23,7 +23,7 @@ func componentRun(cmd *console.ParsedCommand) {
 	os.Mkdir("resources", os.ModePerm)
 	os.Mkdir("resources/views/components", os.ModePerm)
 
-	name := cmd.GetArgument("name").(string)
+	name := cmd.GetArgument("name").String()
 
 	data := ComponentData{
 		ParamName: use.String(name).Kebab().Get(),

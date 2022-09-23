@@ -16,36 +16,40 @@ type ParsedCommand struct {
 	prefix     string
 }
 
-type Option struct {
+type Value struct {
 	fmt.Stringer
 	Value any
 }
 
-func (o *Option) Bool() bool {
+func (o *Value) Bool() bool {
 	return cast.ToBool(o.Value)
 }
 
-func (o *Option) Integer() int {
+func (o *Value) Integer() int {
 	return cast.ToInt(o.Value)
 }
 
-func (o *Option) String() string {
+func (o *Value) String() string {
 	return cast.ToString(o.Value)
 }
 
-func (p *ParsedCommand) GetArgument(name string) any {
+func (p *ParsedCommand) GetArgument(name string) *Value {
 	argumentValue := p.arguments[name]
-	return argumentValue
+	if argumentValue == nil {
+		return nil
+	}
+
+	return &Value{Value: argumentValue}
 }
 
-func (p *ParsedCommand) GetOption(name string) *Option {
+func (p *ParsedCommand) GetOption(name string) *Value {
 	optionValue := p.options[name]
 
 	if optionValue == nil {
 		return nil
 	}
 
-	return &Option{Value: optionValue}
+	return &Value{Value: optionValue}
 }
 
 func (p *ParsedCommand) GetName() string {
@@ -60,12 +64,12 @@ func (p *ParsedCommand) GetSubCommand() string {
 	return p.subCommand
 }
 
-func (p *ParsedCommand) GetOptionWithDefault(name string, defaultValue any) *Option {
+func (p *ParsedCommand) GetOptionWithDefault(name string, defaultValue any) *Value {
 	optionValue := p.options[name]
 	if optionValue == nil || optionValue == "" {
-		return &Option{Value: defaultValue}
+		return &Value{Value: defaultValue}
 	}
-	return &Option{Value: optionValue}
+	return &Value{Value: optionValue}
 }
 
 var parseRegex = "[\\/-]{0,2}?((\\w+)(?:[=:](\"[^\"]+\"|[^\\s\"]+))?)(?:\\s+|$)"
