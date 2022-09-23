@@ -62,6 +62,24 @@ func TestParseSimpleCommand(t *testing.T) {
 		assert.Equal(t, 1010, cmd.GetOptionWithDefault("port", 1010).Integer())
 	})
 
+	t.Run("Parse command and check argument with incorrect default value", func(t *testing.T) {
+		command := "serve https"
+		definition := "serve {secure} {--port}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "https", cmd.GetArgumentWithDefault("secure", "not-correct").String())
+	})
+
+	t.Run("Parse command and check argument with default value", func(t *testing.T) {
+		command := "serve"
+		definition := "serve {secure} {--port}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "correct", cmd.GetArgumentWithDefault("secure", "correct").String())
+	})
+
 	t.Run("Parse command and pass required option", func(t *testing.T) {
 		command := "mail:send"
 		definition := "mail:send {user} {--queue=}"

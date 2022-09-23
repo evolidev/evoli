@@ -72,6 +72,14 @@ func (p *ParsedCommand) GetOptionWithDefault(name string, defaultValue any) *Val
 	return &Value{Value: optionValue}
 }
 
+func (p *ParsedCommand) GetArgumentWithDefault(name string, defaultValue any) *Value {
+	argumentValue := p.arguments[name]
+	if argumentValue == nil || argumentValue == "" {
+		return &Value{Value: defaultValue}
+	}
+	return &Value{Value: argumentValue}
+}
+
 var parseRegex = "[\\/-]{0,2}?((\\w+)(?:[=:](\"[^\"]+\"|[^\\s\"]+))?)(?:\\s+|$)"
 
 func Parse(definition string, command string) *ParsedCommand {
