@@ -86,7 +86,7 @@ func TestController(t *testing.T) {
 		f.Set("form", "myform")
 		r.Post("/request/controller/form/validation", ValidationController.TestAction)
 
-		rr := sendRequestWithForm(t, r, http.MethodGet, "/request/form/validation", f)
+		rr := sendRequestWithForm(t, r, http.MethodGet, "/request/controller/form/validation", f)
 
 		assert.Equal(t, "pass", rr.Body.String())
 	})
