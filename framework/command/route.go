@@ -22,7 +22,7 @@ func routeRun(cmd *console.ParsedCommand) {
 	os.Mkdir("resources", os.ModePerm)
 	os.Mkdir("resources/views", os.ModePerm)
 
-	name := cmd.GetArgument("name").(string)
+	name := cmd.GetArgument("name").String()
 
 	f, _ := os.Create("routes/" + name + ".go")
 	v, _ := os.Create("resources/views/my-endpoint.html")

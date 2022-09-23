@@ -14,7 +14,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, "foo", cmd.GetArgument("user"))
+		assert.Equal(t, "foo", cmd.GetArgument("user").String())
 	})
 
 	t.Run("Parse simple command with optional parameter", func(t *testing.T) {
@@ -23,7 +23,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, "", cmd.GetArgument("user"))
+		assert.Equal(t, "", cmd.GetArgument("user").String())
 	})
 
 	t.Run("Parse simple command with optional parameter", func(t *testing.T) {
@@ -32,7 +32,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, "foo", cmd.GetArgument("user"))
+		assert.Equal(t, "foo", cmd.GetArgument("user").String())
 	})
 
 	t.Run("Parse simple command with optional parameter and default value", func(t *testing.T) {
@@ -41,7 +41,7 @@ func TestParseSimpleCommand(t *testing.T) {
 
 		cmd := console.Parse(definition, command)
 
-		assert.Equal(t, "foo", cmd.GetArgument("user"))
+		assert.Equal(t, "foo", cmd.GetArgument("user").String())
 	})
 
 	t.Run("Parse command and pass options", func(t *testing.T) {
@@ -60,6 +60,24 @@ func TestParseSimpleCommand(t *testing.T) {
 		cmd := console.Parse(definition, command)
 
 		assert.Equal(t, 1010, cmd.GetOptionWithDefault("port", 1010).Integer())
+	})
+
+	t.Run("Parse command and check argument with incorrect default value", func(t *testing.T) {
+		command := "serve https"
+		definition := "serve {secure} {--port}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "https", cmd.GetArgumentWithDefault("secure", "not-correct").String())
+	})
+
+	t.Run("Parse command and check argument with default value", func(t *testing.T) {
+		command := "serve"
+		definition := "serve {secure} {--port}"
+
+		cmd := console.Parse(definition, command)
+
+		assert.Equal(t, "correct", cmd.GetArgumentWithDefault("secure", "correct").String())
 	})
 
 	t.Run("Parse command and pass required option", func(t *testing.T) {

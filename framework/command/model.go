@@ -25,7 +25,7 @@ type ModelData struct {
 
 func modelRun(cmd *console.ParsedCommand) {
 	fmt.Println("hiho")
-	name := cmd.GetArgument("name").(string)
+	name := cmd.GetArgument("name").String()
 	props := cmd.GetArgument("props")
 
 	fmt.Println(props)
