@@ -15,6 +15,11 @@ func Read(path string) string {
 	return string(dat)
 }
 
+func FolderExists(path string) bool {
+	_, err := os.Stat(path)
+	return os.IsExist(err)
+}
+
 func MakeDirectory(path string) {
 	err := os.MkdirAll(path, 0755)
 	if err != nil && !os.IsExist(err) {

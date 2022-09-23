@@ -22,6 +22,8 @@ type Logger struct {
 	config *Config
 }
 
+var Verbose = 0
+
 func NewLogger(c *Config) *Logger {
 	if c == nil {
 		c = &Config{
