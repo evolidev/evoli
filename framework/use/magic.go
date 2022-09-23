@@ -45,22 +45,7 @@ func (r *Reflection) Fill() *Reflection {
 		if len(arguments) > 0 {
 			receiver := arguments[0]
 
-			destination := receiver.Interface()
-			reflectValue := reflect.ValueOf(destination)
-
-			t := reflectValue.Type()
-			if t.Kind() == reflect.Ptr {
-				t = t.Elem()
-			}
-			destination = reflect.New(t).Interface()
-
-			err := mapstructure.Decode(r.p.Map(), destination)
-
-			if err != nil {
-				panic(err)
-			}
-
-			return Magic(destination).Method(r.Name()).WithInjectable(r.p.Slice())
+			return getDecodedDestination(receiver, r.p).Method(r.Name()).WithInjectable(r.p.Slice())
 		}
 
 		r.WithInjectable(r.p.Slice())
@@ -69,17 +54,43 @@ func (r *Reflection) Fill() *Reflection {
 		return r
 	}
 
-	destination := reflect.New(r.reflectElem()).Interface()
-	reflectValue := reflect.ValueOf(destination)
-	destination = reflect.New(reflectValue.Type().Elem()).Interface()
+	return getDecodedDestination(reflect.New(r.reflectElem()), r.p)
+}
 
-	err := mapstructure.Decode(r.p.Map(), destination)
+func getDecodedDestination(input reflect.Value, params *Collection[string, interface{}]) *Reflection {
+	destination := getDestination(input).Interface()
+	decode(params, destination)
+
+	return Magic(destination)
+}
+
+func getDestination(value reflect.Value) reflect.Value {
+	destination := value.Interface()
+	reflectValue := reflect.ValueOf(destination)
+
+	t := reflectValue.Type()
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	return reflect.New(t)
+}
+
+func decode(input *Collection[string, interface{}], output interface{}) {
+
+	config := &mapstructure.DecoderConfig{
+		Metadata: nil,
+		Result:   output,
+		Squash:   true,
+	}
+
+	decoder, _ := mapstructure.NewDecoder(config)
+
+	err := decoder.Decode(input.Map())
 
 	if err != nil {
 		panic(err)
 	}
-
-	return Magic(destination)
 }
 
 func (r *Reflection) ToPointer() *Reflection {

@@ -196,6 +196,16 @@ func TestFill(t *testing.T) {
 		assert.Exactly(t, "test", result.TestProp)
 	})
 
+	t.Run("Fill should fill data to inherited struct", func(t *testing.T) {
+		params := make(map[string]interface{})
+		params["TestProp"] = "test"
+		m := use.Magic(&TestStructWithInherit{})
+
+		result := m.WithParams(params).Fill().Value().(*TestStructWithInherit)
+
+		assert.Exactly(t, "test", result.TestProp)
+	})
+
 	t.Run("Fill should fill data of receiver", func(t *testing.T) {
 		params := make(map[string]interface{})
 		params["TestProp"] = "test"
@@ -228,6 +238,10 @@ func TestWithInjectable(t *testing.T) {
 
 		assert.Exactly(t, "test", m.Call().String())
 	})
+}
+
+type TestStructWithInherit struct {
+	TestStructFirst
 }
 
 type TestStructFirst struct {

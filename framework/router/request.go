@@ -70,17 +70,13 @@ func (r *Request) Params() *use.Collection[string, interface{}] {
 	return p
 }
 
-func (r *Request) ValidateStruct(s interface{}) {
+func (r *Request) ValidateStruct(s interface{}) validation.Validator {
 	validator := validation.NewValidator()
 
-	result := validator.ValidateStruct(s)
-
-	if nil != result {
-		panic(validation.Error{})
-	}
+	return validator.ValidateStruct(s)
 }
 
-func (r *Request) Validate(rules map[string]interface{}) {
+func (r *Request) Validate(rules map[string]interface{}) validation.Validator {
 	validator := validation.NewValidator()
 	form := r.Params().Get("Form").(url.Values)
 	data := make(map[string]interface{})
@@ -89,11 +85,7 @@ func (r *Request) Validate(rules map[string]interface{}) {
 		data[key] = form.Get(key)
 	}
 
-	result := validator.Validate(data, rules)
-
-	if len(result) > 0 {
-		panic(validation.Error{})
-	}
+	return validator.Validate(data, rules)
 }
 
 func NewRequest(r *http.Request) *Request {
