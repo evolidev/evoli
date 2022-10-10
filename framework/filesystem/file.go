@@ -40,7 +40,7 @@ func Delete(path string) {
 
 // Copy copies a file and returns the bytes transferred
 func Copy(src, dst string) (int64, error) {
-	sourceFileStat, err := os.Stat(src)
+	var sourceFileStat, err = os.Stat(src)
 	if err != nil {
 		return 0, err
 	}
@@ -62,4 +62,18 @@ func Copy(src, dst string) (int64, error) {
 	defer destination.Close()
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
+}
+
+func Exists(path string) bool {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		return true
+	}
+	return false
+}
+
+func Move(src, dst string) error {
+	if err := os.Rename(src, dst); err != nil {
+		return err
+	}
+	return nil
 }
