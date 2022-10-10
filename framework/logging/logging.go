@@ -66,6 +66,13 @@ func (l *Logger) Log(msg interface{}, args ...interface{}) {
 	)
 }
 
+func (l *Logger) Info(msg interface{}, args ...interface{}) {
+	l.log.Printf(
+		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(logColor, "Info"), color.Text(textColor, msg)),
+		args...,
+	)
+}
+
 func (l *Logger) Success(msg interface{}, args ...interface{}) {
 	l.log.Printf(
 		fmt.Sprintf("%s %s %s", l.getPrefix(), color.Text(successColor, "Success"), color.Text(textColor, msg)),
@@ -108,6 +115,10 @@ func SetAppLogger(l *Logger) {
 
 func Debug(msg interface{}, args ...interface{}) {
 	appLogger.Debug(msg, args...)
+}
+
+func Info(msg interface{}, args ...interface{}) {
+	appLogger.Info(msg, args...)
 }
 
 func Error(msg interface{}, args ...interface{}) {

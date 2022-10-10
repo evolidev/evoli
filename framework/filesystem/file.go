@@ -3,7 +3,6 @@ package filesystem
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -30,7 +29,7 @@ func MakeDirectory(path string) {
 func Write(path string, data string) {
 	MakeDirectory(filepath.Dir(path))
 
-	ioutil.WriteFile(path, []byte(data), 0644)
+	os.WriteFile(path, []byte(data), 0644)
 	//use.AbortUnless(err)
 }
 
