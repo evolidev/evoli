@@ -2,6 +2,8 @@ package logging
 
 import (
 	"fmt"
+	"github.com/evolidev/evoli/framework/filesystem"
+	"io"
 	"log"
 	"os"
 	"time"
@@ -24,6 +26,18 @@ type Logger struct {
 
 var Verbose = 0
 
+//func init() {
+//
+//	// log to console and file
+//	f, err := os.OpenFile("log.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+//	if err != nil {
+//		log.Fatalf("error opening file: %v", err)
+//	}
+//	wrt := io.MultiWriter(os.Stdout, f)
+//
+//	log.SetOutput(wrt)
+//}
+
 func NewLogger(c *Config) *Logger {
 	if c == nil {
 		c = &Config{
@@ -34,6 +48,20 @@ func NewLogger(c *Config) *Logger {
 	var w = c.Stdout
 	if w == nil {
 		w = os.Stdout
+	}
+
+	if c.Location != "" {
+		if !filesystem.Exists(c.Location) {
+			filesystem.Write(c.Location, "")
+		}
+
+		f, err := os.OpenFile(c.Location, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
+		}
+
+		multiWriter := io.MultiWriter(w, f)
+		w = multiWriter
 	}
 
 	return &Logger{
