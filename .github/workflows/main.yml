@@ -20,5 +20,4 @@ jobs:
     - name: Run test
       run: |
         go version
-        go vet .
-        go test ./test
+        make check
