@@ -43,12 +43,12 @@ func NewLogger(c *Config) *Logger {
 		colorfulWriters = append(colorfulWriters, os.Stdout)
 	}
 
-	if c.Location != "" {
-		if !filesystem.Exists(c.Location) {
-			filesystem.Write(c.Location, "")
+	if c.Path != "" {
+		if !filesystem.Exists(c.Path) {
+			filesystem.Write(c.Path, "")
 		}
 
-		f, err := os.OpenFile(c.Location, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, err := os.OpenFile(c.Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatalf("error opening file: %v", err)
 		}

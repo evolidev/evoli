@@ -53,8 +53,8 @@ func TestLogging(t *testing.T) {
 
 	t.Run("should log to a file", func(t *testing.T) {
 		logger := logging.NewLogger(&logging.Config{
-			Stdout:   os.Stdout,
-			Location: "test.log",
+			Stdout: os.Stdout,
+			Path:   "test.log",
 		})
 
 		logger.Info("test loggger")

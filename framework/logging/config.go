@@ -6,6 +6,6 @@ type Config struct {
 	EnableColors bool
 	Name         string
 	Stdout       io.Writer
-	Location     string
+	Path         string
 	PrefixColor  int
 }
