@@ -17,3 +17,6 @@
 # Dependency directories (remove the comment below to include it)
 build-errors.log
 test/database
+
+# Editor directories and files
+log.log
