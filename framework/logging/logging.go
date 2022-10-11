@@ -1,14 +1,14 @@
 package logging
 
 import (
+	"evoli.dev/framework/filesystem"
 	"fmt"
-	"github.com/evolidev/evoli/framework/filesystem"
 	"io"
 	"log"
 	"os"
 	"time"
 
-	"github.com/evolidev/evoli/framework/console/color"
+	"evoli.dev/framework/console/color"
 )
 
 const logFormat = "%s"

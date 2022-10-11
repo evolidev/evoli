@@ -1,10 +1,10 @@
 package command
 
 import (
+	"evoli.dev/framework/console"
+	"evoli.dev/framework/console/color"
+	"evoli.dev/framework/use"
 	"fmt"
-	"github.com/evolidev/evoli/framework/console"
-	"github.com/evolidev/evoli/framework/console/color"
-	"github.com/evolidev/evoli/framework/use"
 	"github.com/olekukonko/tablewriter"
 	"os"
 	"runtime"

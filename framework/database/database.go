@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/evolidev/evoli/framework/config"
+	"evoli.dev/framework/config"
 	"gorm.io/gorm"
 )
 

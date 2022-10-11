@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/evolidev/evoli/framework/console"
+	"evoli.dev/framework/console"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

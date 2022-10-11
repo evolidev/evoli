@@ -1,10 +1,10 @@
 package component
 
 import (
-	"github.com/evolidev/evoli/framework/logging"
-	"github.com/evolidev/evoli/framework/response"
-	"github.com/evolidev/evoli/framework/router"
-	"github.com/evolidev/evoli/framework/use"
+	"evoli.dev/framework/logging"
+	"evoli.dev/framework/response"
+	"evoli.dev/framework/router"
+	"evoli.dev/framework/use"
 )
 
 const MOUNT = "Mount"

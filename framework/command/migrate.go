@@ -1,8 +1,8 @@
 package command
 
 import (
-	"github.com/evolidev/evoli/framework/console"
-	"github.com/evolidev/evoli/framework/use"
+	"evoli.dev/framework/console"
+	"evoli.dev/framework/use"
 )
 
 func Migrate() *console.Command {

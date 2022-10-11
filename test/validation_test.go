@@ -1,9 +1,9 @@
 package test
 
 import (
-	"github.com/evolidev/evoli/framework/controller"
-	"github.com/evolidev/evoli/framework/router"
-	"github.com/evolidev/evoli/framework/validation"
+	"evoli.dev/framework/controller"
+	"evoli.dev/framework/router"
+	"evoli.dev/framework/validation"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/url"

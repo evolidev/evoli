@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"bytes"
-	"github.com/evolidev/evoli/framework/console/color"
-	"github.com/evolidev/evoli/framework/logging"
-	"github.com/evolidev/evoli/framework/use"
+	"evoli.dev/framework/console/color"
+	"evoli.dev/framework/logging"
+	"evoli.dev/framework/use"
 	"io/ioutil"
 	"net/http"
 	"net/url"

@@ -1,7 +1,7 @@
 package command
 
 import (
-	"github.com/evolidev/evoli/framework/console"
+	"evoli.dev/framework/console"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"os"

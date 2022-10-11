@@ -1,7 +1,7 @@
 package use
 
 import (
-	"github.com/evolidev/evoli/framework/console/color"
+	"evoli.dev/framework/console/color"
 	"time"
 )
 

@@ -1,9 +1,9 @@
 package component
 
 import (
+	"evoli.dev/framework/response"
+	"evoli.dev/framework/use"
 	"fmt"
-	"github.com/evolidev/evoli/framework/response"
-	"github.com/evolidev/evoli/framework/use"
 	"github.com/matoous/go-nanoid/v2"
 	"html"
 	"log"

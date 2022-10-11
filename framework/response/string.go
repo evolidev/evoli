@@ -1,7 +1,7 @@
 package response
 
 import (
-	"github.com/evolidev/evoli/framework/use"
+	"evoli.dev/framework/use"
 )
 
 type StringResponse struct {
