@@ -1,7 +1,7 @@
 package test
 
 import (
-	"evoli.dev/framework/use"
+	"github.com/evolidev/evoli/framework/use"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

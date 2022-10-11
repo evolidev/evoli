@@ -2,7 +2,7 @@ package response
 
 import (
 	"encoding/json"
-	"evoli.dev/framework/use"
+	"github.com/evolidev/evoli/framework/use"
 )
 
 type JsonResponse struct {

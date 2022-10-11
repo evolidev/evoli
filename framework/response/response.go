@@ -1,7 +1,7 @@
 package response
 
 import (
-	"evoli.dev/framework/use"
+	"github.com/evolidev/evoli/framework/use"
 	"reflect"
 	"strconv"
 )

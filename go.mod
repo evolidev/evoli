@@ -1,4 +1,4 @@
-module evoli.dev
+module github.com/evolidev/evoli
 
 go 1.18
 

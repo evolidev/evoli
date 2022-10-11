@@ -3,9 +3,9 @@ package reload
 import (
 	"bytes"
 	"errors"
-	"evoli.dev/framework/filesystem"
-	"evoli.dev/framework/use"
 	"fmt"
+	"github.com/evolidev/evoli/framework/filesystem"
+	"github.com/evolidev/evoli/framework/use"
 	"io"
 	"os"
 	"os/exec"

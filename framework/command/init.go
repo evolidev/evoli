@@ -2,7 +2,7 @@ package command
 
 import (
 	"encoding/base64"
-	"evoli.dev/framework/console"
+	"github.com/evolidev/evoli/framework/console"
 	"os"
 )
 

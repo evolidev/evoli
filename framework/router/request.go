@@ -1,9 +1,9 @@
 package router
 
 import (
-	"evoli.dev/framework/use"
-	"evoli.dev/framework/validation"
 	"fmt"
+	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/validation"
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"

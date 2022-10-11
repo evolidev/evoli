@@ -1,7 +1,7 @@
 package database
 
 import (
-	"evoli.dev/framework/logging"
+	"github.com/evolidev/evoli/framework/logging"
 	"gorm.io/gorm"
 )
 

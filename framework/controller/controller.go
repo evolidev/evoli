@@ -2,8 +2,8 @@ package controller
 
 import (
 	"context"
-	"evoli.dev/framework/router"
-	"evoli.dev/framework/validation"
+	"github.com/evolidev/evoli/framework/router"
+	"github.com/evolidev/evoli/framework/validation"
 )
 
 type Base struct {

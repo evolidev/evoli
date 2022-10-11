@@ -2,9 +2,9 @@ package response
 
 import (
 	"bytes"
-	"evoli.dev/framework/config"
-	"evoli.dev/framework/use"
-	"evoli.dev/framework/view"
+	"github.com/evolidev/evoli/framework/config"
+	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/view"
 	"net/http"
 	"path"
 	"strings"

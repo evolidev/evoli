@@ -1,8 +1,8 @@
 package database
 
 import (
-	"evoli.dev/framework/config"
 	"fmt"
+	"github.com/evolidev/evoli/framework/config"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"io/fs"

@@ -1,7 +1,7 @@
 package database
 
 import (
-	"evoli.dev/framework/config"
+	"github.com/evolidev/evoli/framework/config"
 	myconfig "github.com/go-sql-driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

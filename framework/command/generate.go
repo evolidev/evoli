@@ -1,8 +1,8 @@
 package command
 
 import (
-	"evoli.dev/framework/console"
 	"fmt"
+	"github.com/evolidev/evoli/framework/console"
 	"go/ast"
 	"go/parser"
 	"go/token"

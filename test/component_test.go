@@ -1,10 +1,10 @@
 package test
 
 import (
-	"evoli.dev/framework/component"
-	"evoli.dev/framework/router"
-	"evoli.dev/framework/use"
-	"evoli.dev/framework/view"
+	"github.com/evolidev/evoli/framework/component"
+	"github.com/evolidev/evoli/framework/router"
+	"github.com/evolidev/evoli/framework/use"
+	"github.com/evolidev/evoli/framework/view"
 	"github.com/stretchr/testify/assert"
 
 	"net/http"

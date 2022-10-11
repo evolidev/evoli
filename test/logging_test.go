@@ -1,8 +1,8 @@
 package test
 
 import (
-	"evoli.dev/framework/filesystem"
-	"evoli.dev/framework/logging"
+	"github.com/evolidev/evoli/framework/filesystem"
+	"github.com/evolidev/evoli/framework/logging"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"strings"

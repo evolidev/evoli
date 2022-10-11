@@ -2,8 +2,8 @@ package test
 
 import (
 	"encoding/json"
-	evoli "evoli.dev/framework/response"
-	"evoli.dev/framework/use"
+	evoli "github.com/evolidev/evoli/framework/response"
+	"github.com/evolidev/evoli/framework/use"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

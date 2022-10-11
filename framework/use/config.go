@@ -2,7 +2,7 @@ package use
 
 import (
 	"embed"
-	"evoli.dev/framework/config"
+	"github.com/evolidev/evoli/framework/config"
 	"strings"
 )
 

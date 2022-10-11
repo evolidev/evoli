@@ -1,8 +1,8 @@
 package component
 
 import (
-	"evoli.dev/framework/view"
 	"fmt"
+	"github.com/evolidev/evoli/framework/view"
 )
 
 type Methods struct{}

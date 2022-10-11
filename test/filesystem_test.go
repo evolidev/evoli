@@ -2,8 +2,8 @@ package test
 
 import (
 	"embed"
-	"evoli.dev/framework/config"
-	"evoli.dev/framework/filesystem"
+	"github.com/evolidev/evoli/framework/config"
+	"github.com/evolidev/evoli/framework/filesystem"
 	"github.com/stretchr/testify/assert"
 	"io/fs"
 	"os"

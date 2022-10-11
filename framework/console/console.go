@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"evoli.dev/framework/console/color"
+	"github.com/evolidev/evoli/framework/console/color"
 	"github.com/olekukonko/tablewriter"
 )
 

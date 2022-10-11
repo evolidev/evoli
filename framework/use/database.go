@@ -1,7 +1,7 @@
 package use
 
 import (
-	"evoli.dev/framework/database"
+	"github.com/evolidev/evoli/framework/database"
 	"gorm.io/gorm"
 	"time"
 )

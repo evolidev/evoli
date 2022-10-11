@@ -2,7 +2,7 @@ package use
 
 import (
 	"embed"
-	"evoli.dev/framework/filesystem"
+	"github.com/evolidev/evoli/framework/filesystem"
 	"io/fs"
 	"os"
 )
