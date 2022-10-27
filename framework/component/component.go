@@ -93,33 +93,33 @@ func Handle(request *Request) *Response {
 		return nil
 	}
 
-	var response any
+	var res any
 
 	if request.Action == "click" {
-		response = component.Call(request.Method, request.Parameters)
+		res = component.Call(request.Method, request.Parameters)
 	}
 
 	return &Response{
 		Id:        request.Id,
 		Component: request.Component,
 		State:     component.GetState(),
-		Response:  response,
+		Response:  res,
 		Content:   component.RenderParsed(),
 	}
 }
 
 func RegisterRoutes(r *router.Router) {
-	r.Post(ENDPOINT, handleRouterRequest)
+	r.Post(ENDPOINT, HandleRouterRequest)
 	r.File("/vendor/evoli/static/component.js", "../../resources/component.js")
 }
 
-func handleRouterRequest(request *router.Request) any {
+func HandleRouterRequest(request *router.Request) any {
 	r := request.Body()
 
 	componentRequest := &Request{}
 	use.JsonDecodeStruct(use.JsonEncode(r), componentRequest)
 
-	if valid := validateRequest(componentRequest); !valid {
+	if valid := ValidateRequest(componentRequest); !valid {
 		logging.Error("Invalid request")
 		return response.Json(map[string]any{"error": true}).WithCode(400)
 	}
@@ -133,7 +133,7 @@ func handleRouterRequest(request *router.Request) any {
 	return response.Json(res)
 }
 
-func validateRequest(request *Request) bool {
+func ValidateRequest(request *Request) bool {
 	if request.Component == "" {
 		return false
 	}
