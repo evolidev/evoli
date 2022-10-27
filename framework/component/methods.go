@@ -7,13 +7,18 @@ import (
 
 type Methods struct{}
 
-func (c *Methods) Include(name string, arg ...any) string {
+func (c *Methods) Include(name string, arg ...any) (string, error) {
 	component := NewByName(name, nil)
+
+	if component == nil {
+		// TODO: Throw error
+		return "", fmt.Errorf("Component %s not found", name)
+	}
 
 	args := append([]any{MOUNT}, arg...)
 	component.Trigger(args...)
 
-	return component.RenderParsed()
+	return component.RenderParsed(), nil
 }
 
 func SetupViewEngine(engine *view.Engine) {
