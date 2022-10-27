@@ -10,11 +10,8 @@ type Methods struct{}
 func (c *Methods) Include(name string, arg ...any) string {
 	component := NewByName(name, nil)
 
-	if len(arg) > 0 {
-		args := append([]any{MOUNT}, arg...)
-
-		component.Trigger(args...)
-	}
+	args := append([]any{MOUNT}, arg...)
+	component.Trigger(args...)
 
 	return component.RenderParsed()
 }
